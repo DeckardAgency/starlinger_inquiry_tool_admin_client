@@ -1,0 +1,115 @@
+// Toast styling
+.toast-container {
+  z-index: 1060;
+
+  .toast {
+    width: 350px;
+    border: 0;
+    box-shadow: 0 0.5rem 1.5rem 0.5rem rgba(0, 0, 0, 0.075);
+
+    .toast-header {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+      .btn-close {
+        font-size: 0.75rem;
+        margin-right: -0.375rem;
+      }
+    }
+
+    .toast-body {
+      padding: 0.75rem 1rem;
+    }
+  }
+}
+
+.custom-dropzone {
+  border: 2px dashed #009ef7;
+  border-radius: 5px;
+  background: #f1faff;
+  min-height: 150px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  position: relative;
+
+  &:hover {
+    background: #e1f5ff;
+  }
+
+  &.highlight {
+    border-color: #0095e8;
+    background: #d0eeff;
+  }
+
+  .dropzone-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upload-progress {
+    width: 100%;
+    max-width: 500px;
+
+    .progress {
+      height: 10px;
+      border-radius: 5px;
+      background-color: #e9ecef;
+
+      .progress-bar {
+        border-radius: 5px;
+        transition: width 0.2s ease;
+      }
+    }
+  }
+}
+
+// Style for the file previews
+.file-preview {
+  display: inline-block;
+  margin: 10px;
+  position: relative;
+
+  .preview-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #eaeaea;
+  }
+
+  .remove-file {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      background: #f44336;
+      color: #fff;
+    }
+  }
+
+  .file-name {
+    font-size: 12px;
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+  }
+}

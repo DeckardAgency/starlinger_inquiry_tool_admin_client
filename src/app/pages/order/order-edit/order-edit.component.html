@@ -1,0 +1,135 @@
+<!-- Begin::Form -->
+<form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="form d-flex flex-column flex-lg-row">
+    <!-- Begin::Aside -->
+    <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-300px mb-7 me-lg-10">
+        <!-- Begin::Thumbnail -->
+        <div class="card card-flush py-4">
+            <div class="card-header">
+                <div class="card-title">
+                    <h2>Thumbnail</h2>
+                </div>
+            </div>
+            <div class="card-body text-center pt-0">
+                <!-- Begin::Image input -->
+                <div class="image-input image-input-empty image-input-outline"
+                     [ngClass]="{'image-input-placeholder': !imagePreview}">
+                    <div class="image-input-wrapper w-150px h-150px"
+                         [style.backgroundImage]="imagePreview ? 'url(' + imagePreview + ')' : ''">
+                    </div>
+
+                    <label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow">
+                        <i class="ki-duotone ki-pencil fs-7"></i>
+                        <input type="file" name="featuredImage" accept=".png, .jpg, .jpeg"
+                               (change)="onFileSelected($event)"/>
+                    </label>
+                </div>
+                <!-- End::Image input -->
+                <div class="text-muted fs-7 mt-3">Set the product thumbnail image. Only *.png, *.jpg and *.jpeg image files are accepted</div>
+            </div>
+        </div>
+        <!-- End::Thumbnail -->
+
+        <!-- Begin::Status -->
+        <div class="card card-flush py-4">
+            <div class="card-header">
+                <div class="card-title">
+                    <h2>Status</h2>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <select class="form-select" formControlName="status">
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+                <div class="text-muted fs-7 mt-2">Set the product status</div>
+            </div>
+        </div>
+        <!-- End::Status -->
+
+        <!-- Begin::Category -->
+        <div class="card card-flush py-4">
+            <div class="card-header">
+                <div class="card-title">
+                    <h2>Product Details</h2>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <label class="form-label">Categories</label>
+                <select class="form-select mb-2" formControlName="category">
+                    <option value="">Select Category</option>
+                    <option *ngFor="let category of categories" [value]="category">
+                        {{category}}
+                    </option>
+                </select>
+                <div class="text-muted fs-7 mb-7">Add product to a category</div>
+            </div>
+        </div>
+        <!-- End::Category -->
+    </div>
+    <!-- End::Aside -->
+
+    <!-- Begin::Main -->
+    <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
+        <!-- Begin::General options -->
+        <div class="card card-flush py-4">
+            <div class="card-header">
+                <div class="card-title">
+                    <h2>General</h2>
+                </div>
+            </div>
+            <div class="card-body pt-0">
+                <!-- Begin::Name -->
+                <div class="mb-10 fv-row">
+                    <label class="required form-label">Product Name</label>
+                    <input type="text" formControlName="name"
+                           class="form-control mb-2"
+                           placeholder="Product name"/>
+                    <div class="text-muted fs-7">A product name is required and recommended to be unique.</div>
+                </div>
+                <!-- End::Name -->
+
+                <!-- Begin::Part Number -->
+                <div class="mb-10 fv-row">
+                    <label class="required form-label">Part Number</label>
+                    <input type="text" formControlName="partNo"
+                           class="form-control mb-2"
+                           placeholder="Part number"/>
+                </div>
+                <!-- End::Part Number -->
+
+                <!-- Begin::Description -->
+                <div class="mb-10">
+                    <label class="form-label">Description</label>
+                    <textarea formControlName="description"
+                              class="form-control mb-2"
+                              rows="4"
+                              placeholder="Product description"></textarea>
+                </div>
+                <!-- End::Description -->
+
+                <!-- Begin::Price -->
+                <div class="mb-10 fv-row">
+                    <label class="required form-label">Price</label>
+                    <input type="number" formControlName="price"
+                           class="form-control mb-2"
+                           placeholder="Product price"/>
+                </div>
+                <!-- End::Price -->
+            </div>
+        </div>
+        <!-- End::General options -->
+
+        <!-- Begin::Footer -->
+        <div class="d-flex justify-content-end">
+            <button type="button" routerLink="/products" class="btn btn-light me-5">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!productForm.valid">
+                <span class="indicator-label">Save Changes</span>
+            </button>
+        </div>
+        <!-- End::Footer -->
+    </div>
+    <!-- End::Main -->
+</form>
+<!-- End::Form -->

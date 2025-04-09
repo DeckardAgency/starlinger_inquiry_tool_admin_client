@@ -1,0 +1,219 @@
+<!-- Toast notifications -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    @for (toast of toasts; track toast.id) {
+        <div class="toast show fade" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-light-{{ toast.type === 'success' ? 'success' : 'danger' }}">
+                <i class="ki-duotone ki-{{ toast.type === 'success' ? 'check-circle' : 'shield-cross' }} fs-2 text-{{ toast.type === 'success' ? 'success' : 'danger' }} me-2">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                </i>
+                <strong class="me-auto">{{ toast.type === 'success' ? 'Success' : 'Error' }}</strong>
+                <button type="button" class="btn-close" (click)="dismissToast(toast.id)"></button>
+            </div>
+            <div class="toast-body">
+                {{ toast.message }}
+            </div>
+        </div>
+    }
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div>
+
+            <!-- Hidden file input -->
+            <input #fileInput type="file" multiple accept="image/*" class="d-none" (change)="onFileSelected($event)">
+
+            <!-- Manual dropzone area -->
+            <div id="manual-dropzone" class="custom-dropzone">
+                <div class="dropzone-message">
+                    <i class="ki-duotone ki-file-up fs-3x text-primary"><span class="path1"></span><span class="path2"></span></i>
+                    <div class="ms-4">
+                        <h3 class="fs-5 fw-bold text-gray-900 mb-1">Drop files here or click to upload.</h3>
+                        <span class="fs-7 fw-semibold text-gray-500">Upload up to 10 files</span>
+                    </div>
+                </div>
+
+                @if (isUploading) {
+                    <div class="upload-progress mt-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Uploading...</span>
+                            <span>{{ uploadProgress.toFixed(0) }}%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" role="progressbar" [style.width]="uploadProgress + '%'"
+                                 [attr.aria-valuenow]="uploadProgress" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-xxl-stretch mb-5 mb-xl-8">
+    <!-- begin::Body -->
+    <div class="card-body py-3">
+        <!-- begin::Table container -->
+        <div class="table-responsive">
+            <!-- begin::Table -->
+            <table class="table table-row-dashed table-row-gray-300 align-middle gs-0 gy-4">
+                <!-- begin::Table head -->
+                <thead>
+                <tr class="fw-bolder text-muted">
+                    <th class="w-25px">
+                        <div class="form-check form-check-sm form-check-custom form-check-solid">
+                            <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    value="1"
+                                    data-kt-check="true"
+                                    data-kt-check-target=".widget-9-check"
+                            />
+                        </div>
+                    </th>
+                    <th class="min-w-150px"></th>
+                    <th class="min-w-140px">FileName</th>
+                    <th class="min-w-120px">MimeType</th>
+                    <th class="min-w-100px text-end">Actions</th>
+                </tr>
+                </thead>
+                <!-- end::Table body -->
+                <tbody>
+                    @if (isLoading) {
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!isLoading && error) {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-danger">
+                                {{ error }}
+                            </td>
+                        </tr>
+                    }
+                    @if (!isLoading && !error && mediaItems.length === 0) {
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                No media items found.
+                            </td>
+                        </tr>
+                    }
+                    @for (mediaItem of mediaItems; track mediaItem.id) {
+                        <tr>
+                            <td>
+                                <div class="form-check form-check-sm form-check-custom form-check-solid">
+                                    <input class="form-check-input widget-9-check" type="checkbox" [value]="mediaItem.id" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-45px me-5">
+                                        @if (mediaItem.filePath) {
+                                            <img [src]="'https://127.0.0.1:8002' + mediaItem.filePath" [alt]="mediaItem.filename"/>
+                                        } @else {
+                                            <div class="symbol-label bg-light-primary">
+                                                <span class="text-primary">{{ mediaItem.filename.charAt(0) }}</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span>{{ mediaItem.filename }}</span>
+                            </td>
+                            <td>
+                                <span>{{ mediaItem.mimeType }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-end flex-shrink-0">
+                                    <a href="javascript:;" (click)="openImagePreview(mediaItem)" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
+                                        <app-keenicon name="pencil" class="fs-3"></app-keenicon>
+                                    </a>
+                                    <a href="javascript:;" (click)="confirmDeleteMediaItem(mediaItem, $event)" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm">
+                                        <app-keenicon name="trash" class="fs-3"></app-keenicon>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <!-- end::Table body -->
+            </table>
+            <!-- end::Table -->
+        </div>
+        <!-- end::Table container -->
+    </div>
+    <!-- begin::Body -->
+</div>
+
+<!-- Image Preview Modal -->
+<app-modal #imageModal [modalConfig]="modalConfig">
+    @if (selectedMediaItem) {
+        <div class="modal-preview-container">
+            <img [src]="fullImageUrl" [alt]="selectedMediaItem.filename" class="img-fluid rounded max-h-500px">
+        </div>
+        <div class="image-metadata">
+            <div class="col-12 mb-3">
+                <h3 class="fs-4 fw-bold">{{ selectedMediaItem.filename }}</h3>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">File Type:</span>
+                <div class="metadata-value">{{ selectedMediaItem.mimeType }}</div>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">File ID:</span>
+                <div class="metadata-value">{{ selectedMediaItem.id }}</div>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">Created:</span>
+                <div class="metadata-value">{{ selectedMediaItem.createdAt | date:'medium' }}</div>
+            </div>
+            <div class="metadata-item">
+                <span class="metadata-label">Last Updated:</span>
+                <div class="metadata-value">{{ selectedMediaItem.updatedAt | date:'medium' }}</div>
+            </div>
+            <div class="metadata-item col-12 mt-3">
+                <span class="metadata-label">File Path:</span>
+                <div class="metadata-value text-truncate">{{ selectedMediaItem.filePath }}</div>
+            </div>
+        </div>
+    }
+</app-modal>
+
+<!-- Delete Confirmation Modal -->
+<app-modal #deleteConfirmModal [modalConfig]="deleteModalConfig">
+    <div class="text-center py-4">
+        @if (mediaToDelete) {
+            <div class="mb-5">
+                <i class="ki-duotone ki-information-5 fs-5x text-warning mb-5">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                    <span class="path3"></span>
+                </i>
+                <h2 class="fw-bold">Are you sure?</h2>
+                <div class="text-muted fs-5 mt-1">
+                    Are you sure you want to delete "{{ mediaToDelete.filename }}"?
+                    <br>This action cannot be undone.
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                @if (isDeleting) {
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Deleting...</span>
+                    </div>
+                } @else {
+                    <button class="btn btn-light me-3" (click)="deleteConfirmModal.close()">Cancel</button>
+                    <button class="btn btn-danger" (click)="deleteMediaItem()">
+                        <app-keenicon name="trash" class="fs-3"></app-keenicon>
+                        Delete
+                    </button>
+                }
+            </div>
+        }
+    </div>
+</app-modal>

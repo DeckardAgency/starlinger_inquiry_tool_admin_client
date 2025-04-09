@@ -1,0 +1,412 @@
+<!--begin::Form-->
+<form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="form d-flex flex-column flex-lg-row">
+    <!--begin::Aside column-->
+    <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-300px mb-7 me-lg-10">
+
+        <!--begin::Thumbnail settings-->
+        <div class="card card-flush py-4">
+            <!--begin::Card body-->
+            <div class="card-body text-center pt-0">
+                <!--begin::Image input-->
+                <div class="image-input image-input-empty image-input-outline image-input-placeholder mb-3" data-kt-image-input="true">
+                    <!--begin::Preview existing avatar-->
+                    <div class="image-input-wrapper w-150px h-150px"></div>
+                    <!--end::Preview existing avatar-->
+
+                    <!--begin::Label-->
+                    <label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Change avatar">
+                        <i class="ki-outline ki-pencil fs-7"></i>
+                        <!--begin::Inputs-->
+                        <input type="file" name="avatar" accept=".png, .jpg, .jpeg" (change)="onImageChange($event)" />
+                        <input type="hidden" name="avatar_remove" />
+                        <!--end::Inputs-->
+                    </label>
+                    <!--end::Label-->
+
+                    <!--begin::Cancel-->
+                    <span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="cancel" data-bs-toggle="tooltip" title="Cancel avatar" (click)="removeImage()">
+                        <i class="ki-outline ki-cross fs-2">Cancel</i>
+                    </span>
+                    <!--end::Cancel-->
+
+                    <!--begin::Remove-->
+                    <span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow" data-kt-image-input-action="remove" data-bs-toggle="tooltip" title="Remove avatar" (click)="removeImage()">
+                        <i class="ki-outline ki-cross fs-2">Remove</i>
+                    </span>
+                    <!--end::Remove-->
+                </div>
+                <!--end::Image input-->
+            </div>
+            <!--end::Card body-->
+        </div>
+        <!--end::Thumbnail settings-->
+
+        <!--begin::Status-->
+        <div class="card card-flush py-4">
+            <!--begin::Card header-->
+            <div class="card-header">
+                <!--begin::Card title-->
+                <div class="card-title">
+                    <h2>Status</h2>
+                </div>
+                <!--end::Card title-->
+                <!--begin::Card toolbar-->
+                <div class="card-toolbar">
+                    <div class="rounded-circle bg-success w-15px h-15px" id="kt_ecommerce_add_product_status"></div>
+                </div>
+                <!--begin::Card toolbar-->
+            </div>
+            <!--end::Card header-->
+            <!--begin::Card body-->
+            <div class="card-body pt-0">
+                <!--begin::Select2-->
+                <select class="form-select mb-2">
+                    <option value="published" selected="selected">Published</option>
+                    <option value="draft">Draft</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+                <!--end::Select2-->
+                <!--begin::Description-->
+                <div class="text-muted fs-7">Set the product status.</div>
+                <!--end::Description-->
+                <!--begin::Datepicker-->
+                <div class="d-none mt-10">
+                    <label for="kt_ecommerce_add_product_status_datepicker" class="form-label">Select publishing date and time</label>
+                    <input class="form-control" id="kt_ecommerce_add_product_status_datepicker" placeholder="Pick date & time" />
+                </div>
+                <!--end::Datepicker-->
+            </div>
+            <!--end::Card body-->
+        </div>
+        <!--end::Status-->
+
+        <!--begin::Category & tags-->
+        <div class="card card-flush py-4">
+            <!--begin::Card header-->
+            <div class="card-header">
+                <!--begin::Card title-->
+                <div class="card-title">
+                    <h2>Product Details</h2>
+                </div>
+                <!--end::Card title-->
+            </div>
+            <!--end::Card header-->
+            <!--begin::Card body-->
+            <div class="card-body pt-0">
+                <!--begin::Input group-->
+                <!--begin::Label-->
+                <label class="form-label">Categories</label>
+                <!--end::Label-->
+                <!--begin::Select2-->
+                <select class="form-select mb-2">
+                    <option>Select an option</option>
+                    <option value="Computers">Computers</option>
+                    <option value="Watches">Watches</option>
+                    <option value="Headphones">Headphones</option>
+                    <option value="Footwear">Footwear</option>
+                    <option value="Cameras">Cameras</option>
+                    <option value="Shirts">Shirts</option>
+                    <option value="Household">Household</option>
+                    <option value="Handbags">Handbags</option>
+                    <option value="Wines">Wines</option>
+                    <option value="Sandals">Sandals</option>
+                </select>
+                <!--end::Select2-->
+                <!--begin::Description-->
+                <div class="text-muted fs-7 mb-7">Add product to a category.</div>
+                <!--end::Description-->
+                <!--end::Input group-->
+                <!--begin::Button-->
+                <a href="apps/ecommerce/catalog/add-category.html" class="btn btn-light-primary btn-sm mb-10">
+                    <i class="ki-outline ki-plus fs-2"></i>Create new category</a>
+                <!--end::Button-->
+                <!--begin::Input group-->
+                <!--begin::Label-->
+                <label class="form-label d-block">Tags</label>
+                <!--end::Label-->
+                <!--begin::Input-->
+                <input id="kt_ecommerce_add_product_tags" name="kt_ecommerce_add_product_tags" class="form-control mb-2" value="" />
+                <!--end::Input-->
+                <!--begin::Description-->
+                <div class="text-muted fs-7">Add tags to a product.</div>
+                <!--end::Description-->
+                <!--end::Input group-->
+            </div>
+            <!--end::Card body-->
+        </div>
+        <!--end::Category & tags-->
+
+    </div>
+    <!--end::Aside column-->
+    <!--begin::Main column-->
+    <div class="d-flex flex-column flex-row-fluid gap-7 gap-lg-10">
+
+        <!--begin:::Tabs-->
+        <ul class="nav nav-custom nav-tabs nav-line-tabs nav-line-tabs-2x border-0 fs-4 fw-semibold mb-n2">
+
+            <!--begin:::Tab item-->
+            <li class="nav-item">
+                <a class="nav-link text-active-primary pb-4"
+                   [class.active]="isTabActive('general')"
+                   (click)="setActiveTab('general')"
+                   href="javascript:void(0);">General</a>
+            </li>
+            <!--end:::Tab item-->
+
+            <!--begin:::Tab item-->
+            <li class="nav-item">
+                <a class="nav-link text-active-primary pb-4"
+                   [class.active]="isTabActive('advanced')"
+                   (click)="setActiveTab('advanced')"
+                   href="javascript:void(0);">Advanced</a>
+            </li>
+            <!--end:::Tab item-->
+
+        </ul>
+        <!--end:::Tabs-->
+
+        <!--begin::Tab content-->
+        <div class="tab-content">
+
+            <!--begin::Tab pane-->
+            <div class="tab-pane"
+                 [@tabAnimation]
+                 [class.show]="isTabActive('general')"
+                 [class.active]="isTabActive('general')"
+                 id="kt_ecommerce_add_product_general"
+                 role="tab-panel">
+                <div class="d-flex flex-column gap-7 gap-lg-10">
+                    <!--begin::General options-->
+                    <div class="card card-flush py-4">
+                        <!--begin::Card header-->
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h2>General</h2>
+                            </div>
+                        </div>
+                        <!--end::Card header-->
+                        <!--begin::Card body-->
+                        <div class="card-body pt-0">
+
+                            <!--begin::Input group-->
+                            <div class="mb-10 fv-row">
+
+                                <!--begin::Label-->
+                                <label class="required form-label">Product Name</label>
+                                <!--end::Label-->
+
+                                <!--begin::Input-->
+                                <input type="text" formControlName="name" class="form-control mb-2" placeholder="Product name" />
+                                <!--end::Input-->
+
+                                <!--begin::Description-->
+                                <div class="text-muted fs-7">A product name is required and recommended to be unique.</div>
+                                <!--end::Description-->
+
+                            </div>
+                            <!--end::Input group-->
+
+                            <!--begin::Input group-->
+                            <div class="mb-10 fv-row">
+                                <!--begin::Label-->
+                                <label class="form-label">Short Description</label>
+                                <!--end::Label-->
+
+                                <!--begin::Editor-->
+                                <textarea formControlName="shortDescription" class="form-control mb-2" rows="4"></textarea>
+                                <!--end::Editor-->
+
+                                <!--begin::Description-->
+                                <div class="text-muted fs-7">Set a short description to the product for better visibility.</div>
+                                <!--end::Description-->
+
+                            </div>
+                            <!--end::Input group-->
+
+                            <!--begin::Input group-->
+                            <div>
+                                <!--begin::Label-->
+                                <label class="form-label">Technical Description</label>
+                                <!--end::Label-->
+
+                                <!--begin::Editor-->
+                                <textarea formControlName="technicalDescription" class="form-control mb-2" rows="4"></textarea>
+                                <!--end::Editor-->
+
+                                <!--begin::Description-->
+                                <div class="text-muted fs-7">Set a technical description to the product for better visibility.</div>
+                                <!--end::Description-->
+
+                            </div>
+                            <!--end::Input group-->
+                        </div>
+                        <!--end::Card header-->
+                    </div>
+                    <!--end::General options-->
+
+                    <!--begin::Pricing-->
+                    <div class="card card-flush py-4">
+                        <!--begin::Card header-->
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h2>Pricing</h2>
+                            </div>
+                        </div>
+                        <!--end::Card header-->
+                        <!--begin::Card body-->
+                        <div class="card-body pt-0 pb-0">
+                            <!--begin::Input group-->
+                            <div class="mb-10 fv-row">
+
+                                <!--begin::Label-->
+                                <label class="required form-label">Base Price</label>
+                                <!--end::Label-->
+
+                                <!--begin::Input-->
+                                <input type="number" formControlName="price" class="form-control mb-2" placeholder="Product price" />
+                                <!--end::Input-->
+
+                                <!--begin::Description-->
+                                <div class="text-muted fs-7">Set the product price.</div>
+                                <!--end::Description-->
+
+                            </div>
+                            <!--end::Input group-->
+                        </div>
+                        <!--end::Card header-->
+                    </div>
+                    <!--end::Pricing-->
+                </div>
+            </div>
+            <!--end::Tab pane-->
+
+            <!--begin::Tab pane-->
+            <div class="tab-pane"
+                 [@tabAnimation]
+                 [class.show]="isTabActive('advanced')"
+                 [class.active]="isTabActive('advanced')"
+                 id="kt_ecommerce_add_product_advanced"
+                 role="tab-panel">
+                <div class="d-flex flex-column gap-7 gap-lg-10">
+                    <!--begin::Inventory-->
+                    <div class="card card-flush py-4">
+                        <!--begin::Card header-->
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h2>Inventory</h2>
+                            </div>
+                        </div>
+                        <!--end::Card header-->
+                        <!--begin::Card body-->
+                        <div class="card-body pt-0">
+                            <!--begin::Input group-->
+                            <div class="mb-10 fv-row">
+                                <!--begin::Label-->
+                                <label class="required form-label">Part Number</label>
+                                <!--end::Label-->
+                                <!--begin::Input-->
+                                <input type="text" formControlName="partNo" class="form-control mb-2" placeholder="Part number" />
+                                <!--end::Input-->
+                                <!--begin::Description-->
+                                <div class="text-muted fs-7">Enter the product part number.</div>
+                                <!--end::Description-->
+                            </div>
+                            <!--end::Input group-->
+
+                            <!--begin::Input group-->
+                            <div class="mb-0 fv-row">
+                                <!--begin::Label-->
+                                <label class="required form-label">Quantity</label>
+                                <!--end::Label-->
+                                <!--begin::Input-->
+                                <div class="d-flex gap-3">
+                                    <input type="number" formControlName="quantity" class="form-control mb-2" placeholder="Quantity" />
+                                </div>
+                                <!--end::Input-->
+                                <!--begin::Description-->
+                                <div class="text-muted fs-7">Enter the product quantity.</div>
+                                <!--end::Description-->
+                            </div>
+                            <!--end::Input group-->
+
+                        </div>
+                        <!--end::Card header-->
+                    </div>
+                    <!--end::Inventory-->
+
+                    <!--begin::Meta options-->
+                    <div class="card card-flush py-4">
+                        <!--begin::Card header-->
+                        <div class="card-header">
+                            <div class="card-title">
+                                <h2>Meta Options</h2>
+                            </div>
+                        </div>
+                        <!--end::Card header-->
+                        <!--begin::Card body-->
+                        <div class="card-body pt-0">
+                            <!--begin::Input group-->
+                            <div class="mb-10">
+                                <!--begin::Label-->
+                                <label class="form-label">Meta Tag Title</label>
+                                <!--end::Label-->
+                                <!--begin::Input-->
+                                <input type="text" class="form-control mb-2" name="meta_title" placeholder="Meta tag name" />
+                                <!--end::Input-->
+                                <!--begin::Description-->
+                                <div class="text-muted fs-7">Set a meta tag title. Recommended to be simple and precise keywords.</div>
+                                <!--end::Description-->
+                            </div>
+                            <!--end::Input group-->
+                            <!--begin::Input group-->
+                            <div class="mb-10">
+                                <!--begin::Label-->
+                                <label class="form-label">Meta Tag Description</label>
+                                <!--end::Label-->
+                                <!--begin::Editor-->
+                                <div id="kt_ecommerce_add_product_meta_description" name="kt_ecommerce_add_product_meta_description" class="min-h-100px mb-2"></div>
+                                <!--end::Editor-->
+                                <!--begin::Description-->
+                                <div class="text-muted fs-7">Set a meta tag description to the product for increased SEO ranking.</div>
+                                <!--end::Description-->
+                            </div>
+                            <!--end::Input group-->
+                            <!--begin::Input group-->
+                            <div>
+                                <!--begin::Label-->
+                                <label class="form-label">Meta Tag Keywords</label>
+                                <!--end::Label-->
+                                <!--begin::Editor-->
+                                <input id="kt_ecommerce_add_product_meta_keywords" name="kt_ecommerce_add_product_meta_keywords" class="form-control mb-2" />
+                                <!--end::Editor-->
+                                <!--begin::Description-->
+                                <div class="text-muted fs-7">Set a list of keywords that the product is related to. Separate the keywords by adding a comma
+                                    <code>,</code>between each keyword.</div>
+                                <!--end::Description-->
+                            </div>
+                            <!--end::Input group-->
+                        </div>
+                        <!--end::Card header-->
+                    </div>
+                    <!--end::Meta options-->
+                </div>
+            </div>
+            <!--end::Tab pane-->
+
+        </div>
+        <!--end::Tab content-->
+
+        <div class="d-flex justify-content-end">
+            <a routerLink="/products" class="btn btn-light me-5">Cancel</a>
+            <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || productForm.invalid">
+                <span class="indicator-label" *ngIf="!isSubmitting">Save Changes</span>
+                <span class="indicator-progress" *ngIf="isSubmitting">
+                    Please wait...
+                    <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                </span>
+            </button>
+        </div>
+    </div>
+    <!--end::Main column-->
+</form>
+<!--end::Form-->
