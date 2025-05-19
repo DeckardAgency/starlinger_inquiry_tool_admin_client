@@ -1,0 +1,39 @@
+<div class="performance-overview">
+    <div class="performance-overview__header">
+        <div class="performance-overview__title">
+            <span class="performance-overview__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M2.5 2.5V17.5H17.5M15.8333 7.5L11.6667 11.6667L8.33333 8.33333L5.83333 10.8333" stroke="#232323" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            <h2>Performance overview</h2>
+        </div>
+        <div class="performance-overview__date-range">
+            <form [formGroup]="dateRangeForm">
+                <app-date-picker
+                        formControlName="dateRange"
+                        [isRange]="true"
+                        [dateFormat]="'MMM d, y'"
+                        [rangePlaceholder]="'Select date range'"
+                        [storageKey]="'performance-overview-dates'">
+                </app-date-picker>
+            </form>
+        </div>
+    </div>
+
+    <div class="performance-overview__grid">
+        <div class="performance-overview__card" *ngFor="let metric of metrics">
+            <div class="performance-overview__card-header">
+                <span class="performance-overview__card-label">{{ metric.label }}</span>
+                <span class="performance-overview__info-icon" [title]="metric.infoTooltip">ⓘ</span>
+            </div>
+            <div class="performance-overview__card-value" [ngClass]="{'performance-overview__card-value--currency': metric.value.toString().includes('€')}">
+                {{ metric.value }}
+            </div>
+            <div class="performance-overview__percentage" [ngClass]="{'performance-overview__percentage--increasing': metric.isIncreasing, 'performance-overview__percentage--decreasing': !metric.isIncreasing}">
+                <span class="performance-overview__arrow">{{ metric.isIncreasing ? '↗' : '↘' }}</span>
+                <span>{{ metric.percentage | number:'1.2-2' }} %</span>
+            </div>
+        </div>
+    </div>
+</div>

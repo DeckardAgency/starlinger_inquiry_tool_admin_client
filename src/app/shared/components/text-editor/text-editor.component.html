@@ -1,0 +1,139 @@
+<!-- text-editor.component.html -->
+<div class="text-editor" [ngClass]="{'text-editor--fullscreen': isFullscreen}">
+    <div class="text-editor__toolbar">
+        <div class="text-editor__toolbar-group">
+            <button
+                    class="text-editor__button"
+                    [ngClass]="{'text-editor__button--active': isBold}"
+                    (click)="formatText('bold')"
+                    title="Bold"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M5 9.99992H12.5C13.3841 9.99992 14.2319 10.3511 14.857 10.9762C15.4821 11.6014 15.8333 12.4492 15.8333 13.3333C15.8333 14.2173 15.4821 15.0652 14.857 15.6903C14.2319 16.3154 13.3841 16.6666 12.5 16.6666H5.83333C5.61232 16.6666 5.40036 16.5788 5.24408 16.4225C5.0878 16.2662 5 16.0543 5 15.8333V4.16659C5 3.94557 5.0878 3.73361 5.24408 3.57733C5.40036 3.42105 5.61232 3.33325 5.83333 3.33325H11.6667C12.5507 3.33325 13.3986 3.68444 14.0237 4.30956C14.6488 4.93468 15 5.78253 15 6.66659C15 7.55064 14.6488 8.39849 14.0237 9.02361C13.3986 9.64873 12.5507 9.99992 11.6667 9.99992" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button
+                    class="text-editor__button"
+                    [ngClass]="{'text-editor__button--active': isItalic}"
+                    (click)="formatText('italic')"
+                    title="Italic"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M15.8334 3.33325H8.33335M11.6667 16.6666H4.16669M12.5 3.33325L7.50002 16.6666" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button
+                    class="text-editor__button"
+                    [ngClass]="{'text-editor__button--active': isUnderline}"
+                    (click)="formatText('underline')"
+                    title="Underline"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M4.99998 3.33325V8.33325C4.99998 9.65933 5.52676 10.9311 6.46445 11.8688C7.40213 12.8065 8.6739 13.3333 9.99998 13.3333C11.3261 13.3333 12.5978 12.8065 13.5355 11.8688C14.4732 10.9311 15 9.65933 15 8.33325V3.33325M3.33331 16.6666H16.6666" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="text-editor__toolbar-group">
+            <button class="text-editor__button" (click)="createList('ordered')" title="Ordered List">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M6.66667 5H17.5M6.66667 10H17.5M6.66667 15H17.5M2.5 5H2.50833M2.5 10H2.50833M2.5 15H2.50833" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button class="text-editor__button" (click)="createList('unordered')" title="Unordered List">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M8.33331 5H17.5M8.33331 10H17.5M8.33331 15H17.5M3.33331 5H4.16665V8.33333M3.33331 8.33333H4.99998M4.99998 15.0001H3.33331C3.33331 14.1668 4.99998 13.3334 4.99998 12.5001C4.99998 11.6668 4.16665 11.2501 3.33331 11.6668" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="text-editor__toolbar-group">
+            <button
+                    class="text-editor__button"
+                    [ngClass]="{'text-editor__button--active': currentAlignment === 'left'}"
+                    (click)="alignText('left')"
+                    title="Align Left"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M17.5 5H2.5M12.5 10H2.5M14.1667 15H2.5" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button
+                    class="text-editor__button"
+                    [ngClass]="{'text-editor__button--active': currentAlignment === 'center'}"
+                    (click)="alignText('center')"
+                    title="Align Center"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M17.5 5H2.5M14.1667 10H5.83333M15.8333 15H4.16667" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button
+                    class="text-editor__button"
+                    [ngClass]="{'text-editor__button--active': currentAlignment === 'right'}"
+                    (click)="alignText('right')"
+                    title="Align Right"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M17.5 5H2.5M17.5 10H7.5M17.5 15H5.83333" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button
+                    class="text-editor__button"
+                    [ngClass]="{'text-editor__button--active': currentAlignment === 'full'}"
+                    (click)="alignText('full')"
+                    title="Justify"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M2.5 5H17.5M2.5 10H17.5M2.5 15H17.5" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="text-editor__toolbar-group">
+            <button class="text-editor__button" (click)="insertImage()" title="Insert Image">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M17.5 12.5L14.9283 9.92828C14.6158 9.61583 14.1919 9.44031 13.75 9.44031C13.3081 9.44031 12.8842 9.61583 12.5717 9.92828L5 17.5M4.16667 2.5H15.8333C16.7538 2.5 17.5 3.24619 17.5 4.16667V15.8333C17.5 16.7538 16.7538 17.5 15.8333 17.5H4.16667C3.24619 17.5 2.5 16.7538 2.5 15.8333V4.16667C2.5 3.24619 3.24619 2.5 4.16667 2.5ZM9.16667 7.5C9.16667 8.42047 8.42047 9.16667 7.5 9.16667C6.57953 9.16667 5.83333 8.42047 5.83333 7.5C5.83333 6.57953 6.57953 5.83333 7.5 5.83333C8.42047 5.83333 9.16667 6.57953 9.16667 7.5Z" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button class="text-editor__button" (click)="insertLink()" title="Insert Link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M7.49999 14.1666H5.83332C4.72825 14.1666 3.66845 13.7276 2.88704 12.9462C2.10564 12.1648 1.66666 11.105 1.66666 9.99992C1.66666 8.89485 2.10564 7.83504 2.88704 7.05364C3.66845 6.27224 4.72825 5.83325 5.83332 5.83325H7.49999M12.5 5.83325H14.1667C15.2717 5.83325 16.3315 6.27224 17.1129 7.05364C17.8943 7.83504 18.3333 8.89485 18.3333 9.99992C18.3333 11.105 17.8943 12.1648 17.1129 12.9462C16.3315 13.7276 15.2717 14.1666 14.1667 14.1666H12.5M6.66666 9.99992H13.3333" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button class="text-editor__button" (click)="toggleFullscreen()" title="Fullscreen">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M17.5 17.5L12.5 12.5M17.5 17.5V13.5M17.5 17.5H13.5M2.5 13.5V17.5M2.5 17.5H6.5M2.5 17.5L7.5 12.5M17.5 6.5V2.5M17.5 2.5H13.5M17.5 2.5L12.5 7.5M2.5 6.5V2.5M2.5 2.5H6.5M2.5 2.5L7.5 7.5" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="text-editor__toolbar-group">
+            <select
+                    class="text-editor__select"
+                    [(ngModel)]="selectedStyle"
+                    (change)="changeTextStyle()"
+                    title="Text Style"
+            >
+                <option *ngFor="let style of textStyles" [value]="style.value">{{ style.label }}</option>
+            </select>
+
+            <select
+                    class="text-editor__select"
+                    [(ngModel)]="selectedSize"
+                    (change)="changeFontSize()"
+                    title="Font Size"
+            >
+                <option *ngFor="let size of fontSizes" [value]="size.value">{{ size.label }}</option>
+            </select>
+        </div>
+    </div>
+
+    <div
+        #editor
+        class="text-editor__content"
+        contenteditable="true"
+        [attr.placeholder]="placeholder"
+        (input)="emitContentChange()"
+    ></div>
+</div>

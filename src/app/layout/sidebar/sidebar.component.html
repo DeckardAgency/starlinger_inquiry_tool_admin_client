@@ -1,0 +1,182 @@
+<div class="sidebar" [class.sidebar--collapsed]="isCollapsed()">
+  <div class="sidebar__content">
+    <nav class="sidebar__nav">
+      <ul class="sidebar__list">
+        <li class="sidebar__item sidebar__top">
+          <a routerLink="/dashboard" routerLinkActive="sidebar__link--active" class="sidebar__link">
+            <span class="icon-home sidebar__icon">
+              <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 0 1-1.333 1.334H3.333A1.334 1.334 0 0 1 2 13.333V6Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="sidebar__link-text">Dashboard</span>
+          </a>
+          <button class="sidebar__toggle" (click)="toggleSidebar()">
+            <span class="icon-collapse sidebar__icon" [class.sidebar__icon--rotated]="isCollapsed()">
+              <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 2v12m4.667-4-2-2 2-2M3.333 2h9.334C13.403 2 14 2.597 14 3.333v9.334c0 .736-.597 1.333-1.333 1.333H3.333A1.333 1.333 0 0 1 2 12.667V3.333C2 2.597 2.597 2 3.333 2Z" stroke="#232323" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </button>
+        </li>
+
+        <li class="sidebar__section">
+          <h2 class="sidebar__section-title">Customer hub</h2>
+          <ul class="sidebar__sub-list">
+            <li class="sidebar__item">
+              <a routerLink="/accounts/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                <span class="icon-shop sidebar__icon">
+                  <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="m1.333 4.667 2.94-2.94a1.333 1.333 0 0 1 .947-.394h5.56a1.334 1.334 0 0 1 .947.394l2.94 2.94m-13.334 0h13.334m-13.334 0v2A1.333 1.333 0 0 0 2.667 8m12-3.333v2A1.333 1.333 0 0 1 13.333 8M2.667 8v5.333A1.333 1.333 0 0 0 4 14.667h8a1.333 1.333 0 0 0 1.333-1.334V8M2.667 8a1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .546 0 1.8 1.8 0 0 0 1.06.42 1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .547 0A1.8 1.8 0 0 0 8 8a1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .547 0 1.8 1.8 0 0 0 1.06.42 1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .546 0 1.8 1.8 0 0 0 1.06.42M10 14.667V12a1.333 1.333 0 0 0-1.333-1.333H7.333A1.333 1.333 0 0 0 6 12v2.667" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+                </span>
+                <span class="sidebar__link-text">Accounts</span>
+              </a>
+            </li>
+            <li class="sidebar__item">
+              <a routerLink="/contacts/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                <span class="icon-manual-entry sidebar__icon">
+                  <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10v2.667A1.334 1.334 0 0 1 12.667 14H3.333A1.334 1.334 0 0 1 2 12.667V10m9.333-4.667L8 2m0 0L4.667 5.333M8 2v8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="sidebar__link-text">Contacts</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <li class="sidebar__section">
+            <h2 class="sidebar__section-title">Inquiry hub</h2>
+            <ul class="sidebar__sub-list">
+                <li class="sidebar__item">
+                <a routerLink="/orders/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                <span class="icon-shop sidebar__icon">
+                <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="m1.333 4.667 2.94-2.94a1.333 1.333 0 0 1 .947-.394h5.56a1.334 1.334 0 0 1 .947.394l2.94 2.94m-13.334 0h13.334m-13.334 0v2A1.333 1.333 0 0 0 2.667 8m12-3.333v2A1.333 1.333 0 0 1 13.333 8M2.667 8v5.333A1.333 1.333 0 0 0 4 14.667h8a1.333 1.333 0 0 0 1.333-1.334V8M2.667 8a1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .546 0 1.8 1.8 0 0 0 1.06.42 1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .547 0A1.8 1.8 0 0 0 8 8a1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .547 0 1.8 1.8 0 0 0 1.06.42 1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .546 0 1.8 1.8 0 0 0 1.06.42M10 14.667V12a1.333 1.333 0 0 0-1.333-1.333H7.333A1.333 1.333 0 0 0 6 12v2.667" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+                </span>
+                  <span class="sidebar__link-text">Shop orders</span>
+                </a>
+                </li>
+                <li class="sidebar__item">
+                <a routerLink="/manual-entry/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                <span class="icon-manual-entry sidebar__icon">
+                <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10v2.667A1.334 1.334 0 0 1 12.667 14H3.333A1.334 1.334 0 0 1 2 12.667V10m9.333-4.667L8 2m0 0L4.667 5.333M8 2v8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                  <span class="sidebar__link-text">Manual entry</span>
+                </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="sidebar__section">
+            <h2 class="sidebar__section-title">Product hub</h2>
+            <ul class="sidebar__sub-list">
+                <li class="sidebar__item">
+                  <a routerLink="/machines/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                <span class="icon-shop sidebar__icon">
+                <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="m1.333 4.667 2.94-2.94a1.333 1.333 0 0 1 .947-.394h5.56a1.334 1.334 0 0 1 .947.394l2.94 2.94m-13.334 0h13.334m-13.334 0v2A1.333 1.333 0 0 0 2.667 8m12-3.333v2A1.333 1.333 0 0 1 13.333 8M2.667 8v5.333A1.333 1.333 0 0 0 4 14.667h8a1.333 1.333 0 0 0 1.333-1.334V8M2.667 8a1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .546 0 1.8 1.8 0 0 0 1.06.42 1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .547 0A1.8 1.8 0 0 0 8 8a1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .547 0 1.8 1.8 0 0 0 1.06.42 1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .546 0 1.8 1.8 0 0 0 1.06.42M10 14.667V12a1.333 1.333 0 0 0-1.333-1.333H7.333A1.333 1.333 0 0 0 6 12v2.667" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+                </span>
+                      <span class="sidebar__link-text">Machines</span>
+                  </a>
+                </li>
+                <li class="sidebar__item">
+                    <a routerLink="/products/list" [class.sidebar__link--active]="isRouteActive('products')" class="sidebar__link">
+                        <span class="icon-manual-entry sidebar__icon">
+                            <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10v2.667A1.334 1.334 0 0 1 12.667 14H3.333A1.334 1.334 0 0 1 2 12.667V10m9.333-4.667L8 2m0 0L4.667 5.333M8 2v8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        <span class="sidebar__link-text">Products</span>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                    <a routerLink="/discounts/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                        <span class="icon-manual-entry sidebar__icon">
+                            <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10v2.667A1.334 1.334 0 0 1 12.667 14H3.333A1.334 1.334 0 0 1 2 12.667V10m9.333-4.667L8 2m0 0L4.667 5.333M8 2v8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        <span class="sidebar__link-text">Discounts</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="sidebar__section">
+            <h2 class="sidebar__section-title">User hub</h2>
+            <ul class="sidebar__sub-list">
+                <li class="sidebar__item">
+                    <a routerLink="/shop" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                        <span class="icon-shop sidebar__icon">
+                            <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="m1.333 4.667 2.94-2.94a1.333 1.333 0 0 1 .947-.394h5.56a1.334 1.334 0 0 1 .947.394l2.94 2.94m-13.334 0h13.334m-13.334 0v2A1.333 1.333 0 0 0 2.667 8m12-3.333v2A1.333 1.333 0 0 1 13.333 8M2.667 8v5.333A1.333 1.333 0 0 0 4 14.667h8a1.333 1.333 0 0 0 1.333-1.334V8M2.667 8a1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .546 0 1.8 1.8 0 0 0 1.06.42 1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .547 0A1.8 1.8 0 0 0 8 8a1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .547 0 1.8 1.8 0 0 0 1.06.42 1.8 1.8 0 0 0 1.06-.42.467.467 0 0 1 .546 0 1.8 1.8 0 0 0 1.06.42M10 14.667V12a1.333 1.333 0 0 0-1.333-1.333H7.333A1.333 1.333 0 0 0 6 12v2.667" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+                        </span>
+                        <span class="sidebar__link-text">Users</span>
+                    </a>
+                </li>
+                <li class="sidebar__item">
+                  <a routerLink="/manual-entry/input-form" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                    <span class="icon-manual-entry sidebar__icon">
+                        <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 10v2.667A1.334 1.334 0 0 1 12.667 14H3.333A1.334 1.334 0 0 1 2 12.667V10m9.333-4.667L8 2m0 0L4.667 5.333M8 2v8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    <span class="sidebar__link-text">Roles</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar__footer">
+      <ul class="sidebar__list">
+        <li class="sidebar__item">
+          <a (click)="openSupportModal($event)" routerLink="/support" routerLinkActive="sidebar__link--active" class="sidebar__link">
+            <span class="icon-support sidebar__icon">
+              <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="m3.287 3.287 2.826 2.826m3.774 0 2.826-2.826m-2.826 6.6 2.826 2.826m-6.6-2.826-2.826 2.826M14.667 8A6.667 6.667 0 1 1 1.333 8a6.667 6.667 0 0 1 13.334 0Zm-4 0a2.667 2.667 0 1 1-5.334 0 2.667 2.667 0 0 1 5.334 0Z" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+            </span>
+            <span class="sidebar__link-text">Support</span>
+          </a>
+        </li>
+        <li class="sidebar__item">
+          <a routerLink="/documentation" routerLinkActive="sidebar__link--active" class="sidebar__link sidebar__link--disabled">
+            <span class="icon-documentation sidebar__icon">
+              <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 4.667A2.667 2.667 0 0 0 5.333 2h-4v10H6a2 2 0 0 1 2 2m0-9.333V14m0-9.333A2.667 2.667 0 0 1 10.667 2h4v10H10a2 2 0 0 0-2 2" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="sidebar__link-text">Documentation</span>
+          </a>
+        </li>
+        <li class="sidebar__divider"></li>
+        @if (authService.isAuthenticated()) {
+          <li class="sidebar__item">
+            <div class="sidebar__user">
+              <div class="sidebar__user-row" (click)="toggleUserDropdown($event)" role="button">
+                <span class="icon-user sidebar__icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M12.6667 14V12.6667C12.6667 11.9594 12.3857 11.2811 11.8856 10.781C11.3855 10.281 10.7072 10 10 10H6C5.29275 10 4.61448 10.281 4.11438 10.781C3.61428 11.2811 3.33333 11.9594 3.33333 12.6667V14M10.6667 4.66667C10.6667 6.13943 9.47276 7.33333 8 7.33333C6.52724 7.33333 5.33333 6.13943 5.33333 4.66667C5.33333 3.19391 6.52724 2 8 2C9.47276 2 10.6667 3.19391 10.6667 4.66667Z" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <div class="sidebar__user-info">
+                  <span class="sidebar__user-name">{{ userFullName }}</span>
+                  <span class="sidebar__user-role">{{ userRole }}</span>
+                </div>
+                <span class="sidebar__user-icon-arrow" [class.sidebar__user-icon-arrow--rotated]="isUserDropdownOpen()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 6L8 10L12 6" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </div>
+
+              @if (isUserDropdownOpen()) {
+                <div class="sidebar__user-dropdown" @fadeInOut>
+                  <div class="sidebar__user-switch-user" role="button" (click)="openLoginModal()">
+                    <span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M14 8C14 6.4087 13.3679 4.88258 12.2426 3.75736C11.1174 2.63214 9.5913 2 8 2C6.32263 2.00631 4.71265 2.66082 3.50667 3.82667L2 5.33333M2 5.33333V2M2 5.33333H5.33333M2 8C2 9.5913 2.63214 11.1174 3.75736 12.2426C4.88258 13.3679 6.4087 14 8 14C9.67737 13.9937 11.2874 13.3392 12.4933 12.1733L14 10.6667M14 10.6667H10.6667M14 10.6667V14" stroke="#09090B" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                    Switch user
+                  </div>
+                  <div class="sidebar__user-logout" (click)="logout()" role="button">
+                    <span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6M10.6667 11.3333L14 8M14 8L10.6667 4.66667M14 8H6" stroke="#09090B" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                    Logout
+                  </div>
+                </div>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</div>

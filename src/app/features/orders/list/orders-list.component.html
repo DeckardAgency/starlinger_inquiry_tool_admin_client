@@ -1,0 +1,158 @@
+<!-- orders-list.component.html -->
+<div class="orders">
+
+    <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
+
+    <div class="orders__header">
+        <div class="orders__title-container">
+            <svg class="orders__icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <h1 class="orders__title">Shop orders <span class="orders__count">{{ totalOrders }}</span></h1>
+        </div>
+
+        <div class="orders__actions">
+            <div class="orders__search">
+                <input type="text" placeholder="Search..." class="orders__search-input">
+                <button class="orders__search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M14.0001 14L11.1335 11.1333M12.6667 7.33333C12.6667 10.2789 10.2789 12.6667 7.33333 12.6667C4.38781 12.6667 2 10.2789 2 7.33333C2 4.38781 4.38781 2 7.33333 2C10.2789 2 12.6667 4.38781 12.6667 7.33333Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <button class="orders__download-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M4.66667 6.66667L8 10M8 10L11.3333 6.66667M8 10V2" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="orders__body">
+        <div class="orders__tabs">
+            <button
+                class="orders__tab"
+                [class.orders__tab--active]="activeTab === 'latest'"
+                (click)="setActiveTab('latest')">
+                <svg *ngIf="activeTab === 'latest'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Latest
+            </button>
+
+            <button
+                class="orders__tab"
+                [class.orders__tab--active]="activeTab === 'completed'"
+                (click)="setActiveTab('completed')">
+                <svg *ngIf="activeTab === 'completed'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Completed
+            </button>
+
+            <button
+                class="orders__tab"
+                [class.orders__tab--active]="activeTab === 'cancelled'"
+                (click)="setActiveTab('cancelled')">
+                <svg *ngIf="activeTab === 'cancelled'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Cancelled
+            </button>
+        </div>
+
+        <div class="orders__table-container">
+            <table class="orders__table">
+                <thead class="orders__table-head">
+                <tr>
+                    <th class="orders__table-header">Order ID</th>
+                    <th class="orders__table-header">Type</th>
+                    <th class="orders__table-header">
+                        Date Created
+                        <svg class="orders__sort-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="orders__table-header">Internal reference number</th>
+                    <th class="orders__table-header">Customer</th>
+                    <th class="orders__table-header">Parts ordered</th>
+                    <th class="orders__table-header">Status</th>
+                    <th class="orders__table-header orders__table-header--actions"></th>
+                </tr>
+                </thead>
+                <tbody class="orders__table-body">
+                <tr *ngFor="let order of filteredOrders()" class="orders__table-row">
+                    <td class="orders__table-cell">{{ order.id }}</td>
+                    <td class="orders__table-cell">
+                        <span class="orders__type-badge">{{ order.type }}</span>
+                    </td>
+                    <td class="orders__table-cell">{{ order.dateCreated }}</td>
+                    <td class="orders__table-cell">{{ order.internalReference }}</td>
+                    <td class="orders__table-cell">
+                        <div class="orders__customer">
+                            <div class="orders__customer-avatar">{{ order.customer.initials }}</div>
+                            <span class="orders__customer-name">{{ order.customer.name }}</span>
+                        </div>
+                    </td>
+                    <td class="orders__table-cell">{{ order.partsOrdered }}</td>
+                    <td class="orders__table-cell">
+            <span class="orders__status" [ngClass]="'orders__status--' + order.status.toLowerCase()">
+              {{ order.status }}
+            </span>
+                    </td>
+                    <td class="orders__table-cell orders__table-cell--actions">
+                        <button class="orders__action-button" (click)="toggleOptions(order.id)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="orders__footer">
+            <span class="orders__results">{{ getResultsText() }}</span>
+
+            <div class="orders__pagination">
+                <button
+                        class="orders__page-button"
+                        [class.orders__page-button--active]="currentPage === 1"
+                        (click)="changePage(1)"
+                >
+                    1
+                </button>
+                <button
+                        class="orders__page-button"
+                        [class.orders__page-button--active]="currentPage === 2"
+                        (click)="changePage(2)"
+                >
+                    2
+                </button>
+                <button
+                        class="orders__page-button"
+                        [class.orders__page-button--active]="currentPage === 3"
+                        (click)="changePage(3)"
+                >
+                    3
+                </button>
+
+                <span class="orders__pagination-dots">...</span>
+
+                <button class="orders__page-button orders__page-button--next" (click)="nextPage()">
+                    Next
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

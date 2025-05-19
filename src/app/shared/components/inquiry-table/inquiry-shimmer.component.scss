@@ -1,0 +1,96 @@
+.shimmer-component {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.shimmer-table-wrapper {
+  overflow-x: auto;
+}
+
+.shimmer-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #E4E4E7;
+
+  thead {
+    background-color: #ffffff;
+  }
+
+  th {
+    text-align: left;
+    padding: 1rem;
+    font-weight: 400;
+    color: #71717A;
+    border-bottom: 1px solid #E4E4E7;
+  }
+
+  td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #E4E4E7;
+  }
+}
+
+// Shimmer effect
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.shimmer-cell {
+  height: 1.25rem;
+  background: linear-gradient(to right, #f6f6f6 8%, #f0f0f0 18%, #f6f6f6 33%);
+  background-size: 800px 104px;
+  border-radius: 4px;
+  animation-duration: 1.5s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
+
+  &--id {
+    width: 80px;
+  }
+
+  &--machine {
+    width: 120px;
+  }
+
+  &--date {
+    width: 100px;
+  }
+
+  &--customer {
+    width: 150px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &--parts {
+    width: 60px;
+  }
+
+  &--status {
+    width: 100px;
+    height: 1.75rem;
+    border-radius: 1rem;
+  }
+}
+
+.shimmer-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(to right, #f6f6f6 8%, #f0f0f0 18%, #f6f6f6 33%);
+  background-size: 800px 104px;
+  animation-duration: 1.5s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
+}

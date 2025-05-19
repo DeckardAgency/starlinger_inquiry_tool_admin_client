@@ -1,0 +1,14 @@
+{
+  "name": "vendor_name/app",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "nikolagrdanjski",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+  }
+}

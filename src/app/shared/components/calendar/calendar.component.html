@@ -1,0 +1,126 @@
+<div class="calendar-backdrop" *ngIf="true" aria-hidden="true"></div>
+<div class="calendar-container"
+     role="dialog"
+     aria-label="Date picker"
+     [attr.aria-modal]="true"
+     (mouseup)="$event.stopPropagation()"
+     (keydown)="handleKeyDown($event)">
+
+    <div class="calendar-grid">
+        <!-- First month -->
+        <div class="month">
+            <div class="month-header">
+                <button class="nav-button"
+                        (click)="prevMonth()"
+                        aria-label="Previous month">
+                    &lt;
+                </button>
+                <span class="month-title" id="month-title-1">{{ firstMonthName() }}</span>
+            </div>
+
+            <div class="weekdays" role="row">
+                <div class="weekday" *ngFor="let day of daysOfWeek()" role="columnheader" [attr.aria-label]="day">{{ day }}</div>
+            </div>
+
+            <div class="days"
+                 role="grid"
+                 aria-labelledby="month-title-1"
+                 (mouseleave)="onCalendarMouseLeave()">
+                <div *ngFor="let day of firstMonthDays(); trackBy: trackByDate"
+                     role="gridcell"
+                     [attr.tabindex]="day.isCurrentMonth && !day.isDisabled ? 0 : -1"
+                     [attr.aria-label]="day.date | date:'fullDate'"
+                     [attr.aria-selected]="day.isSelected || day.isRangeStart || day.isRangeEnd || day.isInRange ? 'true' : 'false'"
+                     [attr.aria-disabled]="day.isDisabled ? 'true' : 'false'"
+                     [attr.data-month-index]="0"
+                     [attr.data-date]="day.date.getTime()"
+                     [class.current-month]="day.isCurrentMonth"
+                     [class.other-month]="!day.isCurrentMonth"
+                     [class.today]="day.isToday"
+                     [class.selected]="day.isSelected"
+                     [class.in-range]="day.isInRange"
+                     [class.range-start]="day.isRangeStart && day.isCurrentMonth"
+                     [class.range-end]="day.isRangeEnd && day.isCurrentMonth"
+                     [class.hovered]="day.isHovered"
+                     [class.disabled]="day.isDisabled"
+                     (click)="day.isCurrentMonth && !day.isDisabled && selectDate(day.date)"
+                     (mouseenter)="day.isCurrentMonth && !day.isDisabled && onDateHover(day.date)"
+                     class="day">
+                    {{ day.date.getDate() }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Second month -->
+        <div class="month">
+            <div class="month-header">
+                <span class="month-title" id="month-title-2">{{ secondMonthName() }}</span>
+                <button class="nav-button"
+                        (click)="nextMonthClick()"
+                        aria-label="Next month">
+                    &gt;
+                </button>
+            </div>
+
+            <div class="weekdays" role="row">
+                <div class="weekday" *ngFor="let day of daysOfWeek()" role="columnheader" [attr.aria-label]="day">{{ day }}</div>
+            </div>
+
+            <div class="days"
+                 role="grid"
+                 aria-labelledby="month-title-2"
+                 (mouseleave)="onCalendarMouseLeave()">
+                <div *ngFor="let day of secondMonthDays(); trackBy: trackByDate"
+                     role="gridcell"
+                     [attr.tabindex]="day.isCurrentMonth && !day.isDisabled ? 0 : -1"
+                     [attr.aria-label]="day.date | date:'fullDate'"
+                     [attr.aria-selected]="day.isSelected || day.isRangeStart || day.isRangeEnd || day.isInRange ? 'true' : 'false'"
+                     [attr.aria-disabled]="day.isDisabled ? 'true' : 'false'"
+                     [attr.data-month-index]="1"
+                     [attr.data-date]="day.date.getTime()"
+                     [class.current-month]="day.isCurrentMonth"
+                     [class.other-month]="!day.isCurrentMonth"
+                     [class.today]="day.isToday"
+                     [class.selected]="day.isSelected"
+                     [class.in-range]="day.isInRange"
+                     [class.range-start]="day.isRangeStart && day.isCurrentMonth"
+                     [class.range-end]="day.isRangeEnd && day.isCurrentMonth"
+                     [class.hovered]="day.isHovered"
+                     [class.disabled]="day.isDisabled"
+                     (click)="day.isCurrentMonth && !day.isDisabled && selectDate(day.date)"
+                     (mouseenter)="day.isCurrentMonth && !day.isDisabled && onDateHover(day.date)"
+                     class="day">
+                    {{ day.date.getDate() }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current selection status for screen readers -->
+    <div class="sr-only" aria-live="polite">
+        <span *ngIf="!isRange && selectedDate">
+            Selected date: {{ selectedDate | date:'fullDate' }}
+        </span>
+        <span *ngIf="isRange && startDate && endDate">
+            Selected range: From {{ startDate | date:'fullDate' }} to {{ endDate | date:'fullDate' }}
+        </span>
+        <span *ngIf="isRange && startDate && !endDate">
+            Start date selected: {{ startDate | date:'fullDate' }}. Please select an end date.
+        </span>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="action-buttons">
+        <button class="clear-button"
+                (click)="clearSelection()"
+                aria-label="Clear selection">
+            Clear
+        </button>
+        <button class="apply-button"
+                (click)="applySelection()"
+                [attr.aria-disabled]="(!isRange && !selectedDate) || (isRange && (!startDate || !endDate && !hoverDate())) ? true : null"
+                aria-label="Apply selection">
+            Apply
+        </button>
+    </div>
+</div>

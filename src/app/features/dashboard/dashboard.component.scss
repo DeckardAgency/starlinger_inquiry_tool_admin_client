@@ -1,0 +1,32 @@
+.page {
+  &--dashboard {
+    padding: 16px;
+  }
+}
+.dashboard {
+  min-height: 100%;
+  background: #FAFAFA;
+
+  &__content {
+    padding: 1rem;
+  }
+
+  &__row {
+  }
+
+  &__section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #18181B;
+    margin-bottom: 1rem;
+  }
+
+  &__cards {
+    display: flex;
+    gap: 1rem;
+
+    app-inquiry-card {
+      width: 33.33%;
+    }
+  }
+}

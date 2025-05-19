@@ -1,0 +1,564 @@
+// Updated product-list.component.scss with search styles
+.product-list {
+  width: 100%;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  &__title-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__icon {
+    width: 24px;
+    height: 24px;
+    color: #333;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__count {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #666;
+    background-color: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  // Enhanced search styles
+  &__search {
+    position: relative;
+  }
+
+  &__search-input {
+    width: fit-content;
+    padding: 12px 16px 12px 40px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.875rem;
+
+    &:focus {
+      outline: none;
+      border-color: #0074d9;
+      box-shadow: 0 0 0 2px rgba(0, 116, 217, 0.1);
+    }
+  }
+
+  &__search-button {
+    position: absolute;
+    left: 8px;
+    top: calc(50% + 1px);
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 4px;
+
+    &:hover {
+      color: #0074d9;
+    }
+  }
+
+  // New clear search button style
+  &__clear-search-button {
+    position: absolute;
+    right: 8px;
+    top: calc(50% + 1px);
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+
+    &:hover {
+      background-color: #f0f0f0;
+      color: #333;
+    }
+  }
+
+  // Search info banner
+  &__search-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f8f9fa;
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+
+    strong {
+      font-weight: 500;
+    }
+  }
+
+  &__clear-search-link {
+    background: none;
+    border: none;
+    color: #0074d9;
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: #e6f0f9;
+      text-decoration: underline;
+    }
+  }
+
+  &__clear-search-button-large {
+    margin-top: 16px;
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #e9e9e9;
+    }
+  }
+
+  &__download-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #666;
+
+    &:hover {
+      background-color: #e9e9e9;
+    }
+  }
+
+  &__delete-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #666;
+
+    &:hover {
+      background-color: #e9e9e9;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+    }
+  }
+
+  &__add-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.625rem 1rem;
+    background-color: #DC2626;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover {
+      background-color: darken(#e74c3c, 10%);
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  // Loading state
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 16px;
+
+    p {
+      margin-top: 16px;
+      font-size: 0.875rem;
+      color: #666;
+    }
+  }
+
+  &__spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #e74c3c;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  // Error state
+  &__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 16px;
+
+    p {
+      margin-bottom: 16px;
+      font-size: 0.875rem;
+      color: #e74c3c;
+    }
+  }
+
+  &__retry-button {
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #e9e9e9;
+    }
+  }
+
+  // Empty state
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 16px;
+
+    p {
+      margin-bottom: 16px;
+      font-size: 0.875rem;
+      color: #666;
+    }
+  }
+
+  &__table-container {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  &__table-head {
+    background-color: #f5f5f5;
+  }
+
+  &__table-header {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 500;
+    background-color: #ffffff;
+    color: #232323;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
+    position: relative;
+
+    &--select {
+      width: 40px;
+      padding: 1rem;
+    }
+
+    &--actions {
+      width: 50px;
+    }
+
+    // New styles for sortable headers
+    &--sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #f0f0f0;
+      }
+    }
+  }
+
+  &__sort-icon {
+    margin-left: 4px;
+    vertical-align: middle;
+    width: 12px;
+    height: 12px;
+    transition: transform 0.2s;
+    opacity: 0.5;
+
+    // New styles for sort icons to indicate direction
+    &--asc {
+      opacity: 1;
+      transform: rotate(180deg);
+    }
+
+    &--desc {
+      opacity: 1;
+    }
+  }
+
+  &__table-row {
+    &:hover {
+      background-color: #f9f9f9;
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid #eee;
+    }
+
+    // Add this new style for selected rows
+    &--selected {
+      background-color: #E4E4E7; // Light green background
+
+      &:hover {
+        background-color: #E4E4E7; // Slightly darker on hover
+      }
+    }
+  }
+
+  &__table-cell {
+    padding: 16px;
+    font-size: 0.875rem;
+
+    &--select {
+      padding: 1rem;
+      width: 40px;
+    }
+
+    &--actions {
+      text-align: right;
+      width: 50px;
+      position: relative;
+    }
+  }
+
+  &__checkbox-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  &__checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+
+    &:checked + .product-list__checkbox-label:after {
+      opacity: 1;
+    }
+  }
+
+  &__checkbox-label {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 6px;
+      width: 4px;
+      height: 8px;
+      border: solid #4CAF50;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+  }
+
+  &__action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 4px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
+  // Options dropdown
+  &__options {
+    position: absolute;
+    right: 16px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    width: 150px;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.875rem;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid #eee;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__body {
+    padding: 0 1rem;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+  }
+
+  &__results {
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  &__pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__page-button {
+    padding: 8px 12px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--active {
+      background-color: #f5f5f5;
+      font-weight: 500;
+      border-color: #ccc;
+    }
+
+    &--icon {
+      padding: 8px;
+    }
+
+    &:hover:not(&--active):not(:disabled) {
+      background-color: #f9f9f9;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__pagination-dots {
+    color: #666;
+    font-size: 0.875rem;
+    padding: 0 4px;
+  }
+}

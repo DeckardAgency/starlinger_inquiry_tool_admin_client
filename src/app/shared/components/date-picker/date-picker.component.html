@@ -1,0 +1,47 @@
+<div class="date-picker-container">
+    <!-- Datepicker input button -->
+    <button
+            class="date-picker-button"
+            type="button"
+            [disabled]="disabled()"
+            [attr.aria-expanded]="showCalendar()"
+            [attr.aria-haspopup]="true"
+            [attr.aria-label]="isRange ? 'Select date range' : 'Select date'"
+            (click)="toggleCalendar($event)">
+
+    <span class="date-picker-value" [class.date-picker-placeholder]="isRange ? !startDate() : !selectedDate()">
+      {{ displayValue() }}
+    </span>
+        <span class="calendar-icon" aria-hidden="true">📅</span>
+    </button>
+
+    <!-- Backdrop when calendar is open -->
+    <div
+            class="backdrop"
+            *ngIf="showCalendar()"
+            (click)="onCloseCalendar()"
+            aria-hidden="true">
+    </div>
+
+    <!-- Calendar dropdown -->
+    <ng-container *ngIf="showCalendar()">
+        <div
+                class="calendar-wrapper"
+                [@calendarAnimation]="showCalendar() ? 'visible' : 'hidden'">
+
+            <app-calendar
+                    [isRange]="isRange"
+                    [selectedDate]="selectedDate()"
+                    [startDate]="startDate()"
+                    [endDate]="endDate()"
+                    [minDate]="minDate"
+                    [maxDate]="maxDate"
+                    [disableFutureDates]="disableFutureDates"
+                    [disablePastDates]="disablePastDates"
+                    (dateSelected)="onDateSelected($event)"
+                    (rangeSelected)="onRangeSelected($event)"
+                    (closeCalendar)="onCloseCalendar()">
+            </app-calendar>
+        </div>
+    </ng-container>
+</div>

@@ -1,0 +1,223 @@
+.featured-image {
+
+  &__header {
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+  }
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+    color: #333;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  &__upload-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border: none;
+    background-color: #333;
+    color: white;
+    transition: background-color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background-color: darken(#333, 10%);
+    }
+
+    &:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__drop-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    color: #666;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+    min-height: 250px;
+
+    &--active {
+      border-color: #2980b9;
+      background-color: rgba(41, 128, 185, 0.05);
+    }
+
+    svg {
+      color: #ccc;
+      margin-bottom: 16px;
+    }
+
+    p {
+      margin: 4px 0;
+      font-size: 0.875rem;
+
+      &:first-of-type {
+        font-weight: 500;
+        color: #333;
+      }
+    }
+  }
+
+  /* Upload Progress Styles */
+  &__upload-progress {
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__progress-container {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  &__progress-label {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #333;
+  }
+
+  &__progress-bar-container {
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background-color: #e74c3c;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  &__progress-percentage {
+    text-align: right;
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  &__preview {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__preview-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+
+    &:hover {
+      .featured-image__preview-overlay {
+        opacity: 1;
+      }
+    }
+  }
+
+  &__preview-image {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+    max-height: 300px;
+    object-fit: contain;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+  }
+
+  &__preview-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 4px;
+  }
+
+  &__preview-action-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+
+    &:hover {
+      background-color: darken(#e74c3c, 10%);
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 4px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  &__filename {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #333;
+    word-break: break-all;
+  }
+
+  &__type {
+    font-size: 0.75rem;
+    color: #666;
+  }
+}

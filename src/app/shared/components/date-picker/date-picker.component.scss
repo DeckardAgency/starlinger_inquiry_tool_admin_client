@@ -1,0 +1,114 @@
+.date-picker-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 300px;
+}
+
+.date-picker-button {
+  padding: 8px 16px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 40px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+
+  &:hover:not(:disabled) {
+    border-color: #aaa;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.25);
+  }
+
+  &:disabled {
+    background-color: #f9f9f9;
+    color: #999;
+    cursor: not-allowed;
+  }
+}
+
+.date-picker-value {
+  flex-grow: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.date-picker-placeholder {
+  color: #999;
+}
+
+.calendar-icon {
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.calendar-wrapper {
+  position: absolute;
+  z-index: 1000;
+  margin-top: 8px;
+  min-width: 620px; /* Match calendar width */
+
+  /* Adjust positioning to prevent overflow */
+  right: 0; /* Align to right by default */
+  left: auto;
+
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 0;
+    width: 90%;
+    max-width: 620px;
+    min-width: auto;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+}
+
+// Date range styles
+.range-start,
+.range-end {
+  font-weight: 500;
+}
+
+// Responsive styles
+@media (max-width: 767px) {
+  .date-picker-container {
+    max-width: 100%;
+  }
+}
+
+// Animation classes
+.fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,79 @@
+<div class="inquiry-component">
+  <!-- Tabs - Always visible -->
+  <div class="inquiry-tabs">
+    <button
+      *ngFor="let tab of tabs"
+      class="inquiry-tabs__tab"
+      [class.inquiry-tabs__tab--active]="activeTab === tab"
+      (click)="selectTab(tab)"
+    >
+      {{ tab }}
+    </button>
+  </div>
+
+  <!-- Content section -->
+  @if (loading) {
+    <!-- Show shimmer while loading -->
+    <app-inquiry-shimmer [rows]="5"></app-inquiry-shimmer>
+  } @else if (inquiries.length === 0) {
+    <!-- No data state -->
+    <div class="empty-state">
+      <div class="empty-state__icon">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 4C12.96 4 4 12.96 4 24C4 35.04 12.96 44 24 44C35.04 44 44 35.04 44 24C44 12.96 35.04 4 24 4ZM26 34H22V30H26V34ZM26 26H22V14H26V26Z" fill="#E4E4E7"/>
+        </svg>
+      </div>
+      <h3 class="empty-state__title">No inquiries found</h3>
+      <p class="empty-state__message">There are no inquiries available for this filter.</p>
+    </div>
+  } @else {
+    <!-- Table with data -->
+    <div class="inquiry-table-wrapper">
+      <table class="inquiry-table">
+        <thead>
+        <tr>
+          <th>Inquiry ID</th>
+          <th>Machine model</th>
+          <th>Date Created</th>
+          <th>Customer</th>
+          <th>Parts ordered</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (inquiry of filteredInquiries; track inquiry.id) {
+            <tr>
+              <td>{{ inquiry.id }}</td>
+              <td>{{ inquiry.machine }}</td>
+              <td>{{ inquiry.dateCreated }}</td>
+              <td>
+                <div class="customer-cell">
+                  @if (inquiry.customer.image) {
+                    <img [src]="inquiry.customer.image" [alt]="inquiry.customer.name" class="customer-cell__image" loading="lazy">
+                  } @else {
+                    <div class="customer-cell__initials">{{ inquiry.customer.initials }}</div>
+                  }
+                  {{ inquiry.customer.name }}
+                </div>
+              </td>
+              <td>{{ inquiry.partsOrdered }}</td>
+              <td>
+                <span class="status-badge" [class]="'status-badge--' + inquiry.status.toLowerCase()">
+                  {{ inquiry.status }}
+                </span>
+              </td>
+              <td>
+                <button class="action-menu">
+                  <svg width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 10.833a.833.833 0 1 0 0-1.666.833.833 0 0 0 0 1.666ZM10 5a.833.833 0 1 0 0-1.667A.833.833 0 0 0 10 5Zm0 11.667a.833.833 0 1 0 0-1.667.833.833 0 0 0 0 1.667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

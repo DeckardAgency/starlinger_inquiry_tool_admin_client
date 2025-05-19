@@ -1,0 +1,22 @@
+<div class="dashboard">
+
+    <div class="dashboard__content">
+
+        <app-performance-overview></app-performance-overview>
+
+        <div class="dashboard__section">
+            <h2 class="dashboard__section-title">Featured Inquiries</h2>
+            <div class="dashboard__cards">
+                <app-inquiry-card *ngFor="let inquiry of featuredInquiries" [inquiry]="inquiry"></app-inquiry-card>
+            </div>
+        </div>
+
+        <div class="dashboard__section">
+            <h2 class="dashboard__section-title">Recent Inquiries</h2>
+            <app-inquiry-table
+                    [inquiries]="recentInquiries"
+                    [loading]="loading">
+            </app-inquiry-table>
+        </div>
+    </div>
+</div>

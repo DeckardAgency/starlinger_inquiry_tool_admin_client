@@ -1,0 +1,272 @@
+<!-- accounts-edit.component.html -->
+<div class="account-edit">
+    <header class="account-edit__header">
+        <div class="account-edit__header-left">
+            <button class="account-edit__back-button" (click)="goBack()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
+            <h1 class="account-edit__title">Account detail</h1>
+        </div>
+        <div class="account-edit__header-right">
+            <button class="account-edit__save-continue-button" (click)="saveAndContinue()">
+                Save and continue
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+            <button class="account-edit__save-button" (click)="saveAccount()">
+                Save
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="account-edit__content">
+        <form [formGroup]="accountForm" class="account-edit__form">
+            <!-- Basic Information Section -->
+            <div class="account-edit__section">
+                <h2 class="account-edit__section-title">Basic information</h2>
+
+                <div class="account-edit__toggle-row">
+                    <div class="account-edit__toggle-group">
+                        <label class="account-edit__label">Is active</label>
+                        <div class="account-edit__toggle" [class.account-edit__toggle--active]="isActive" (click)="toggleActive()">
+                            <div class="account-edit__toggle-slider"></div>
+                        </div>
+                    </div>
+
+                    <div class="account-edit__toggle-group">
+                        <label class="account-edit__label">Legal entity</label>
+                        <div class="account-edit__toggle" [class.account-edit__toggle--active]="isLegalEntity" (click)="toggleLegalEntity()">
+                            <div class="account-edit__toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Title</label>
+                        <input type="text" class="account-edit__input" formControlName="title">
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Account type</label>
+                        <div class="account-edit__dropdown">
+                            <div class="account-edit__selected-option">
+                <span class="account-edit__selected-tag">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  Customer
+                </span>
+                                <svg class="account-edit__dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Code</label>
+                        <input type="text" class="account-edit__input" formControlName="code">
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">OIB</label>
+                        <input type="text" class="account-edit__input" formControlName="oib">
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Purchase limit</label>
+                        <input type="text" class="account-edit__input" formControlName="purchaseLimit">
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Amount spent</label>
+                        <input type="text" class="account-edit__input" formControlName="amountSpent">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information Section -->
+            <div class="account-edit__section">
+                <h2 class="account-edit__section-title">Contact information</h2>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Phone</label>
+                        <input type="text" class="account-edit__input" formControlName="phone">
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Other phone</label>
+                        <input type="text" class="account-edit__input" formControlName="otherPhone">
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Email</label>
+                        <input type="email" class="account-edit__input" formControlName="email">
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Other email</label>
+                        <input type="email" class="account-edit__input" formControlName="otherEmail">
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Fax</label>
+                        <input type="text" class="account-edit__input" formControlName="fax">
+                    </div>
+                </div>
+
+                <div class="account-edit__field-row">
+                    <div class="account-edit__field">
+                        <label class="account-edit__label">Web</label>
+                        <input type="text" class="account-edit__input" formControlName="web">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Tabs Section -->
+        <div class="account-edit__tabs-section">
+            <div class="account-edit__tabs">
+                <button class="account-edit__tab"
+                        [class.account-edit__tab--active]="activeTab === 'contacts'"
+                        (click)="changeTab('contacts')">
+                    <svg *ngIf="activeTab === 'contacts'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Contacts
+                </button>
+                <button class="account-edit__tab"
+                        [class.account-edit__tab--active]="activeTab === 'addresses'"
+                        (click)="changeTab('addresses')">
+                    Addresses
+                </button>
+                <button class="account-edit__tab"
+                        [class.account-edit__tab--active]="activeTab === 'shop-orders'"
+                        (click)="changeTab('shop-orders')">
+                    Shop orders
+                </button>
+                <button class="account-edit__tab"
+                        [class.account-edit__tab--active]="activeTab === 'manual-entries'"
+                        (click)="changeTab('manual-entries')">
+                    Manual entries
+                </button>
+                <button class="account-edit__tab"
+                        [class.account-edit__tab--active]="activeTab === 'machines'"
+                        (click)="changeTab('machines')">
+                    Machines
+                </button>
+            </div>
+
+            <div class="account-edit__add-contact">
+                <button class="account-edit__add-contact-button" (click)="addContact()">
+                    Add contact
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Contacts Table -->
+        <div class="account-edit__table-container" *ngIf="activeTab === 'contacts'">
+            <table class="account-edit__table">
+                <thead>
+                <tr>
+                    <th class="account-edit__table-header">
+                        Id
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="account-edit__table-header">
+                        Full name
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="account-edit__table-header">
+                        Email
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="account-edit__table-header">
+                        Phone
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="account-edit__table-header">
+                        Billing
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="account-edit__table-header account-edit__table-header--actions"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let contact of contacts" class="account-edit__table-row">
+                    <td class="account-edit__table-cell">{{ contact.id }}</td>
+                    <td class="account-edit__table-cell">{{ contact.fullName }}</td>
+                    <td class="account-edit__table-cell">{{ contact.email }}</td>
+                    <td class="account-edit__table-cell">{{ contact.phone }}</td>
+                    <td class="account-edit__table-cell">
+              <span class="account-edit__status" [ngClass]="{'account-edit__status--yes': contact.billing, 'account-edit__status--no': !contact.billing}">
+                {{ contact.billing ? 'Yes' : 'No' }}
+              </span>
+                    </td>
+                    <td class="account-edit__table-cell account-edit__table-cell--actions">
+                        <button class="account-edit__action-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="account-edit__table-footer">
+                <span class="account-edit__results">Showing 1 to 3 from 3 results</span>
+            </div>
+        </div>
+    </div>
+</div>

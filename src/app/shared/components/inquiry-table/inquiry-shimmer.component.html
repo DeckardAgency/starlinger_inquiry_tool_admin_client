@@ -1,0 +1,36 @@
+<div class="shimmer-component">
+  <!-- Table -->
+  <div class="shimmer-table-wrapper">
+    <table class="shimmer-table">
+      <thead>
+      <tr>
+        <th>Inquiry ID</th>
+        <th>Machine model</th>
+        <th>Date Created</th>
+        <th>Customer</th>
+        <th>Parts ordered</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (row of rowsArray; track row) {
+          <tr>
+            <td><div class="shimmer-cell shimmer-cell--id"></div></td>
+            <td><div class="shimmer-cell shimmer-cell--machine"></div></td>
+            <td><div class="shimmer-cell shimmer-cell--date"></div></td>
+            <td>
+              <div class="shimmer-cell shimmer-cell--customer">
+                <div class="shimmer-avatar"></div>
+                <div style="flex: 1;"></div>
+              </div>
+            </td>
+            <td><div class="shimmer-cell shimmer-cell--parts"></div></td>
+            <td><div class="shimmer-cell shimmer-cell--status"></div></td>
+            <td></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

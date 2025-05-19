@@ -1,0 +1,8 @@
+<div class="app">
+    <app-top-bar></app-top-bar>
+    <app-sidebar></app-sidebar>
+    <main class="app__main" [class.app__main--collapsed]="sidebarService.isCollapsed()">
+        <router-outlet></router-outlet>
+    </main>
+    <app-notification></app-notification>
+</div>

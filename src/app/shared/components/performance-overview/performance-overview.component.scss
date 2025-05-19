@@ -1,0 +1,177 @@
+.performance-overview {
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+  }
+
+  &__icon {
+    font-size: 24px;
+  }
+
+  &__date-range {
+    min-width: 280px;
+    position: relative;
+
+    form {
+      width: 100%;
+    }
+
+    app-date-picker {
+      width: 100%;
+    }
+
+    // Remove default styling that might be interfering
+    background-color: transparent;
+    border: none;
+    padding: 0;
+
+    // Custom styling for date-picker in performance overview
+    ::ng-deep .date-picker-button {
+      background-color: #fff;
+      border-color: #e0e0e0;
+      font-weight: 500;
+
+      &:hover:not(:disabled) {
+        border-color: #d0d0d0;
+      }
+
+      &:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+      }
+    }
+
+    ::ng-deep .calendar-wrapper {
+      right: 0;
+      left: auto;
+
+      @media (max-width: 768px) {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    }
+
+    ::ng-deep .date-picker-value {
+      color: #444;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  &__card {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    &-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+    &-label {
+      font-size: 16px;
+      font-weight: 500;
+      color: #444;
+    }
+
+    &-value {
+      font-size: 40px;
+      font-weight: 600;
+      color: #dc3545;
+      margin-bottom: 6px;
+
+      &--currency {
+        font-size: 34px;
+      }
+    }
+  }
+
+  &__info-icon {
+    color: #666;
+    font-size: 18px;
+    cursor: help;
+  }
+
+  &__percentage {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 500;
+
+    &--increasing {
+      color: #28a745;
+    }
+
+    &--decreasing {
+      color: #dc3545;
+    }
+  }
+
+  &__arrow {
+    font-size: 16px;
+  }
+
+  @media (max-width: 1200px) {
+    &__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 900px) {
+    &__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+
+    &__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    &__date-range {
+      width: 100%;
+      min-width: 100%;
+    }
+  }
+}

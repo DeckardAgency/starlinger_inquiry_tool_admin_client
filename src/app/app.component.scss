@@ -1,0 +1,25 @@
+.app {
+  display: block;
+  height: calc(100vh - 64px);
+  background-color: #FAFAFA;
+  font-family: "Inter", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+
+  &__main {
+    margin-left: 250px;
+    margin-top: 80px; // Account for top-bar height
+    transition: margin-left 0.3s ease;
+    min-height: calc(100vh - 89px); // Subtract top-bar height
+
+    @media screen and (max-width: 834px) {
+      margin-left: 0px;
+    }
+
+    &--collapsed {
+      margin-left: 60px; // Match the collapsed sidebar width
+    }
+
+
+  }
+}

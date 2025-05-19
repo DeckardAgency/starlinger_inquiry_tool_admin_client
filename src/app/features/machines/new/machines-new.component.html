@@ -1,0 +1,461 @@
+<!-- product-new.component.html -->
+<div class="product-new">
+
+    <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
+
+    <header class="product-new__header">
+        <div class="product-new__header-left">
+            <button class="product-new__back-button" (click)="goBack()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
+            <div class="product-new__title-container">
+                <span class="product-new__product-code">Add New Product</span>
+                <h1 class="product-new__title">Lorem ipsum doris, vaular</h1>
+            </div>
+        </div>
+        <div class="product-new__header-right">
+            <button class="product-new__save-continue-button" (click)="saveAndContinue()">
+                Save and continue
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+            <button class="product-new__save-button" (click)="saveProduct()">
+                Save
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="product-new__content">
+        <form [formGroup]="productForm" class="product-new__form">
+            <!-- Basic Details Section -->
+            <div class="product-new__section">
+                <h2 class="product-new__section-title">Basic details</h2>
+
+                <div class="product-new__toggle-row">
+                    <div class="product-new__toggle-group">
+                        <label class="product-new__label">Active</label>
+                        <div class="product-new__toggle" [class.product-new__toggle--active]="isActive" (click)="toggleActive()">
+                            <div class="product-new__toggle-slider"></div>
+                        </div>
+                    </div>
+
+                    <div class="product-new__toggle-group">
+                        <label class="product-new__label">Ready for Shop</label>
+                        <div class="product-new__toggle" [class.product-new__toggle--active]="isReadyForShop" (click)="toggleReadyForShop()">
+                            <div class="product-new__toggle-slider"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">URL</label>
+                        <input type="text" class="product-new__input" formControlName="url">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Quantity</label>
+                        <input type="text" class="product-new__input" formControlName="quantity">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Quantity step</label>
+                        <input type="text" class="product-new__input" formControlName="quantityStep">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Quote item limit</label>
+                        <input type="text" class="product-new__input" formControlName="quoteItemLimit">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Fixed quantity</label>
+                        <input type="text" class="product-new__input" formControlName="fixedQuantity">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Weight</label>
+                        <input type="text" class="product-new__input" formControlName="weight">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Product group</label>
+                        <div class="product-new__dropdown">
+                            <div class="product-new__selected-option">
+                <span class="product-new__selected-tag">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  Electrical component
+                </span>
+                                <svg class="product-new__dropdown-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Code</label>
+                        <input type="text" class="product-new__input" formControlName="code">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Catalog code</label>
+                        <input type="text" class="product-new__input" formControlName="catalogCode">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prices Section -->
+            <div class="product-new__section">
+                <h2 class="product-new__section-title">Prices</h2>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Base price</label>
+                        <input type="text" class="product-new__input" formControlName="basePrice">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Retail price</label>
+                        <input type="text" class="product-new__input" formControlName="retailPrice">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Tax percent</label>
+                        <input type="text" class="product-new__input" formControlName="taxPercent">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Currency</label>
+                        <input type="text" class="product-new__input" formControlName="currency">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Discount %</label>
+                        <input type="text" class="product-new__input" formControlName="discountPercent">
+                    </div>
+                </div>
+
+                <div class="product-new__field-row">
+                    <div class="product-new__field">
+                        <label class="product-new__label">Discount price</label>
+                        <input type="text" class="product-new__input" formControlName="discountPrice">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Tabs Section -->
+        <div class="product-new__tabs">
+            <button
+                    class="product-new__tab"
+                    [class.product-new__tab--active]="activeTab === 'description'"
+                    (click)="setActiveTab('description')"
+            >
+                <svg *ngIf="activeTab === 'description'" class="product-new__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Short description
+            </button>
+
+            <button
+                    class="product-new__tab"
+                    [class.product-new__tab--active]="activeTab === 'gallery'"
+                    (click)="setActiveTab('gallery')"
+            >
+                Gallery
+            </button>
+
+            <button
+                    class="product-new__tab"
+                    [class.product-new__tab--active]="activeTab === 'documents'"
+                    (click)="setActiveTab('documents')"
+            >
+                Product documents
+            </button>
+
+            <button
+                    class="product-new__tab"
+                    [class.product-new__tab--active]="activeTab === 'discounts'"
+                    (click)="setActiveTab('discounts')"
+            >
+                Applied discounts
+            </button>
+        </div>
+
+        <!-- Editor Section -->
+        <div class="product-new__editor-container" *ngIf="activeTab === 'description'">
+            <div class="product-new__editor-toolbar">
+                <button class="product-new__editor-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 7V4h16v3"></path>
+                        <path d="M9 20h6"></path>
+                        <path d="M12 4v16"></path>
+                    </svg>
+                </button>
+
+                <button class="product-new__editor-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                </button>
+
+                <button class="product-new__editor-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                </button>
+
+                <span class="product-new__editor-separator"></span>
+
+                <button class="product-new__editor-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    </svg>
+                </button>
+
+                <button class="product-new__editor-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    </svg>
+                </button>
+
+                <span class="product-new__editor-separator"></span>
+
+                <div class="product-new__editor-dropdown">
+                    <span>Normal</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+
+                <div class="product-new__editor-dropdown">
+                    <span>Size</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="product-new__editor">
+                <p class="product-new__editor-placeholder">Start typing...</p>
+            </div>
+        </div>
+
+        <!-- Related Products Section -->
+        <div class="product-new__related-section">
+            <div class="product-new__related-header">
+                <h2 class="product-new__related-title">Select related products <span class="product-new__related-count">{{ totalRelatedProducts }}</span></h2>
+
+                <div class="product-new__related-actions">
+                    <div class="product-new__search">
+                        <input type="text" placeholder="Search..." class="product-new__search-input">
+                        <button class="product-new__search-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <button class="product-new__add-selected-button" (click)="addSelectedProducts()">
+                        Add selected
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="product-new__table-container">
+                <table class="product-new__table">
+                    <thead>
+                    <tr>
+                        <th class="product-new__table-header product-new__table-header--select">
+                            <div class="product-new__checkbox-container">
+                                <input type="checkbox" class="product-new__checkbox" id="select-all">
+                                <label for="select-all" class="product-new__checkbox-label"></label>
+                            </div>
+                        </th>
+                        <th class="product-new__table-header">Product ID</th>
+                        <th class="product-new__table-header">Code</th>
+                        <th class="product-new__table-header">
+                            Name
+                            <svg class="product-new__sort-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 15l5 5 5-5"></path>
+                                <path d="M7 9l5-5 5 5"></path>
+                            </svg>
+                        </th>
+                        <th class="product-new__table-header">Status</th>
+                        <th class="product-new__table-header">Available</th>
+                        <th class="product-new__table-header">Related</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let product of relatedProducts" class="product-new__table-row">
+                        <td class="product-new__table-cell product-new__table-cell--select">
+                            <div class="product-new__checkbox-container">
+                                <input type="checkbox" class="product-new__checkbox" [id]="'select-product-' + product.id">
+                                <label [for]="'select-product-' + product.id" class="product-new__checkbox-label"></label>
+                            </div>
+                        </td>
+                        <td class="product-new__table-cell">{{ product.id }}</td>
+                        <td class="product-new__table-cell">{{ product.code }}</td>
+                        <td class="product-new__table-cell">{{ product.name }}</td>
+                        <td class="product-new__table-cell">
+                            <span class="product-new__status product-new__status--active">{{ product.status }}</span>
+                        </td>
+                        <td class="product-new__table-cell">
+                            <span class="product-new__yes-label">Yes</span>
+                        </td>
+                        <td class="product-new__table-cell">
+                            <button class="product-new__related-button product-new__related-button--add">
+                                Related
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="product-new__table-footer">
+                <span class="product-new__results">{{ getResultsText(relatedProducts.length, totalRelatedProducts) }}</span>
+
+                <div class="product-new__pagination">
+                    <button
+                            class="product-new__page-button"
+                            [class.product-new__page-button--active]="currentPage === 1"
+                            (click)="changePage(1)"
+                    >
+                        1
+                    </button>
+                    <button
+                            class="product-new__page-button"
+                            [class.product-new__page-button--active]="currentPage === 2"
+                            (click)="changePage(2)"
+                    >
+                        2
+                    </button>
+                    <button
+                            class="product-new__page-button"
+                            [class.product-new__page-button--active]="currentPage === 3"
+                            (click)="changePage(3)"
+                    >
+                        3
+                    </button>
+
+                    <span class="product-new__pagination-dots">...</span>
+
+                    <button class="product-new__page-button product-new__page-button--next" (click)="nextPage()">
+                        Next
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selected Products Section -->
+        <div class="product-new__selected-section">
+            <h2 class="product-new__selected-title">Related products <span class="product-new__selected-count">{{ totalSelectedProducts }}</span></h2>
+
+            <div class="product-new__table-container">
+                <table class="product-new__table">
+                    <thead>
+                    <tr>
+                        <th class="product-new__table-header product-new__table-header--select">
+                            <div class="product-new__checkbox-container">
+                                <input type="checkbox" class="product-new__checkbox" id="select-all-related">
+                                <label for="select-all-related" class="product-new__checkbox-label"></label>
+                            </div>
+                        </th>
+                        <th class="product-new__table-header">Product ID</th>
+                        <th class="product-new__table-header">Code</th>
+                        <th class="product-new__table-header">Related product</th>
+                        <th class="product-new__table-header">Status</th>
+                        <th class="product-new__table-header">Sort order</th>
+                        <th class="product-new__table-header product-new__table-header--actions"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let product of selectedProducts" class="product-new__table-row">
+                        <td class="product-new__table-cell product-new__table-cell--select">
+                            <div class="product-new__checkbox-container">
+                                <input type="checkbox" class="product-new__checkbox" [id]="'select-related-' + product.id">
+                                <label [for]="'select-related-' + product.id" class="product-new__checkbox-label"></label>
+                            </div>
+                        </td>
+                        <td class="product-new__table-cell">{{ product.id }}</td>
+                        <td class="product-new__table-cell">{{ product.code }}</td>
+                        <td class="product-new__table-cell">{{ product.name }}</td>
+                        <td class="product-new__table-cell">
+                            <span class="product-new__status product-new__status--active">{{ product.status }}</span>
+                        </td>
+                        <td class="product-new__table-cell">{{ product.sortOrder }}</td>
+                        <td class="product-new__table-cell product-new__table-cell--actions">
+                            <button class="product-new__action-button" (click)="removeRelatedProduct(product.id)">
+                                <span>Remove</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

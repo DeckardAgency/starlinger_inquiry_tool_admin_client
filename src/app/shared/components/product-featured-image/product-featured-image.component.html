@@ -1,0 +1,59 @@
+<div class="featured-image">
+    <div class="featured-image__header">
+        <div class="featured-image__actions">
+            <button class="featured-image__upload-button" (click)="onUploadButtonClick()" [disabled]="isUploading">
+                Upload image
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3.33331 7.99992H12.6666M7.99998 3.33325V12.6666" stroke="#FAFAFA" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="featured-image__content" *ngIf="!featuredImage && !isUploading">
+        <div
+                class="featured-image__drop-area"
+                [class.featured-image__drop-area--active]="isDraggingOver"
+                (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)"
+                (drop)="onDrop($event)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <p>Drop a file here or click the upload button</p>
+            <p>Only image files (JPG, PNG, GIF) are allowed</p>
+        </div>
+    </div>
+
+    <!-- Upload Progress Section -->
+    <div class="featured-image__upload-progress" *ngIf="isUploading">
+        <div class="featured-image__progress-container">
+            <div class="featured-image__progress-label">Uploading...</div>
+            <div class="featured-image__progress-bar-container">
+                <div class="featured-image__progress-bar" [style.width.%]="uploadProgress"></div>
+            </div>
+            <div class="featured-image__progress-percentage">{{ uploadProgress }}%</div>
+        </div>
+    </div>
+
+    <div class="featured-image__preview" *ngIf="featuredImage">
+        <div class="featured-image__preview-container">
+            <img [src]="getImageUrl()" [alt]="featuredImage?.filename || 'Featured image'" class="featured-image__preview-image">
+            <div class="featured-image__preview-overlay">
+                <button class="featured-image__preview-action-button" (click)="removeFeaturedImage()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Remove
+                </button>
+            </div>
+        </div>
+        <div class="featured-image__details">
+            <span class="featured-image__filename">{{ featuredImage?.filename }}</span>
+            <span class="featured-image__type">{{ featuredImage?.mimeType }}</span>
+        </div>
+    </div>
+</div>
