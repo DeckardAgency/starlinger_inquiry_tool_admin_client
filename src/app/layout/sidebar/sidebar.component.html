@@ -46,7 +46,7 @@
             <h2 class="sidebar__section-title">Inquiry hub</h2>
             <ul class="sidebar__sub-list">
                 <li class="sidebar__item">
-                <a routerLink="/orders/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                <a routerLink="/orders/list" [class.sidebar__link--active]="isRouteActive('orders')" class="sidebar__link">
                 <span class="icon-shop sidebar__icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <g clip-path="url(#clip0_866_12494)">

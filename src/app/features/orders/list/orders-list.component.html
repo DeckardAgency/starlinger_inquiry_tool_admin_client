@@ -5,20 +5,37 @@
 
     <div class="orders__header">
         <div class="orders__title-container">
-            <svg class="orders__icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M11.6667 1.66675V5.00008C11.6667 5.44211 11.8423 5.86603 12.1549 6.17859C12.4674 6.49115 12.8913 6.66675 13.3334 6.66675H16.6667M7.50004 12.5001L9.16671 14.1667L12.5 10.8334M12.5 1.66675H5.00004C4.55801 1.66675 4.13409 1.84234 3.82153 2.1549C3.50897 2.46746 3.33337 2.89139 3.33337 3.33341V16.6667C3.33337 17.1088 3.50897 17.5327 3.82153 17.8453C4.13409 18.1578 4.55801 18.3334 5.00004 18.3334H15C15.4421 18.3334 15.866 18.1578 16.1786 17.8453C16.4911 17.5327 16.6667 17.1088 16.6667 16.6667V5.83341L12.5 1.66675Z" stroke="#232323" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <h1 class="orders__title">Shop orders <span class="orders__count">{{ totalOrders }}</span></h1>
+            <h1 class="orders__title">Shop orders <span class="orders__count">{{ ordersState().totalOrders }}</span></h1>
         </div>
 
         <div class="orders__actions">
             <div class="orders__search">
-                <input type="text" placeholder="Search..." class="orders__search-input">
-                <button class="orders__search-button">
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    class="orders__search-input"
+                    [ngModel]="searchState().term"
+                    (input)="onSearchInput($event)"
+                    (keyup.enter)="executeSearch()"
+                    #searchInput
+                >
+                <button class="orders__search-button" (click)="executeSearch()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M14.0001 14L11.1335 11.1333M12.6667 7.33333C12.6667 10.2789 10.2789 12.6667 7.33333 12.6667C4.38781 12.6667 2 10.2789 2 7.33333C2 4.38781 4.38781 2 7.33333 2C10.2789 2 12.6667 4.38781 12.6667 7.33333Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <!-- Clear search button - only visible when there's a search term -->
+                <button
+                    *ngIf="searchState().term"
+                    class="orders__clear-search-button"
+                    (click)="clearSearch(); searchInput.focus()"
+                    title="Clear search"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M4 4L12 12M4 12L12 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </button>
             </div>
@@ -32,47 +49,83 @@
     </div>
 
     <div class="orders__body">
+        <!-- Search info banner - only visible when search is active -->
+        <div *ngIf="searchState().term && !ordersState().loading && !ordersState().error" class="orders__search-info">
+            <span>Search results for: <strong>"{{ searchState().term }}"</strong></span>
+            <button class="orders__clear-search-link" (click)="clearSearch(); searchInput.focus()">Clear search</button>
+        </div>
+
         <div class="orders__tabs">
             <button
                 class="orders__tab"
-                [class.orders__tab--active]="activeTab === 'latest'"
+                [class.orders__tab--active]="filterState().activeTab === 'latest'"
                 (click)="setActiveTab('latest')">
-                <svg *ngIf="activeTab === 'latest'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+<!--                <svg *ngIf="filterState().activeTab === 'latest'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
+<!--                    <polyline points="20 6 9 17 4 12"></polyline>-->
+<!--                </svg>-->
                 Latest
             </button>
 
             <button
                 class="orders__tab"
-                [class.orders__tab--active]="activeTab === 'completed'"
+                [class.orders__tab--active]="filterState().activeTab === 'completed'"
                 (click)="setActiveTab('completed')">
-                <svg *ngIf="activeTab === 'completed'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+<!--                <svg *ngIf="filterState().activeTab === 'completed'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
+<!--                    <polyline points="20 6 9 17 4 12"></polyline>-->
+<!--                </svg>-->
                 Completed
             </button>
 
             <button
                 class="orders__tab"
-                [class.orders__tab--active]="activeTab === 'cancelled'"
-                (click)="setActiveTab('cancelled')">
-                <svg *ngIf="activeTab === 'cancelled'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                Cancelled
+                [class.orders__tab--active]="filterState().activeTab === 'canceled'"
+                (click)="setActiveTab('canceled')">
+<!--                <svg *ngIf="filterState().activeTab === 'canceled'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
+<!--                    <polyline points="20 6 9 17 4 12"></polyline>-->
+<!--                </svg>-->
+                Canceled
             </button>
         </div>
 
-        <div class="orders__table-container">
+        <!-- Loading state -->
+        <div *ngIf="ordersState().loading" class="orders__loading">
+            <div class="orders__spinner"></div>
+            <p>Loading orders...</p>
+        </div>
+
+        <!-- Error state -->
+        <div *ngIf="ordersState().error" class="orders__error">
+            <p>{{ ordersState().error }}</p>
+            <button
+                class="orders__retry-button"
+                (click)="loadOrders(
+                ordersState().currentPage,
+                sortState().field,
+                sortState().direction,
+                searchState().params,
+                { status: filterState().statusFilters[filterState().activeTab] }
+                )"
+            >
+                Retry
+            </button>
+        </div>
+
+        <!-- Empty state with consideration for search results -->
+        <div *ngIf="!ordersState().loading && !ordersState().error && ordersState().orders.length === 0" class="orders__empty">
+            <p *ngIf="searchState().term">No orders found matching "{{ searchState().term }}".</p>
+            <p *ngIf="!searchState().term">No orders found.</p>
+            <button *ngIf="searchState().term" class="orders__clear-search-button-large" (click)="clearSearch(); searchInput.focus()">Clear search</button>
+        </div>
+
+        <div *ngIf="!ordersState().loading && !ordersState().error && ordersState().orders.length > 0" class="orders__table-container">
             <table class="orders__table">
                 <thead class="orders__table-head">
                 <tr>
                     <th class="orders__table-header">Order ID</th>
                     <th class="orders__table-header">Type</th>
-                    <th class="orders__table-header">
+                    <th class="orders__table-header orders__table-header--sortable" (click)="sortBy('createdAt')">
                         Date Created
-                        <svg class="orders__sort-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg [ngClass]="getSortIconClass('createdAt')" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M7 15l5 5 5-5"></path>
                             <path d="M7 9l5-5 5 5"></path>
                         </svg>
@@ -85,69 +138,87 @@
                 </tr>
                 </thead>
                 <tbody class="orders__table-body">
-                <tr *ngFor="let order of filteredOrders()" class="orders__table-row">
-                    <td class="orders__table-cell">{{ order.id }}</td>
+                <tr *ngFor="let order of ordersState().orders" class="orders__table-row" (click)="viewOrderDetails(order.id)" style="cursor: pointer;">
+                    <td class="orders__table-cell">{{ order.id.substring(0, 8) }}...</td>
                     <td class="orders__table-cell">
-                        <span class="orders__type-badge">{{ order.type }}</span>
+                        <span class="orders__type-badge">Order</span>
                     </td>
-                    <td class="orders__table-cell">{{ order.dateCreated }}</td>
-                    <td class="orders__table-cell">{{ order.internalReference }}</td>
+                    <td class="orders__table-cell">{{ formatDate(order.createdAt) }}</td>
+                    <td class="orders__table-cell">{{ order.orderNumber }}</td>
                     <td class="orders__table-cell">
                         <div class="orders__customer">
-                            <div class="orders__customer-avatar">{{ order.customer.initials }}</div>
-                            <span class="orders__customer-name">{{ order.customer.name }}</span>
+                            <div class="orders__customer-avatar">{{ getUserInitials(order.user) }}</div>
+                            <span class="orders__customer-name">{{ getUserName(order.user) }}</span>
                         </div>
                     </td>
-                    <td class="orders__table-cell">{{ order.partsOrdered }}</td>
+                    <td class="orders__table-cell">{{ countTotalItems(order) }}</td>
                     <td class="orders__table-cell">
-            <span class="orders__status" [ngClass]="'orders__status--' + order.status.toLowerCase()">
-              {{ order.status }}
-            </span>
+                        <span class="orders__status" [ngClass]="'orders__status--' + order.status.toLowerCase()">
+                        {{ statusDisplayMap[order.status] || order.status }}
+                        </span>
                     </td>
                     <td class="orders__table-cell orders__table-cell--actions">
-                        <button class="orders__action-button" (click)="toggleOptions(order.id)">
+                        <button class="orders__action-button" (click)="$event.stopPropagation(); toggleOptions(order.id)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="1"></circle>
                                 <circle cx="12" cy="5" r="1"></circle>
                                 <circle cx="12" cy="19" r="1"></circle>
                             </svg>
                         </button>
+                        <!-- Options menu -->
+                        <div *ngIf="showOptions() && selectedOrderId() === order.id" class="orders__options" (click)="$event.stopPropagation()">
+                            <button class="orders__option" (click)="viewOrderDetails(order.id)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                View details
+                            </button>
+                            <button class="orders__option">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                Cancel order
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="orders__footer">
+        <div *ngIf="!ordersState().loading && !ordersState().error && ordersState().orders.length > 0" class="orders__footer">
             <span class="orders__results">{{ getResultsText() }}</span>
 
             <div class="orders__pagination">
+                <!-- Previous page button -->
                 <button
-                        class="orders__page-button"
-                        [class.orders__page-button--active]="currentPage === 1"
-                        (click)="changePage(1)"
+                    class="orders__page-button"
+                    [disabled]="ordersState().currentPage === 1"
+                    (click)="changePage(ordersState().currentPage - 1)"
                 >
-                    1
-                </button>
-                <button
-                        class="orders__page-button"
-                        [class.orders__page-button--active]="currentPage === 2"
-                        (click)="changePage(2)"
-                >
-                    2
-                </button>
-                <button
-                        class="orders__page-button"
-                        [class.orders__page-button--active]="currentPage === 3"
-                        (click)="changePage(3)"
-                >
-                    3
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
                 </button>
 
-                <span class="orders__pagination-dots">...</span>
+                <!-- Numbered page buttons -->
+                <button
+                    *ngFor="let page of pagesArray()"
+                    class="orders__page-button"
+                    [class.orders__page-button--active]="ordersState().currentPage === page"
+                    (click)="changePage(page)"
+                >
+                    {{ page }}
+                </button>
 
-                <button class="orders__page-button orders__page-button--next" (click)="nextPage()">
-                    Next
+                <!-- Next page button -->
+                <button
+                    class="orders__page-button orders__page-button--next"
+                    [disabled]="ordersState().currentPage >= ordersState().totalPages"
+                    (click)="nextPage()"
+                >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>

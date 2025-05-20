@@ -13,6 +13,7 @@ import { ProductEditComponent } from "@features/products/edit/product-edit.compo
 import {MachinesListComponent} from "@features/machines/list/machines-list.component";
 import {MachinesNewComponent} from "@features/machines/new/machines-new.component";
 import {MachinesEditComponent} from "@features/machines/edit/machines-edit.component";
+import {OrderViewComponent} from "@features/orders/view/order-view.component";
 
 export const routes: Routes = [
   {
@@ -52,6 +53,11 @@ export const routes: Routes = [
     path: 'orders/list',
     component: OrdersListComponent,
     title: 'Inquiry Tool | Orders List'
+  },
+  {
+    path: 'orders/:id/view',
+    component: OrderViewComponent,
+    title: 'Inquiry Tool | Orders View'
   },
   {
     path: 'manual-entry/list',

@@ -7,7 +7,6 @@ import { ProductService } from "@services/http/product.service";
 import { Product } from "@models/product.model";
 import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcrumbs.component";
 import { PaginationLinks } from "@models/pagination.model";
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
 // Interfaces to represent component state
 interface ProductsState {

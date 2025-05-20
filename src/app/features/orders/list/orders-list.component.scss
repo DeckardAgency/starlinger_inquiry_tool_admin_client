@@ -1,4 +1,3 @@
-// orders-list.component.scss
 .orders {
   width: 100%;
 
@@ -47,11 +46,10 @@
 
   &__search {
     position: relative;
-    width: 250px;
   }
 
   &__search-input {
-    padding: 10px 40px 10px 16px;
+    padding: 12px 40px 12px 16px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.875rem;
@@ -75,6 +73,74 @@
 
     &:hover {
       color: #0074d9;
+    }
+  }
+
+  &__clear-search-button {
+    position: absolute;
+    right: 8px;
+    top: calc(50% + 1px);
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+
+    &:hover {
+      background-color: #f0f0f0;
+      color: #333;
+    }
+  }
+
+  // Search info banner
+  &__search-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f8f9fa;
+    padding: 8px 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+
+    strong {
+      font-weight: 500;
+    }
+  }
+
+  &__clear-search-link {
+    background: none;
+    border: none;
+    color: #0074d9;
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: #e6f0f9;
+      text-decoration: underline;
+    }
+  }
+
+  &__clear-search-button-large {
+    margin-top: 16px;
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #e9e9e9;
     }
   }
 
@@ -109,7 +175,7 @@
   }
 
   &__tab {
-    padding: 1rem 3rem;
+    padding: 1rem 5rem;
     background: none;
     border: none;
     cursor: pointer;
@@ -146,6 +212,89 @@
     color: #4CAF50;
   }
 
+  // Loading state
+  &__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 16px;
+
+    p {
+      margin-top: 16px;
+      font-size: 0.875rem;
+      color: #666;
+    }
+  }
+
+  &__spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #DC2626;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  // Error state
+  &__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 16px;
+
+    p {
+      margin-bottom: 16px;
+      font-size: 0.875rem;
+      color: #e74c3c;
+    }
+  }
+
+  &__retry-button {
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #e9e9e9;
+    }
+  }
+
+  // Empty state
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 16px;
+
+    p {
+      margin-bottom: 16px;
+      font-size: 0.875rem;
+      color: #666;
+    }
+  }
+
   &__table-container {
     width: 100%;
     overflow-x: auto;
@@ -177,6 +326,16 @@
     &--actions {
       width: 50px;
     }
+
+    &--sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #f0f0f0;
+      }
+    }
   }
 
   &__sort-icon {
@@ -184,6 +343,17 @@
     vertical-align: middle;
     width: 12px;
     height: 12px;
+    opacity: 0.5;
+    transition: transform 0.2s;
+
+    &--asc {
+      opacity: 1;
+      transform: rotate(180deg);
+    }
+
+    &--desc {
+      opacity: 1;
+    }
   }
 
   &__table-row {
@@ -203,16 +373,17 @@
     &--actions {
       text-align: right;
       width: 50px;
+      position: relative;
     }
   }
 
   &__type-badge {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 0.125rem 0.625rem;
+    border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 500;
-    background-color: #4CAF50;
+    background-color: #237804;
     color: white;
   }
 
@@ -241,8 +412,8 @@
 
   &__status {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 2px 10px;
+    border-radius: 10px;
     font-size: 0.75rem;
     font-weight: 500;
 
@@ -251,9 +422,14 @@
       color: #2e7d32;
     }
 
-    &--cancelled {
-      background-color: #ffebee;
-      color: #c62828;
+    &--paid {
+      background-color: #237804;
+      color: #ffffff;
+    }
+
+    &--canceled {
+      color: #ffffff;
+      background-color: #DC2626;
     }
 
     &--rejected {
@@ -264,6 +440,54 @@
     &--archived {
       background-color: #fff8e1;
       color: #ff8f00;
+    }
+
+    &--pending {
+      background-color: #e3f2fd;
+      color: #1976d2;
+    }
+
+    &--processing {
+      background-color: #AD7F00;
+      color: #ffffff;
+    }
+  }
+
+  &__options {
+    position: absolute;
+    right: 16px;
+    top: 30px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    width: 150px;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.875rem;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid #eee;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
     }
   }
 
@@ -317,8 +541,8 @@
       border-color: #ccc;
     }
 
-    &--icon {
-      padding: 8px;
+    &--next {
+      gap: 4px;
     }
 
     &:hover:not(&--active):not(:disabled) {
