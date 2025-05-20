@@ -1,14 +1,20 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MediaItem } from '@models/media.model';
-import { HttpClient, HttpHeaders, HttpEventType } from '@angular/common/http';
+import { HttpClient, HttpEventType } from '@angular/common/http';
+import { finalize, catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+
+const API_BASE_URL = 'https://127.0.0.1:8002';
+const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/400x300?text=No+Image';
 
 @Component({
     selector: 'app-product-featured-image',
     standalone: true,
     imports: [CommonModule],
     templateUrl: './product-featured-image.component.html',
-    styleUrls: ['./product-featured-image.component.scss']
+    styleUrls: ['./product-featured-image.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductFeaturedImageComponent implements OnChanges {
     @Input() featuredImage: MediaItem | null = null;
@@ -17,7 +23,8 @@ export class ProductFeaturedImageComponent implements OnChanges {
     isDraggingOver = false;
     isUploading = false;
     uploadProgress = 0;
-    apiUrl = 'https://127.0.0.1:8002/api/v1/media_items';
+    readonly apiUrl = `${API_BASE_URL}/api/v1/media_items`;
+    readonly acceptedFileTypes = 'image/jpeg, image/png, image/gif';
 
     constructor(private http: HttpClient) {}
 
@@ -30,7 +37,7 @@ export class ProductFeaturedImageComponent implements OnChanges {
     onUploadButtonClick(): void {
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
-        fileInput.accept = 'image/*';
+        fileInput.accept = this.acceptedFileTypes;
 
         fileInput.onchange = (event: Event) => {
             const input = event.target as HTMLInputElement;
@@ -66,10 +73,23 @@ export class ProductFeaturedImageComponent implements OnChanges {
         }
     }
 
+    getImageUrl(): string {
+        if (this.featuredImage) {
+            return `${API_BASE_URL}/${this.featuredImage.filePath}` || PLACEHOLDER_IMAGE;
+        }
+        return PLACEHOLDER_IMAGE;
+    }
+
+    removeFeaturedImage(): void {
+        if (confirm('Are you sure you want to remove the featured image?')) {
+            this.featuredImageChange.emit(null);
+        }
+    }
+
     private uploadFeaturedImage(file: File): void {
         // Only process image files
-        if (!file.type.startsWith('image/')) {
-            alert('Please upload an image file (JPEG, PNG, GIF, etc).');
+        if (!this.isValidImageFile(file)) {
+            this.showErrorMessage('Please upload an image file (JPEG, PNG, GIF, etc).');
             return;
         }
 
@@ -84,38 +104,37 @@ export class ProductFeaturedImageComponent implements OnChanges {
         this.http.post<MediaItem>(this.apiUrl, formData, {
             reportProgress: true,
             observe: 'events'
-        }).subscribe({
-            next: (event) => {
-                if (event.type === HttpEventType.UploadProgress && event.total) {
-                    this.uploadProgress = Math.round(100 * event.loaded / event.total);
-                } else if (event.type === HttpEventType.Response) {
-                    // When the upload is complete and we get a response
-                    const mediaItem = event.body as MediaItem;
-                    console.log('Upload successful:', mediaItem);
-
-                    // Emit the new media item
-                    this.featuredImageChange.emit(mediaItem);
+        }).pipe(
+            catchError(error => {
+                console.error('Upload failed:', error);
+                this.showErrorMessage('Failed to upload image. Please try again.');
+                return throwError(() => error);
+            }),
+            finalize(() => {
+                if (this.uploadProgress < 100) {
                     this.isUploading = false;
                 }
-            },
-            error: (error) => {
-                console.error('Upload failed:', error);
-                alert('Failed to upload image. Please try again.');
+            })
+        ).subscribe(event => {
+            if (event.type === HttpEventType.UploadProgress && event.total) {
+                this.uploadProgress = Math.round(100 * event.loaded / event.total);
+            } else if (event.type === HttpEventType.Response) {
+                // When the upload is complete and we get a response
+                const mediaItem = event.body as MediaItem;
+                console.log('Upload successful:', mediaItem);
+
+                // Emit the new media item
+                this.featuredImageChange.emit(mediaItem);
                 this.isUploading = false;
             }
         });
     }
 
-    getImageUrl(): string {
-        if (this.featuredImage) {
-            return 'https://127.0.0.1:8002/' + this.featuredImage.filePath || 'https://via.placeholder.com/400x300?text=No+Image';
-        }
-        return 'https://via.placeholder.com/400x300?text=No+Image';
+    private isValidImageFile(file: File): boolean {
+        return file.type.startsWith('image/');
     }
 
-    removeFeaturedImage(): void {
-        if (confirm('Are you sure you want to remove the featured image?')) {
-            this.featuredImageChange.emit(null);
-        }
+    private showErrorMessage(message: string): void {
+        alert(message); // In a real app, replace with a proper notification service
     }
 }

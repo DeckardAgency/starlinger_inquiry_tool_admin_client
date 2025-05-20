@@ -108,8 +108,6 @@
                             <label for="select-all" class="product-list__checkbox-label"></label>
                         </div>
                     </th>
-                    <th class="product-list__table-header">Product ID</th>
-                    <th class="product-list__table-header">Code</th>
                     <th class="product-list__table-header product-list__table-header--sortable" (click)="sortBy('name')">
                         Name
                         <svg [ngClass]="getSortIconClass('name')" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -117,6 +115,8 @@
                             <path d="M7 9l5-5 5 5"></path>
                         </svg>
                     </th>
+                    <th class="product-list__table-header">Code</th>
+                    <th class="product-list__table-header">Product ID</th>
                     <th class="product-list__table-header">Short description</th>
                     <th class="product-list__table-header">Qty</th>
                     <th class="product-list__table-header">Weight</th>
@@ -139,9 +139,9 @@
                             <label [for]="'select-' + product.id" class="product-list__checkbox-label"></label>
                         </div>
                     </td>
-                    <td class="product-list__table-cell">{{ product.id }}</td>
-                    <td class="product-list__table-cell">{{ product.partNo }}</td>
                     <td class="product-list__table-cell">{{ product.name }}</td>
+                    <td class="product-list__table-cell">{{ product.partNo }}</td>
+                    <td class="product-list__table-cell">{{ product.id }}</td>
                     <td class="product-list__table-cell">{{ product.shortDescription }}</td>
                     <td class="product-list__table-cell"></td>
                     <td class="product-list__table-cell">{{ product.weight }}</td>
