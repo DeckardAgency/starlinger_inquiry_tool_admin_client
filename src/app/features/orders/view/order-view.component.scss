@@ -215,9 +215,10 @@
   }
 
   &__section-title {
-    font-size: 1rem;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
     font-weight: 600;
-    margin: 0 0 16px 0;
+    margin: 0 0 1rem 0;
     color: #232323;
     display: flex;
     align-items: center;
@@ -301,9 +302,6 @@
   }
 
   &__products-section {
-    border: 1px solid #E4E4E7;
-    border-radius: 8px;
-    padding: 16px;
     margin-bottom: 24px;
   }
 
@@ -315,7 +313,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
+    padding: 16px;
     background-color: #F4F4F5;
     border-radius: 4px;
     cursor: pointer;
@@ -344,6 +342,9 @@
   &__machine-action {
     font-size: 0.875rem;
     color: #71717A;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   &__table-container {

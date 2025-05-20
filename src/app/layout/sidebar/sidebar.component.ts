@@ -42,9 +42,7 @@ import { filter } from 'rxjs/operators';
 })
 export class SidebarComponent implements OnInit {
   isInquiriesExpanded = signal<boolean>(true);
-  isUserDropdownOpen = signal<boolean>(true);
-  isLoginModalOpen = signal<boolean>(false);
-  isSupportModalOpen = signal<boolean>(false);
+  isUserDropdownOpen = signal<boolean>(false);
   currentUser: User | null = null;
   userFullName: string = '';
   userRole: string = '';

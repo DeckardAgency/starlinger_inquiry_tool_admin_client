@@ -292,4 +292,81 @@ export class AuthService {
     const client = this.getClientInfo();
     return client ? client.name : '';
   }
+
+  /**
+   * Check if user has the required admin access
+   * (either ROLE_USER + ROLE_ADMIN or ROLE_USER + ROLE_SUPER_ADMIN)
+   * @returns True if user has required admin access
+   */
+  hasAdminAccess(): boolean {
+    const user = this.getCurrentUser();
+
+    if (!user?.roles) {
+      return false;
+    }
+
+    // Check for ROLE_USER + ROLE_ADMIN
+    if (user.roles.includes('ROLE_USER') && user.roles.includes('ROLE_ADMIN')) {
+      return true;
+    }
+
+    // Check for ROLE_USER + ROLE_SUPER_ADMIN
+    if (user.roles.includes('ROLE_USER') && user.roles.includes('ROLE_SUPER_ADMIN')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Check if user has super admin access (ROLE_USER + ROLE_SUPER_ADMIN)
+   * @returns True if user has ROLE_USER and ROLE_SUPER_ADMIN
+   */
+  hasSuperAdminAccess(): boolean {
+    const user = this.getCurrentUser();
+    return !!user?.roles &&
+        user.roles.includes('ROLE_USER') &&
+        user.roles.includes('ROLE_SUPER_ADMIN');
+  }
+
+  /**
+   * Get the highest role level of the current user
+   * @returns 'super_admin', 'admin', 'user', or 'none'
+   */
+  getHighestRoleLevel(): 'super_admin' | 'admin' | 'user' | 'none' {
+    const user = this.getCurrentUser();
+
+    if (!user?.roles) {
+      return 'none';
+    }
+
+    if (user.roles.includes('ROLE_SUPER_ADMIN')) {
+      return 'super_admin';
+    }
+
+    if (user.roles.includes('ROLE_ADMIN')) {
+      return 'admin';
+    }
+
+    if (user.roles.includes('ROLE_USER')) {
+      return 'user';
+    }
+
+    return 'none';
+  }
+
+  /**
+   * Check if user has all specified roles
+   * @param roles Array of roles to check
+   * @returns True if user has all the specified roles
+   */
+  hasAllRoles(roles: string[]): boolean {
+    const user = this.getCurrentUser();
+
+    if (!user?.roles) {
+      return false;
+    }
+
+    return roles.every(role => user.roles.includes(role));
+  }
 }

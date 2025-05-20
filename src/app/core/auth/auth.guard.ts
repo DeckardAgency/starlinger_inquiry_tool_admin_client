@@ -8,30 +8,22 @@ import { AuthService } from '@core/auth/auth.service';
 })
 export class AuthGuard {
   constructor(
-    private authService: AuthService,
-    private router: Router,
+      private authService: AuthService,
+      private router: Router,
   ) {}
 
   canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+      route: ActivatedRouteSnapshot,
+      state: RouterStateSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    // First check if user is already authenticated
+    // Check if user is already authenticated
     if (this.authService.isAuthenticated()) {
       return true;
     }
 
-    // Store the attempted URL for redirecting after login
-    const returnUrl = state.url;
-
-    // Delay opening the modal slightly to avoid showing it during page refresh
-    // when authentication might still be in progress
-    setTimeout(() => {
-      if (!this.authService.isAuthenticated()) {
-      }
-    }, 100);
-
-    // Return false to prevent navigation when not authenticated
-    return false;
+    // Not authenticated, redirect to login page with return URL
+    return this.router.createUrlTree(['/login'], {
+      queryParams: { returnUrl: state.url }
+    });
   }
 }

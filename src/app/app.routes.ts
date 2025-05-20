@@ -10,10 +10,14 @@ import { ManualEntryListComponent } from "@features/manual-entry/list/manual-ent
 import { ProductsListComponent } from "@features/products/list/products-list.component";
 import { ProductNewComponent } from "@features/products/new/product-new.component";
 import { ProductEditComponent } from "@features/products/edit/product-edit.component";
-import {MachinesListComponent} from "@features/machines/list/machines-list.component";
-import {MachinesNewComponent} from "@features/machines/new/machines-new.component";
-import {MachinesEditComponent} from "@features/machines/edit/machines-edit.component";
-import {OrderViewComponent} from "@features/orders/view/order-view.component";
+import { MachinesListComponent } from "@features/machines/list/machines-list.component";
+import { MachinesNewComponent } from "@features/machines/new/machines-new.component";
+import { MachinesEditComponent } from "@features/machines/edit/machines-edit.component";
+import { OrderViewComponent } from "@features/orders/view/order-view.component";
+import { AuthGuard } from "@core/auth/auth.guard";
+import {AuthLayoutComponent} from "./layout/auth-layout.component";
+import {MainLayoutComponent} from "./layout/main-layout.component";
+import {RoleGuard} from "@core/auth/role.guard";
 
 export const routes: Routes = [
   {
@@ -21,77 +25,93 @@ export const routes: Routes = [
     redirectTo: 'dashboard',
     pathMatch: 'full'
   },
+  // Auth routes with AuthLayoutComponent
   {
-    path: 'login',
-    component: LoginComponent,
-    title: 'Inquiry Tool | Login'
-  },
-  {
-    path: 'dashboard',
-    component: DashboardComponent,
-    title: 'Inquiry Tool | Dashboard'
-  },
-  {
-    path: 'accounts/list',
-    component: AccountsListComponent,
-    title: 'Inquiry Tool | Accounts List'
-  },
-  { path: 'accounts/new',
-    component: AccountsNewComponent,
-    title: 'Inquiry Tool | Accounts List'
-  },
-  { path: 'accounts/edit/:id',
-    component: AccountsEditComponent,
-    title: 'Inquiry Tool | Accounts List'
+    path: '',
+    component: AuthLayoutComponent,
+    children: [
+      {
+        path: 'login',
+        component: LoginComponent,
+        title: 'Inquiry Tool | Login'
+      }
+    ]
   },
   {
-    path: 'contacts/list',
-    component: ContactsListComponent,
-    title: 'Inquiry Tool | Contacts List'
-  },
-  {
-    path: 'orders/list',
-    component: OrdersListComponent,
-    title: 'Inquiry Tool | Orders List'
-  },
-  {
-    path: 'orders/:id/view',
-    component: OrderViewComponent,
-    title: 'Inquiry Tool | Orders View'
-  },
-  {
-    path: 'manual-entry/list',
-    component: ManualEntryListComponent,
-    title: 'Inquiry Tool | Orders List'
-  },
-  {
-    path: 'products/list',
-    component: ProductsListComponent,
-    title: 'Inquiry Tool | Orders List'
-  },
-  {
-    path: 'products/new',
-    component: ProductNewComponent,
-    title: 'Inquiry Tool | Product New'
-  },
-  {
-    path: 'products/:id/edit',
-    component: ProductEditComponent,
-    title: 'Inquiry Tool | Product New'
-  },
-  {
-    path: 'machines/list',
-    component: MachinesListComponent,
-    title: 'Inquiry Tool | Machines List'
-  },
-  {
-    path: 'machines/new',
-    component: MachinesNewComponent,
-    title: 'Inquiry Tool | Machine New'
-  },
-  {
-    path: 'machines/:id/edit',
-    component: MachinesEditComponent,
-    title: 'Inquiry Tool | Machine New'
-  },
+    path: '',
+    component: MainLayoutComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    children: [
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        title: 'Inquiry Tool | Dashboard'
+      },
+      {
+        path: 'accounts/list',
+        component: AccountsListComponent,
+        title: 'Inquiry Tool | Accounts List'
+      },
+      {
+        path: 'accounts/new',
+        component: AccountsNewComponent,
+        title: 'Inquiry Tool | Accounts List'
+      },
+      {
+        path: 'accounts/edit/:id',
+        component: AccountsEditComponent,
+        title: 'Inquiry Tool | Accounts List'
+      },
+      {
+        path: 'contacts/list',
+        component: ContactsListComponent,
+        title: 'Inquiry Tool | Contacts List'
+      },
+      {
+        path: 'orders/list',
+        component: OrdersListComponent,
+        title: 'Inquiry Tool | Orders List'
+      },
+      {
+        path: 'orders/:id/view',
+        component: OrderViewComponent,
+        title: 'Inquiry Tool | Orders View'
+      },
+      {
+        path: 'manual-entry/list',
+        component: ManualEntryListComponent,
+        title: 'Inquiry Tool | Orders List'
+      },
+      {
+        path: 'products/list',
+        component: ProductsListComponent,
+        title: 'Inquiry Tool | Orders List'
+      },
+      {
+        path: 'products/new',
+        component: ProductNewComponent,
+        title: 'Inquiry Tool | Product New'
+      },
+      {
+        path: 'products/:id/edit',
+        component: ProductEditComponent,
+        title: 'Inquiry Tool | Product New'
+      },
+      {
+        path: 'machines/list',
+        component: MachinesListComponent,
+        title: 'Inquiry Tool | Machines List'
+      },
+      {
+        path: 'machines/new',
+        component: MachinesNewComponent,
+        title: 'Inquiry Tool | Machine New'
+      },
+      {
+        path: 'machines/:id/edit',
+        component: MachinesEditComponent,
+        title: 'Inquiry Tool | Machine New'
+      }
+    ]
+  }
 ];
