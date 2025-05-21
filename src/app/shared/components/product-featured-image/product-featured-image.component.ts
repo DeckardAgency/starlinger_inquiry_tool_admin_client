@@ -1,54 +1,69 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MediaItem } from '@models/media.model';
-import { HttpClient, HttpEventType } from '@angular/common/http';
-import { finalize, catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
-
-const API_BASE_URL = 'https://127.0.0.1:8002';
-const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/400x300?text=No+Image';
+import { MediaService } from '@services/http/media.service';
+import { HttpEventType } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 
 @Component({
     selector: 'app-product-featured-image',
     standalone: true,
     imports: [CommonModule],
     templateUrl: './product-featured-image.component.html',
-    styleUrls: ['./product-featured-image.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ['./product-featured-image.component.scss']
 })
-export class ProductFeaturedImageComponent implements OnChanges {
+export class ProductFeaturedImageComponent implements OnInit {
     @Input() featuredImage: MediaItem | null = null;
     @Output() featuredImageChange = new EventEmitter<MediaItem | null>();
 
-    isDraggingOver = false;
     isUploading = false;
     uploadProgress = 0;
-    readonly apiUrl = `${API_BASE_URL}/api/v1/media_items`;
-    readonly acceptedFileTypes = 'image/jpeg, image/png, image/gif';
+    isDraggingOver = false;
+    imageUrl: string | null = null;
+    uploadError: string | null = null;
 
-    constructor(private http: HttpClient) {}
+    constructor(private mediaService: MediaService) {}
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes['featuredImage']) {
-            console.log('Featured image changed in component:', this.featuredImage);
+    ngOnInit(): void {
+        // Set the image URL if a featured image exists
+        this.updateImageUrl();
+    }
+
+    private updateImageUrl(): void {
+        if (this.featuredImage) {
+            // Check if featuredImage is a string (IRI) or an object
+            if (typeof this.featuredImage === 'string') {
+                // Handle IRI case - we would need to fetch the actual media item
+                // This would depend on your API structure
+                console.log('Featured image is an IRI:', this.featuredImage);
+                this.imageUrl = null;
+            } else {
+                // Handle object case - use the filePath property
+                this.imageUrl = this.featuredImage.filePath
+                    ? 'https://127.0.0.1:8002' + this.featuredImage.filePath
+                    : null;
+            }
+        } else {
+            this.imageUrl = null;
         }
     }
 
-    onUploadButtonClick(): void {
+    onFileInputClick(): void {
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
-        fileInput.accept = this.acceptedFileTypes;
+        fileInput.accept = 'image/*';
 
         fileInput.onchange = (event: Event) => {
             const input = event.target as HTMLInputElement;
             if (input.files && input.files.length > 0) {
-                this.uploadFeaturedImage(input.files[0]);
+                this.uploadFile(input.files[0]);
             }
         };
 
         fileInput.click();
     }
 
+    // Drag and drop handlers
     onDragOver(event: DragEvent): void {
         event.preventDefault();
         event.stopPropagation();
@@ -68,73 +83,51 @@ export class ProductFeaturedImageComponent implements OnChanges {
 
         const files = event.dataTransfer?.files;
         if (files && files.length > 0) {
-            // Get only the first file for featured image
-            this.uploadFeaturedImage(files[0]);
+            // Get only the first dropped file, as featured image is a single image
+            this.uploadFile(files[0]);
         }
     }
 
-    getImageUrl(): string {
-        if (this.featuredImage) {
-            return `${API_BASE_URL}/${this.featuredImage.filePath}` || PLACEHOLDER_IMAGE;
-        }
-        return PLACEHOLDER_IMAGE;
+    uploadFile(file: File): void {
+        // Reset upload status
+        this.isUploading = true;
+        this.uploadProgress = 0;
+        this.uploadError = null;
+
+        // Upload the file using the MediaService
+        this.mediaService.uploadFile(file)
+            .pipe(
+                finalize(() => {
+                    this.isUploading = false;
+                })
+            )
+            .subscribe({
+                next: (event) => {
+                    if (event.type === HttpEventType.UploadProgress && event.total) {
+                        // Calculate and update progress percentage
+                        this.uploadProgress = Math.round(100 * event.loaded / event.total);
+                    } else if (event.type === HttpEventType.Response) {
+                        // Upload completed, get the response data
+                        const mediaItem = event.body as MediaItem;
+
+                        // Update the featured image and notify parent component
+                        this.featuredImage = mediaItem;
+                        this.featuredImageChange.emit(mediaItem);
+
+                        // Update the image URL
+                        this.updateImageUrl();
+                    }
+                },
+                error: (err) => {
+                    console.error('Error uploading file:', err);
+                    this.uploadError = 'Failed to upload image. Please try again.';
+                }
+            });
     }
 
     removeFeaturedImage(): void {
-        if (confirm('Are you sure you want to remove the featured image?')) {
-            this.featuredImageChange.emit(null);
-        }
-    }
-
-    private uploadFeaturedImage(file: File): void {
-        // Only process image files
-        if (!this.isValidImageFile(file)) {
-            this.showErrorMessage('Please upload an image file (JPEG, PNG, GIF, etc).');
-            return;
-        }
-
-        this.isUploading = true;
-        this.uploadProgress = 0;
-
-        // Create form data for the file upload
-        const formData = new FormData();
-        formData.append('file', file);
-
-        // Set up the request with progress tracking
-        this.http.post<MediaItem>(this.apiUrl, formData, {
-            reportProgress: true,
-            observe: 'events'
-        }).pipe(
-            catchError(error => {
-                console.error('Upload failed:', error);
-                this.showErrorMessage('Failed to upload image. Please try again.');
-                return throwError(() => error);
-            }),
-            finalize(() => {
-                if (this.uploadProgress < 100) {
-                    this.isUploading = false;
-                }
-            })
-        ).subscribe(event => {
-            if (event.type === HttpEventType.UploadProgress && event.total) {
-                this.uploadProgress = Math.round(100 * event.loaded / event.total);
-            } else if (event.type === HttpEventType.Response) {
-                // When the upload is complete and we get a response
-                const mediaItem = event.body as MediaItem;
-                console.log('Upload successful:', mediaItem);
-
-                // Emit the new media item
-                this.featuredImageChange.emit(mediaItem);
-                this.isUploading = false;
-            }
-        });
-    }
-
-    private isValidImageFile(file: File): boolean {
-        return file.type.startsWith('image/');
-    }
-
-    private showErrorMessage(message: string): void {
-        alert(message); // In a real app, replace with a proper notification service
+        this.featuredImage = null;
+        this.imageUrl = null;
+        this.featuredImageChange.emit(null);
     }
 }

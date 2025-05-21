@@ -1,69 +1,70 @@
 <div class="featured-image">
-    <div class="featured-image__header">
-        <div class="featured-image__actions">
-            <button
-                    class="featured-image__upload-button"
-                    (click)="onUploadButtonClick()"
-                    [disabled]="isUploading"
-                    aria-label="Upload new image">
-                Upload image
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M3.33331 7.99992H12.6666M7.99998 3.33325V12.6666" stroke="#FAFAFA" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
-        </div>
-    </div>
-
-    <div class="featured-image__content" *ngIf="!featuredImage && !isUploading">
-        <div
-                class="featured-image__drop-area"
-                [class.featured-image__drop-area--active]="isDraggingOver"
-                (dragover)="onDragOver($event)"
-                (dragleave)="onDragLeave($event)"
-                (drop)="onDrop($event)"
-                role="button"
-                tabindex="0"
-                aria-label="Drop zone for image upload">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <!-- Upload area when no image is selected -->
+    <div class="featured-image__drop-area"
+         *ngIf="!featuredImage && !isUploading"
+         [class.featured-image__drop-area--active]="isDraggingOver"
+         (dragover)="onDragOver($event)"
+         (dragleave)="onDragLeave($event)"
+         (drop)="onDrop($event)"
+         (click)="onFileInputClick()">
+        <div class="featured-image__upload-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                 <polyline points="21 15 16 10 5 21"></polyline>
+                <path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
-            <p>Drop a file here or click the upload button</p>
-            <p>Only image files (JPG, PNG, GIF) are allowed</p>
         </div>
+        <p class="featured-image__upload-text">Click or drag an image here to upload</p>
+        <p class="featured-image__upload-hint">Recommended size: 800x800 pixels</p>
     </div>
 
-    <!-- Upload Progress Section -->
-    <div class="featured-image__upload-progress" *ngIf="isUploading" role="progressbar" [attr.aria-valuenow]="uploadProgress" aria-valuemin="0" aria-valuemax="100">
+    <!-- Loading state during upload -->
+    <div class="featured-image__loading" *ngIf="isUploading">
         <div class="featured-image__progress-container">
-            <div class="featured-image__progress-label">Uploading...</div>
-            <div class="featured-image__progress-bar-container">
-                <div class="featured-image__progress-bar" [style.width.%]="uploadProgress"></div>
-            </div>
-            <div class="featured-image__progress-percentage">{{ uploadProgress }}%</div>
+            <div class="featured-image__progress-bar" [style.width.%]="uploadProgress"></div>
         </div>
+        <p class="featured-image__loading-text">Uploading image... {{ uploadProgress }}%</p>
     </div>
 
-    <div class="featured-image__preview" *ngIf="featuredImage">
-        <div class="featured-image__preview-container">
-            <img [src]="getImageUrl()" [alt]="featuredImage.filename || 'Featured image'" class="featured-image__preview-image">
-            <div class="featured-image__preview-overlay">
-                <button
-                        class="featured-image__preview-action-button"
-                        (click)="removeFeaturedImage()"
-                        aria-label="Remove featured image">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                    Remove
-                </button>
-            </div>
+    <!-- Error message if upload fails -->
+    <div class="featured-image__error" *ngIf="uploadError">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p>{{ uploadError }}</p>
+        <button class="featured-image__retry-button" (click)="onFileInputClick()">Try Again</button>
+    </div>
+
+    <!-- Display the featured image when available -->
+    <div class="featured-image__container" *ngIf="featuredImage && !isUploading">
+        <img [src]="imageUrl" alt="Featured product image" class="featured-image__image">
+
+        <div class="featured-image__actions">
+            <button class="featured-image__change-button" (click)="onFileInputClick()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Change Image
+            </button>
+
+            <button class="featured-image__remove-button" (click)="removeFeaturedImage()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Remove
+            </button>
         </div>
-        <div class="featured-image__details">
+
+        <div class="featured-image__info">
             <span class="featured-image__filename">{{ featuredImage.filename }}</span>
-            <span class="featured-image__type">{{ featuredImage.mimeType }}</span>
+            <span class="featured-image__mime-type">{{ featuredImage.mimeType }}</span>
         </div>
     </div>
 </div>
