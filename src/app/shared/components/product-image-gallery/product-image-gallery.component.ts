@@ -2,6 +2,9 @@ import { Component, OnInit, HostListener, Input, Output, EventEmitter, OnChanges
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MediaItem } from '@models/media.model';
+import { MediaService } from '@services/http/media.service';
+import { HttpEventType } from '@angular/common/http';
+import { finalize, forkJoin, Observable, of } from 'rxjs';
 
 interface GalleryImage {
     id: string;
@@ -32,8 +35,10 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
     isDraggingImage = false;
     draggedImageId: string | null = null;
     dropTargetImageId: string | null = null;
+    uploadProgress: number = 0;
+    uploadErrors: string[] = [];
 
-    constructor() {}
+    constructor(private mediaService: MediaService) {}
 
     ngOnInit(): void {
         this.initializeGalleryImages();
@@ -51,8 +56,7 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
                 return {
                     id: item.id || item['@id'] || String(index),
                     name: item.filename || `Image-${index + 1}`,
-                    // In a real application, you would construct the URL based on your API's structure
-                    url: item.filePath || `https://picsum.photos/seed/${index}/200/200`,
+                    url: item.filePath || '',
                     originalItem: item,
                     isPrimary: index === 0, // Assuming the first image is primary by default
                     isRenaming: false
@@ -112,7 +116,9 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
 
         const files = event.dataTransfer?.files;
         if (files && files.length > 0) {
-            this.uploadFiles(files);
+            // Convert FileList to array for easier handling
+            const fileArray = Array.from(files);
+            this.uploadFiles(fileArray);
         }
     }
 
@@ -126,62 +132,97 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
         fileInput.onchange = (event: Event) => {
             const input = event.target as HTMLInputElement;
             if (input.files && input.files.length > 0) {
-                this.uploadFiles(input.files);
+                // Convert FileList to array for easier handling
+                const fileArray = Array.from(input.files);
+                this.uploadFiles(fileArray);
             }
         };
 
         fileInput.click();
     }
 
-    // Common method to handle file uploads
-    private uploadFiles(files: FileList): void {
-        if (files.length > 0) {
-            this.isUploading = true;
+    // Upload files to the API
+    private uploadFiles(files: File[]): void {
+        if (files.length === 0) return;
 
-            // Simulate upload delay
-            setTimeout(() => {
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    // Only process image files
-                    if (file.type.startsWith('image/')) {
-                        const newId = Date.now() + '-' + Math.floor(Math.random() * 1000);
-                        // Create a temporary URL for the selected file
-                        const url = URL.createObjectURL(file);
+        this.isUploading = true;
+        this.uploadProgress = 0;
+        this.uploadErrors = [];
 
-                        // Create a new MediaItem object that matches the expected structure
-                        const newMediaItem: MediaItem = {
-                            '@id': '/api/media/' + newId,
-                            '@type': 'MediaItem',
-                            id: newId.toString(),
-                            filename: file.name,
-                            mimeType: file.type,
-                            filePath: url, // In a real app, this would be a server path
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString()
-                        };
-
-                        // Add to gallery images
-                        this.galleryImages.push({
-                            id: newId.toString(),
-                            name: file.name,
-                            url: url,
-                            originalItem: newMediaItem,
-                            isPrimary: this.galleryImages.length === 0 // Make primary if it's the first image
-                        });
-                    }
-                }
-
-                this.isUploading = false;
-                this.updateMediaItems(); // Update parent component
-            }, 1000);
+        // Filter only image files
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        if (imageFiles.length === 0) {
+            this.isUploading = false;
+            return;
         }
+
+        // For multiple files, track uploads individually and update progress
+        let completedUploads = 0;
+        let successfulUploads: MediaItem[] = [];
+
+        // Upload each file one by one
+        const uploadNext = (index: number) => {
+            if (index >= imageFiles.length) {
+                // All uploads complete
+                this.isUploading = false;
+
+                // Add all successful uploads to gallery
+                successfulUploads.forEach(mediaItem => {
+                    this.addMediaItemToGallery(mediaItem);
+                });
+
+                this.updateMediaItems(); // Update parent component
+                return;
+            }
+
+            const file = imageFiles[index];
+            this.mediaService.uploadFile(file)
+                .pipe(
+                    finalize(() => {
+                        completedUploads++;
+                        this.uploadProgress = Math.round((completedUploads / imageFiles.length) * 100);
+
+                        // Process next file
+                        uploadNext(index + 1);
+                    })
+                )
+                .subscribe({
+                    next: (event) => {
+                        if (event.type === HttpEventType.Response) {
+                            // Upload completed successfully
+                            const mediaItem = event.body as MediaItem;
+                            successfulUploads.push(mediaItem);
+                        }
+                    },
+                    error: (err) => {
+                        console.error(`Error uploading file ${file.name}:`, err);
+                        this.uploadErrors.push(`Failed to upload ${file.name}`);
+                    }
+                });
+        };
+
+        // Start uploading the first file
+        uploadNext(0);
+    }
+
+    // Add a new MediaItem to the gallery
+    private addMediaItemToGallery(mediaItem: MediaItem): void {
+        const isPrimary = this.galleryImages.length === 0; // Make primary if it's the first image
+
+        this.galleryImages.push({
+            id: mediaItem.id,
+            name: mediaItem.filename,
+            url: mediaItem.filePath,
+            originalItem: mediaItem,
+            isPrimary: isPrimary
+        });
     }
 
     downloadImage(imageId: string): void {
         const image = this.galleryImages.find(img => img.id === imageId);
         if (image) {
             const link = document.createElement('a');
-            link.href = image.url;
+            link.href = 'https://127.0.0.1:8002' + image.url;
             link.download = image.name;
             document.body.appendChild(link);
             link.click();
@@ -195,14 +236,28 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
         if (index !== -1) {
             // Check if deleting primary image
             const isPrimary = this.galleryImages[index].isPrimary;
+            const mediaItem = this.galleryImages[index].originalItem;
 
-            // Remove the image
+            // Remove the image from the gallery
             this.galleryImages.splice(index, 1);
 
             // If it was primary, set the first remaining image as primary
             if (isPrimary && this.galleryImages.length > 0) {
                 this.galleryImages[0].isPrimary = true;
             }
+
+            // Optional: Delete from server if needed
+            // Uncomment this section if you want to delete the file from the server
+            /*
+            this.mediaService.deleteMediaItem(mediaItem.id).subscribe({
+                next: () => {
+                    console.log('Media item deleted from server');
+                },
+                error: (err) => {
+                    console.error('Error deleting media item from server:', err);
+                }
+            });
+            */
 
             this.updateMediaItems(); // Update parent component
         }
@@ -312,7 +367,7 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
     downloadAllImages(): void {
         this.galleryImages.forEach((image, index) => {
             const link = document.createElement('a');
-            link.href = image.url;
+            link.href = 'https://127.0.0.1:8002' + image.url;
             link.download = image.name;
             document.body.appendChild(link);
 
@@ -326,6 +381,25 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
 
     deleteAllImages(): void {
         if (confirm('Are you sure you want to delete all images?')) {
+            // Optional: Delete all images from server
+            /*
+            const deleteObservables = this.galleryImages.map(image =>
+                this.mediaService.deleteMediaItem(image.originalItem.id)
+            );
+
+            forkJoin(deleteObservables).subscribe({
+                next: () => {
+                    console.log('All media items deleted from server');
+                    this.galleryImages = [];
+                    this.updateMediaItems();
+                },
+                error: (err) => {
+                    console.error('Error deleting media items from server:', err);
+                }
+            });
+            */
+
+            // Just remove from UI if we're not deleting from server
             this.galleryImages = [];
             this.updateMediaItems(); // Update parent component
         }
@@ -351,6 +425,19 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
             image.name = image.newName;
             image.originalItem.filename = image.newName; // Update the original MediaItem
             image.isRenaming = false;
+
+            // Optional: Update filename on server
+            // This would require implementing a method in MediaService to update a MediaItem
+            /*
+            this.mediaService.updateMediaItem(image.originalItem.id, { filename: image.newName }).subscribe({
+                next: (updatedItem) => {
+                    console.log('Media item renamed successfully');
+                },
+                error: (err) => {
+                    console.error('Error renaming media item:', err);
+                }
+            });
+            */
 
             this.updateMediaItems(); // Update parent component
         } else if (image) {

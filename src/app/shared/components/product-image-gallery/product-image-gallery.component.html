@@ -53,7 +53,12 @@
             <circle cx="12" cy="12" r="10"></circle>
             <path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"></path>
         </svg>
-        Uploading images...
+        Uploading images... {{ uploadProgress }}%
+
+        <!-- Display errors if any -->
+        <div *ngIf="uploadErrors.length > 0" class="image-gallery__upload-errors">
+            <p *ngFor="let error of uploadErrors">{{ error }}</p>
+        </div>
     </div>
 
     <div class="image-gallery__empty" *ngIf="galleryImages.length === 0 && !isUploading">
@@ -159,7 +164,7 @@
                 </div>
 
                 <div class="image-gallery__image-container">
-                    <img [src]="'https://127.0.0.1:8002/' + image.url" [alt]="image.name" class="image-gallery__image">
+                    <img [src]="'https://127.0.0.1:8002' + image.url" [alt]="image.name" class="image-gallery__image">
 
                     <div class="image-gallery__primary-badge" *ngIf="image.isPrimary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
