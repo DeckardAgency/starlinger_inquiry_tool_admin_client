@@ -12,7 +12,6 @@ import {
   ElementRef
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
