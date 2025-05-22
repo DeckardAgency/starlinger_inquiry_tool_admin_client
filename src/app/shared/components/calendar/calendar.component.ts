@@ -13,12 +13,14 @@ import {
   LOCALE_ID,
   signal,
   computed,
-  AfterViewInit
+  AfterViewInit,
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { fromEvent, Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { fromEvent } from 'rxjs';
+import { filter, debounceTime } from 'rxjs/operators';
 
 export interface CalendarDate {
   date: Date;
@@ -31,6 +33,14 @@ export interface CalendarDate {
   isHovered: boolean;
   monthIndex: number;
   isDisabled: boolean;
+  dateTime: number; // Pre-calculated for performance
+}
+
+interface DateRestrictions {
+  minDate: Date | null;
+  maxDate: Date | null;
+  disableFutureDates: boolean;
+  disablePastDates: boolean;
 }
 
 @Component({
@@ -41,10 +51,11 @@ export interface CalendarDate {
   styleUrls: ['./calendar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   private readonly destroyRef = inject(DestroyRef);
   private readonly locale = inject(LOCALE_ID);
-  private datePipe = new DatePipe(this.locale);
+  private readonly datePipe = new DatePipe(this.locale);
+  private readonly elementRef = inject(ElementRef);
 
   // Required inputs
   @Input({ required: true }) isRange!: boolean;
@@ -66,127 +77,124 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit {
   @Output() closeCalendar = new EventEmitter<void>();
 
   // State signals
-  daysOfWeek = signal<string[]>(['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']);
-  firstMonthDays = signal<CalendarDate[]>([]);
-  secondMonthDays = signal<CalendarDate[]>([]);
-  currentMonth = signal<Date>(new Date());
-  nextMonth = computed(() => {
+  readonly daysOfWeek = signal<string[]>(['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']);
+  readonly firstMonthDays = signal<CalendarDate[]>([]);
+  readonly secondMonthDays = signal<CalendarDate[]>([]);
+  readonly currentMonth = signal<Date>(new Date());
+
+  // Computed values
+  readonly nextMonth = computed(() => {
     const next = new Date(this.currentMonth());
     next.setDate(1);
     next.setMonth(next.getMonth() + 1);
     return next;
   });
 
-  // For range selection
-  selectionInProgress = signal<boolean>(false);
-  hoverDate = signal<Date | null>(null);
+  readonly firstMonthName = computed(() => this.getMonthName(this.currentMonth()));
+  readonly secondMonthName = computed(() => this.getMonthName(this.nextMonth()));
 
-  // For focus trap implementation
-  private focusTrapEnabled = signal<boolean>(false);
+  // Range selection state
+  readonly selectionInProgress = signal<boolean>(false);
+  readonly hoverDate = signal<Date | null>(null);
+
+  // Focus management
+  private readonly focusTrapEnabled = signal<boolean>(false);
   private focusableElements: HTMLElement[] = [];
-  private focusedElementIndex = signal<number>(-1);
-  private documentKeydownSubscription?: Subscription;
-
-  // Track original focus to restore when trap is disabled
+  private readonly focusedElementIndex = signal<number>(-1);
   private originalFocusedElement: HTMLElement | null = null;
 
-  // Getters for computed properties
-  firstMonthName = computed(() => this.getMonthName(this.currentMonth()));
-  secondMonthName = computed(() => this.getMonthName(this.nextMonth()));
+  // Performance optimizations
+  private readonly todayTime = new Date().setHours(0, 0, 0, 0);
+  private readonly daysMemo = new Map<string, CalendarDate[]>();
+  private lastRestrictions: DateRestrictions | null = null;
 
-  constructor(private elementRef: ElementRef) {
-    // Subscription will be automatically cleaned up using takeUntilDestroyed
+  // Cache for date restrictions
+  private readonly dateRestrictions = computed<DateRestrictions>(() => ({
+    minDate: this.minDate,
+    maxDate: this.maxDate,
+    disableFutureDates: this.disableFutureDates,
+    disablePastDates: this.disablePastDates
+  }));
+
+  constructor() {
+    // Debounced click outside handler for better performance
     fromEvent<MouseEvent>(document, 'click')
         .pipe(
+            debounceTime(10),
             filter(event =>
                 this.elementRef.nativeElement &&
                 !this.elementRef.nativeElement.contains(event.target)
             ),
             takeUntilDestroyed(this.destroyRef)
         )
-        .subscribe(() => {
-          this.closeCalendar.emit();
-        });
+        .subscribe(() => this.closeCalendar.emit());
+
+    // Optimized keyboard handler
+    fromEvent<KeyboardEvent>(document, 'keydown')
+        .pipe(
+            filter(() => this.focusTrapEnabled()),
+            takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe(event => this.handleGlobalKeyDown(event));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.initializeCalendar();
   }
 
-  ngAfterViewInit() {
-    // Initialize focus trap
+  ngAfterViewInit(): void {
     this.initFocusTrap();
-
-    // Set initial focus
     this.enableFocusTrap();
   }
 
-  ngOnChanges() {
-    // Regenerate calendar days when inputs change
-    if (this.firstMonthDays().length > 0) {
+  ngOnChanges(changes: SimpleChanges): void {
+    // Only regenerate if relevant inputs changed
+    const relevantChanges = ['selectedDate', 'startDate', 'endDate', 'minDate', 'maxDate', 'disableFutureDates', 'disablePastDates'];
+    const hasRelevantChanges = relevantChanges.some(key => changes[key]);
+
+    if (hasRelevantChanges && this.firstMonthDays().length > 0) {
+      this.invalidateCache();
       this.generateCalendarDays();
     }
   }
 
-  ngOnDestroy() {
-    // Ensure focus trap is disabled and subscription is cleaned up
+  ngOnDestroy(): void {
     this.disableFocusTrap();
-    if (this.documentKeydownSubscription) {
-      this.documentKeydownSubscription.unsubscribe();
-    }
+    this.daysMemo.clear();
   }
 
-  // Initialize calendar with currently selected date/range
-  initializeCalendar(): void {
+  private initializeCalendar(): void {
     let initialMonth: Date;
 
-    // If we have a selected date range, start with that month
     if (this.isRange && this.startDate) {
       initialMonth = new Date(this.startDate);
     } else if (!this.isRange && this.selectedDate) {
       initialMonth = new Date(this.selectedDate);
     } else {
-      // Default to current month if no dates are selected
       initialMonth = new Date();
     }
 
-    // Reset to start of the month
     initialMonth.setDate(1);
     initialMonth.setHours(0, 0, 0, 0);
-
     this.currentMonth.set(initialMonth);
 
-    // Check if we are in the middle of a range selection
-    this.selectionInProgress.set(this.isRange && this.startDate !== null && this.endDate === null);
+    this.selectionInProgress.set(
+        this.isRange && this.startDate !== null && this.endDate === null
+    );
 
     this.generateCalendarDays();
   }
 
-  // Custom focus trap implementation
   private initFocusTrap(): void {
-    // Listen for keydown events on the document
-    this.documentKeydownSubscription = fromEvent<KeyboardEvent>(document, 'keydown')
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(event => {
-          if (!this.focusTrapEnabled()) return;
-
-          if (event.key === 'Tab') {
-            this.handleTabKey(event);
-          }
-        });
+    // Focus trap is now handled in the global keydown listener
+    this.updateFocusableElements();
   }
 
   private enableFocusTrap(): void {
-    // Store the original focused element to restore later
     this.originalFocusedElement = document.activeElement as HTMLElement;
-
-    // Find all focusable elements
     this.updateFocusableElements();
-
-    // Enable the trap
     this.focusTrapEnabled.set(true);
 
-    // Set focus to the first focusable element
     if (this.focusableElements.length > 0) {
       this.focusableElements[0].focus();
       this.focusedElementIndex.set(0);
@@ -195,9 +203,7 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private disableFocusTrap(): void {
     this.focusTrapEnabled.set(false);
-
-    // Restore original focus
-    if (this.originalFocusedElement && typeof this.originalFocusedElement.focus === 'function') {
+    if (this.originalFocusedElement?.focus) {
       this.originalFocusedElement.focus();
     }
   }
@@ -218,123 +224,144 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit {
     ) as HTMLElement[];
   }
 
+  private handleGlobalKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Tab') {
+      this.handleTabKey(event);
+    }
+  }
+
   private handleTabKey(event: KeyboardEvent): void {
     if (this.focusableElements.length === 0) return;
 
     const currentIndex = this.focusedElementIndex();
-    let nextIndex = 0;
-
-    if (event.shiftKey) {
-      // Tab backwards
-      nextIndex = currentIndex <= 0 ? this.focusableElements.length - 1 : currentIndex - 1;
-    } else {
-      // Tab forwards
-      nextIndex = currentIndex >= this.focusableElements.length - 1 ? 0 : currentIndex + 1;
-    }
+    const nextIndex = event.shiftKey
+        ? (currentIndex <= 0 ? this.focusableElements.length - 1 : currentIndex - 1)
+        : (currentIndex >= this.focusableElements.length - 1 ? 0 : currentIndex + 1);
 
     event.preventDefault();
     this.focusableElements[nextIndex].focus();
     this.focusedElementIndex.set(nextIndex);
   }
 
+  private invalidateCache(): void {
+    // Clear memoization when date restrictions change
+    const currentRestrictions = this.dateRestrictions();
+    if (!this.restrictionsEqual(this.lastRestrictions, currentRestrictions)) {
+      this.daysMemo.clear();
+      this.lastRestrictions = { ...currentRestrictions };
+    }
+  }
+
+  private restrictionsEqual(a: DateRestrictions | null, b: DateRestrictions): boolean {
+    if (!a) return false;
+    return a.minDate?.getTime() === b.minDate?.getTime() &&
+        a.maxDate?.getTime() === b.maxDate?.getTime() &&
+        a.disableFutureDates === b.disableFutureDates &&
+        a.disablePastDates === b.disablePastDates;
+  }
+
   generateCalendarDays(): void {
-    // Generate days for both months
     this.firstMonthDays.set(this.generateMonthDays(this.currentMonth(), 0));
     this.secondMonthDays.set(this.generateMonthDays(this.nextMonth(), 1));
   }
 
   generateMonthDays(month: Date, monthIndex: number): CalendarDate[] {
+    // Use memoization for performance
+    const cacheKey = `${month.getTime()}-${monthIndex}-${JSON.stringify(this.dateRestrictions())}`;
+    if (this.daysMemo.has(cacheKey)) {
+      return this.daysMemo.get(cacheKey)!;
+    }
+
     const days: CalendarDate[] = [];
-
-    // Create a new date to avoid mutation
     const firstDayOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
-    const lastDayOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0);
-
-    // Calculate the first day to show (might be from previous month)
     const firstDayToShow = new Date(firstDayOfMonth);
     firstDayToShow.setDate(firstDayToShow.getDate() - firstDayOfMonth.getDay());
 
-    // Generate six weeks of days to ensure we have enough for all month views
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Pre-calculate common values
+    const monthTime = month.getMonth();
+    const startTime = this.startDate?.setHours(0, 0, 0, 0);
+    const endTime = this.endDate?.setHours(0, 0, 0, 0);
+    const hoverTime = this.hoverDate()?.setHours(0, 0, 0, 0);
 
     for (let i = 0; i < 42; i++) {
       const currentDate = new Date(firstDayToShow);
       currentDate.setDate(currentDate.getDate() + i);
       currentDate.setHours(0, 0, 0, 0);
 
-      const isCurrentMonth = currentDate.getMonth() === month.getMonth();
-      const isToday = currentDate.getTime() === today.getTime();
+      const currentTime = currentDate.getTime();
+      const isCurrentMonth = currentDate.getMonth() === monthTime;
 
-      let isSelected = false;
-      let isInRange = false;
-      let isRangeStart = false;
-      let isRangeEnd = false;
-      let isHovered = false;
-      let isDisabled = false;
-
-      // Check if date is disabled based on restrictions
-      isDisabled = this.isDateDisabled(currentDate);
-
-      // Single date selection
-      if (this.selectedDate && !this.isRange) {
-        isSelected = this.isSameDay(currentDate, this.selectedDate);
-      }
-
-      // Range selection - both start and end dates selected
-      if (this.isRange && this.startDate && this.endDate) {
-        const startTime = new Date(this.startDate).setHours(0,0,0,0);
-        const endTime = new Date(this.endDate).setHours(0,0,0,0);
-        const currentTime = currentDate.getTime();
-
-        isRangeStart = this.isSameDay(currentDate, this.startDate);
-        isRangeEnd = this.isSameDay(currentDate, this.endDate);
-
-        // Only mark as in range if this date is in the current month
-        isInRange = isCurrentMonth && currentTime >= startTime && currentTime <= endTime;
-      }
-      // Range selection in progress - only start date selected
-      else if (this.isRange && this.startDate && !this.endDate) {
-        isRangeStart = this.isSameDay(currentDate, this.startDate);
-
-        // Handle hover preview for range selection in progress
-        const currentHoverDate = this.hoverDate();
-        if (currentHoverDate && isCurrentMonth) {
-          const startTime = new Date(this.startDate).setHours(0,0,0,0);
-          const hoverTime = new Date(currentHoverDate).setHours(0,0,0,0);
-          const currentTime = currentDate.getTime();
-
-          isHovered = this.isSameDay(currentDate, currentHoverDate);
-
-          // Show preview range from start date to hover date
-          if (hoverTime >= startTime) {
-            // Forward selection
-            isInRange = currentTime > startTime && currentTime < hoverTime;
-          } else {
-            // Backward selection
-            isInRange = currentTime < startTime && currentTime > hoverTime;
-          }
-        }
-      }
-
-      days.push({
-        date: currentDate,
-        isCurrentMonth,
-        isToday,
-        isSelected,
-        isInRange,
-        isRangeStart,
-        isRangeEnd,
-        isHovered,
-        monthIndex,
-        isDisabled
-      });
+      days.push(this.createCalendarDate(
+          currentDate,
+          currentTime,
+          isCurrentMonth,
+          monthIndex,
+          startTime,
+          endTime,
+          hoverTime
+      ));
     }
 
+    this.daysMemo.set(cacheKey, days);
     return days;
   }
 
-  // Handle mouse enter on a date cell for range preview
+  private createCalendarDate(
+      date: Date,
+      dateTime: number,
+      isCurrentMonth: boolean,
+      monthIndex: number,
+      startTime?: number,
+      endTime?: number,
+      hoverTime?: number
+  ): CalendarDate {
+    const isToday = dateTime === this.todayTime;
+    const isDisabled = this.isDateDisabled(date);
+
+    let isSelected = false;
+    let isInRange = false;
+    let isRangeStart = false;
+    let isRangeEnd = false;
+    let isHovered = false;
+
+    // Single date selection
+    if (!this.isRange && this.selectedDate) {
+      isSelected = this.isSameDay(date, this.selectedDate);
+    }
+
+    // Range selection logic
+    if (this.isRange) {
+      if (this.startDate && this.endDate && startTime && endTime) {
+        isRangeStart = this.isSameDay(date, this.startDate);
+        isRangeEnd = this.isSameDay(date, this.endDate);
+        isInRange = isCurrentMonth && dateTime >= startTime && dateTime <= endTime;
+      } else if (this.startDate && !this.endDate && startTime) {
+        isRangeStart = this.isSameDay(date, this.startDate);
+
+        if (hoverTime && isCurrentMonth) {
+          isHovered = dateTime === hoverTime;
+          isInRange = hoverTime >= startTime
+              ? (dateTime > startTime && dateTime < hoverTime)
+              : (dateTime < startTime && dateTime > hoverTime);
+        }
+      }
+    }
+
+    return {
+      date,
+      dateTime,
+      isCurrentMonth,
+      isToday,
+      isSelected,
+      isInRange,
+      isRangeStart,
+      isRangeEnd,
+      isHovered,
+      monthIndex,
+      isDisabled
+    };
+  }
+
   onDateHover(date: Date): void {
     if (this.isRange && this.selectionInProgress()) {
       this.hoverDate.set(new Date(date));
@@ -342,7 +369,6 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  // Reset hover state when mouse leaves the calendar grid
   onCalendarMouseLeave(): void {
     if (this.hoverDate()) {
       this.hoverDate.set(null);
@@ -350,149 +376,130 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  // Keyboard navigation handler
   @HostListener('keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent): void {
     const target = event.target as HTMLElement;
-
-    // If the target has a date attribute, we can navigate using arrow keys
     const dateAttr = target.getAttribute('data-date');
     if (!dateAttr) return;
 
     const currentDate = new Date(parseInt(dateAttr));
-    let newDate: Date | null = new Date(currentDate);
+    const newDate = this.calculateNewDate(currentDate, event.key);
 
-    switch (event.key) {
-      case 'ArrowLeft':
-        newDate.setDate(newDate.getDate() - 1);
-        event.preventDefault();
-        break;
-      case 'ArrowRight':
-        newDate.setDate(newDate.getDate() + 1);
-        event.preventDefault();
-        break;
-      case 'ArrowUp':
-        newDate.setDate(newDate.getDate() - 7);
-        event.preventDefault();
-        break;
-      case 'ArrowDown':
-        newDate.setDate(newDate.getDate() + 7);
-        event.preventDefault();
-        break;
-      case 'Home':
-        newDate.setDate(1);
-        event.preventDefault();
-        break;
-      case 'End':
-        newDate = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
-        event.preventDefault();
-        break;
-      case 'PageUp':
-        newDate.setMonth(newDate.getMonth() - 1);
-        event.preventDefault();
-        break;
-      case 'PageDown':
-        newDate.setMonth(newDate.getMonth() + 1);
-        event.preventDefault();
-        break;
-      case 'Enter':
-      case ' ':
-        this.selectDate(currentDate);
-        event.preventDefault();
-        break;
-      case 'Escape':
-        this.closeCalendar.emit();
-        event.preventDefault();
-        break;
-      default:
-        return;
-    }
-
-    // Navigate to different month if needed
     if (newDate) {
-      const newMonth = newDate.getMonth();
-      const currentVisibleMonth = this.currentMonth().getMonth();
-      const nextVisibleMonth = this.nextMonth().getMonth();
+      event.preventDefault();
 
-      if (newMonth !== currentVisibleMonth && newMonth !== nextVisibleMonth) {
-        // Update the current month to include the new date
-        const newCurrentMonth = new Date(newDate);
-        newCurrentMonth.setDate(1);
-        this.currentMonth.set(newCurrentMonth);
-        this.generateCalendarDays();
+      if (event.key === 'Enter' || event.key === ' ') {
+        this.selectDate(currentDate);
+        return;
       }
 
-      // Find and focus the day element for the new date
-      this.focusDateElement(newDate);
+      if (event.key === 'Escape') {
+        this.closeCalendar.emit();
+        return;
+      }
+
+      this.navigateToDate(newDate);
     }
   }
 
-  // Find and focus a specific date element
+  private calculateNewDate(currentDate: Date, key: string): Date | null {
+    const newDate = new Date(currentDate);
+
+    switch (key) {
+      case 'ArrowLeft':
+        newDate.setDate(newDate.getDate() - 1);
+        break;
+      case 'ArrowRight':
+        newDate.setDate(newDate.getDate() + 1);
+        break;
+      case 'ArrowUp':
+        newDate.setDate(newDate.getDate() - 7);
+        break;
+      case 'ArrowDown':
+        newDate.setDate(newDate.getDate() + 7);
+        break;
+      case 'Home':
+        newDate.setDate(1);
+        break;
+      case 'End':
+        return new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
+      case 'PageUp':
+        newDate.setMonth(newDate.getMonth() - 1);
+        break;
+      case 'PageDown':
+        newDate.setMonth(newDate.getMonth() + 1);
+        break;
+      case 'Enter':
+      case ' ':
+      case 'Escape':
+        return newDate;
+      default:
+        return null;
+    }
+
+    return newDate;
+  }
+
+  private navigateToDate(newDate: Date): void {
+    const newMonth = newDate.getMonth();
+    const currentVisibleMonth = this.currentMonth().getMonth();
+    const nextVisibleMonth = this.nextMonth().getMonth();
+
+    if (newMonth !== currentVisibleMonth && newMonth !== nextVisibleMonth) {
+      const newCurrentMonth = new Date(newDate);
+      newCurrentMonth.setDate(1);
+      this.currentMonth.set(newCurrentMonth);
+      this.generateCalendarDays();
+    }
+
+    this.focusDateElement(newDate);
+  }
+
   private focusDateElement(date: Date): void {
-    setTimeout(() => {
+    // Use requestAnimationFrame for better performance
+    requestAnimationFrame(() => {
       const dateTime = date.getTime();
-      const selector = `.day[data-date="${dateTime}"]`;
-      const element = this.elementRef.nativeElement.querySelector(selector) as HTMLElement;
+      const element = this.elementRef.nativeElement.querySelector(
+          `.day[data-date="${dateTime}"]`
+      ) as HTMLElement;
 
       if (element) {
         element.focus();
-
-        // Update focusable elements and current index
         this.updateFocusableElements();
         const newIndex = this.focusableElements.indexOf(element);
         if (newIndex !== -1) {
           this.focusedElementIndex.set(newIndex);
         }
       }
-    }, 0);
+    });
   }
 
-  // Used by ngFor to optimize rendering
   trackByDate(index: number, day: CalendarDate): number {
-    return day.date.getTime();
+    return day.dateTime; // Use pre-calculated dateTime for better performance
   }
 
-  // Helper to check if a date is disabled based on all restriction criteria
   isDateDisabled(date: Date): boolean {
-    // Set date to start of day for consistent comparisons
     const compareDate = new Date(date);
     compareDate.setHours(0, 0, 0, 0);
+    const compareTime = compareDate.getTime();
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Use pre-calculated time today
+    if (this.disableFutureDates && compareTime > this.todayTime) return true;
+    if (this.disablePastDates && compareTime < this.todayTime) return true;
 
-    // Check if date is before minimum date
     if (this.minDate) {
-      const minDate = new Date(this.minDate);
-      minDate.setHours(0, 0, 0, 0);
-      if (compareDate < minDate) {
-        return true;
-      }
+      const minTime = new Date(this.minDate).setHours(0, 0, 0, 0);
+      if (compareTime < minTime) return true;
     }
 
-    // Check if date is after maximum date
     if (this.maxDate) {
-      const maxDate = new Date(this.maxDate);
-      maxDate.setHours(0, 0, 0, 0);
-      if (compareDate > maxDate) {
-        return true;
-      }
-    }
-
-    // Check if future dates should be disabled
-    if (this.disableFutureDates && compareDate > today) {
-      return true;
-    }
-
-    // Check if past dates should be disabled
-    if (this.disablePastDates && compareDate < today) {
-      return true;
+      const maxTime = new Date(this.maxDate).setHours(0, 0, 0, 0);
+      if (compareTime > maxTime) return true;
     }
 
     return false;
   }
 
-  // Helper to check if two dates are the same day
   isSameDay(date1: Date, date2: Date | null): boolean {
     if (!date2) return false;
     return date1.getDate() === date2.getDate() &&
@@ -515,40 +522,40 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   selectDate(date: Date): void {
-    // Don't allow selection of disabled dates
-    if (this.isDateDisabled(date)) {
-      return;
-    }
+    if (this.isDateDisabled(date)) return;
 
     if (!this.isRange) {
-      // Single date selection
       this.selectedDate = new Date(date);
       this.dateSelected.emit(new Date(date));
-      this.generateCalendarDays();
     } else {
-      // Range selection
-      if (!this.selectionInProgress() || !this.startDate) {
-        // First click in range selection
+      this.handleRangeSelection(date);
+    }
+
+    this.generateCalendarDays();
+  }
+
+  private handleRangeSelection(date: Date): void {
+    if (!this.selectionInProgress() || !this.startDate) {
+      this.startDate = new Date(date);
+      this.endDate = null;
+      this.selectionInProgress.set(true);
+    } else {
+      const selectedTime = date.getTime();
+      const startTime = this.startDate.getTime();
+
+      if (selectedTime < startTime) {
+        this.endDate = new Date(this.startDate);
         this.startDate = new Date(date);
-        this.endDate = null;
-        this.selectionInProgress.set(true);
       } else {
-        // Second click in range selection
-        if (date.getTime() < this.startDate!.getTime()) {
-          // If clicked date is before start date, swap them
-          this.endDate = new Date(this.startDate);
-          this.startDate = new Date(date);
-        } else {
-          this.endDate = new Date(date);
-        }
-        this.selectionInProgress.set(false);
-        this.hoverDate.set(null); // Reset hover state
-        this.rangeSelected.emit({
-          start: new Date(this.startDate!),
-          end: new Date(this.endDate!)
-        });
+        this.endDate = new Date(date);
       }
-      this.generateCalendarDays();
+
+      this.selectionInProgress.set(false);
+      this.hoverDate.set(null);
+      this.rangeSelected.emit({
+        start: new Date(this.startDate),
+        end: new Date(this.endDate)
+      });
     }
   }
 
@@ -566,28 +573,27 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   applySelection(): void {
-    if (this.isRange && this.startDate && this.endDate) {
+    if (this.isRange) {
+      this.applyRangeSelection();
+    } else if (this.selectedDate) {
+      this.dateSelected.emit(new Date(this.selectedDate));
+    }
+    this.closeCalendar.emit();
+  }
+
+  private applyRangeSelection(): void {
+    if (this.startDate && this.endDate) {
       this.rangeSelected.emit({
         start: new Date(this.startDate),
         end: new Date(this.endDate)
       });
-    } else if (this.isRange && this.startDate && this.hoverDate()) {
-      // If user applied with only hover selection, convert hover to end date
-      const currentHoverDate = this.hoverDate()!;
-      if (currentHoverDate.getTime() < this.startDate.getTime()) {
-        this.rangeSelected.emit({
-          start: new Date(currentHoverDate),
-          end: new Date(this.startDate)
-        });
-      } else {
-        this.rangeSelected.emit({
-          start: new Date(this.startDate),
-          end: new Date(currentHoverDate)
-        });
-      }
-    } else if (!this.isRange && this.selectedDate) {
-      this.dateSelected.emit(new Date(this.selectedDate));
+    } else if (this.startDate && this.hoverDate()) {
+      const hoverDate = this.hoverDate()!;
+      const range = hoverDate.getTime() < this.startDate.getTime()
+          ? { start: new Date(hoverDate), end: new Date(this.startDate) }
+          : { start: new Date(this.startDate), end: new Date(hoverDate) };
+
+      this.rangeSelected.emit(range);
     }
-    this.closeCalendar.emit();
   }
 }
