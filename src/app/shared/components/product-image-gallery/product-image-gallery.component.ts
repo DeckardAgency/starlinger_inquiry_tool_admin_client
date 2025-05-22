@@ -1,19 +1,40 @@
-import { Component, OnInit, HostListener, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    Input,
+    Output,
+    EventEmitter,
+    OnChanges,
+    SimpleChanges,
+    ChangeDetectionStrategy,
+    DestroyRef,
+    inject,
+    TrackByFunction,
+    ViewChild,
+    ElementRef
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MediaItem } from '@models/media.model';
 import { MediaService } from '@services/http/media.service';
 import { HttpEventType } from '@angular/common/http';
-import { finalize, forkJoin, Observable, of } from 'rxjs';
+import { finalize, forkJoin, Observable, of, Subject, debounceTime } from 'rxjs';
 
 interface GalleryImage {
     id: string;
     name: string;
     url: string;
-    originalItem: MediaItem; // Reference to the original MediaItem
+    originalItem: MediaItem;
     isPrimary?: boolean;
     isRenaming?: boolean;
     newName?: string;
+}
+
+interface UploadProgress {
+    total: number;
+    completed: number;
+    errors: string[];
 }
 
 @Component({
@@ -21,12 +42,18 @@ interface GalleryImage {
     standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './product-image-gallery.component.html',
-    styleUrls: ['./product-image-gallery.component.scss']
+    styleUrls: ['./product-image-gallery.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductImageGalleryComponent implements OnInit, OnChanges {
     @Input() mediaItems: MediaItem[] = [];
     @Output() mediaItemsChange = new EventEmitter<MediaItem[]>();
     @Output() primaryImageChange = new EventEmitter<MediaItem>();
+
+    @ViewChild('fileInput', { static: false }) fileInput?: ElementRef<HTMLInputElement>;
+
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly dragLeaveSubject = new Subject<DragEvent>();
 
     galleryImages: GalleryImage[] = [];
     activeImageMenu: string | null = null;
@@ -35,45 +62,57 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
     isDraggingImage = false;
     draggedImageId: string | null = null;
     dropTargetImageId: string | null = null;
-    uploadProgress: number = 0;
-    uploadErrors: string[] = [];
+    uploadProgress: UploadProgress = { total: 0, completed: 0, errors: [] };
 
-    constructor(private mediaService: MediaService) {}
+    // Memoized track by function for better performance
+    readonly trackByImageId: TrackByFunction<GalleryImage> = (index, item) => item.id;
+
+    // Accepted file types
+    private readonly ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    private readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+    constructor(private readonly mediaService: MediaService) {
+        // Debounce drag leave events to prevent flickering
+        this.dragLeaveSubject
+            .pipe(
+                debounceTime(100),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe(() => {
+                this.isDraggingOver = false;
+            });
+    }
 
     ngOnInit(): void {
         this.initializeGalleryImages();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['mediaItems']) {
+        if (changes['mediaItems'] && !changes['mediaItems'].firstChange) {
             this.initializeGalleryImages();
         }
     }
 
-    initializeGalleryImages(): void {
-        if (this.mediaItems && this.mediaItems.length > 0) {
-            this.galleryImages = this.mediaItems.map((item, index) => {
-                return {
-                    id: item.id || item['@id'] || String(index),
-                    name: item.filename || `Image-${index + 1}`,
-                    url: item.filePath || '',
-                    originalItem: item,
-                    isPrimary: index === 0, // Assuming the first image is primary by default
-                    isRenaming: false
-                };
-            });
-        } else {
-            // If no media items, initialize with empty array
+    private initializeGalleryImages(): void {
+        if (!this.mediaItems?.length) {
             this.galleryImages = [];
+            return;
         }
+
+        this.galleryImages = this.mediaItems.map((item, index) => ({
+            id: item.id || item['@id'] || `temp-${index}`,
+            name: item.filename || `Image-${index + 1}`,
+            url: item.filePath || '',
+            originalItem: item,
+            isPrimary: index === 0,
+            isRenaming: false
+        }));
     }
 
-    // Method to emit the updated media items back to parent
-    updateMediaItems(): void {
+    private updateMediaItems(): void {
         const updatedMediaItems = this.galleryImages.map(image => image.originalItem);
         this.mediaItemsChange.emit(updatedMediaItems);
 
-        // Emit the primary image separately
         const primaryImage = this.galleryImages.find(img => img.isPrimary);
         if (primaryImage) {
             this.primaryImageChange.emit(primaryImage.originalItem);
@@ -81,24 +120,19 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
     }
 
     toggleImageMenu(imageId: string): void {
-        if (this.activeImageMenu === imageId) {
-            this.activeImageMenu = null;
-        } else {
-            this.activeImageMenu = imageId;
-        }
+        this.activeImageMenu = this.activeImageMenu === imageId ? null : imageId;
     }
 
     closeAllMenus(): void {
         this.activeImageMenu = null;
     }
 
-    // Drag and drop file upload handlers
+    // Optimized drag and drop handlers
     onDragOver(event: DragEvent): void {
         event.preventDefault();
         event.stopPropagation();
 
-        // Only set isDraggingOver if we're dragging files, not images for reordering
-        if (event.dataTransfer?.types.includes('Files')) {
+        if (this.hasFiles(event.dataTransfer)) {
             this.isDraggingOver = true;
         }
     }
@@ -106,7 +140,9 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
     onDragLeave(event: DragEvent): void {
         event.preventDefault();
         event.stopPropagation();
-        this.isDraggingOver = false;
+
+        // Use debounced subject to prevent flickering
+        this.dragLeaveSubject.next(event);
     }
 
     onDrop(event: DragEvent): void {
@@ -115,224 +151,236 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
         this.isDraggingOver = false;
 
         const files = event.dataTransfer?.files;
-        if (files && files.length > 0) {
-            // Convert FileList to array for easier handling
-            const fileArray = Array.from(files);
-            this.uploadFiles(fileArray);
+        if (files?.length) {
+            this.uploadFiles(Array.from(files));
         }
     }
 
-    // Fixed file input handling
     onFileInputClick(): void {
+        // Create a temporary file input for better control
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.multiple = true;
-        fileInput.accept = 'image/*';
+        fileInput.accept = this.ACCEPTED_TYPES.join(',');
 
-        fileInput.onchange = (event: Event) => {
+        fileInput.addEventListener('change', (event) => {
             const input = event.target as HTMLInputElement;
-            if (input.files && input.files.length > 0) {
-                // Convert FileList to array for easier handling
-                const fileArray = Array.from(input.files);
-                this.uploadFiles(fileArray);
+            if (input.files?.length) {
+                this.uploadFiles(Array.from(input.files));
             }
-        };
+        });
 
         fileInput.click();
     }
 
-    // Upload files to the API
+    private hasFiles(dataTransfer: DataTransfer | null): boolean {
+        return dataTransfer?.types.includes('Files') ?? false;
+    }
+
+    private validateFile(file: File): string | null {
+        if (!this.ACCEPTED_TYPES.includes(file.type)) {
+            return `${file.name}: Unsupported file type. Please use JPEG, PNG, GIF, or WebP.`;
+        }
+
+        if (file.size > this.MAX_FILE_SIZE) {
+            return `${file.name}: File size exceeds 10MB limit.`;
+        }
+
+        return null;
+    }
+
     private uploadFiles(files: File[]): void {
-        if (files.length === 0) return;
+        if (!files.length) return;
 
-        this.isUploading = true;
-        this.uploadProgress = 0;
-        this.uploadErrors = [];
+        // Validate files first
+        const validationErrors: string[] = [];
+        const validFiles: File[] = [];
 
-        // Filter only image files
-        const imageFiles = files.filter(file => file.type.startsWith('image/'));
-        if (imageFiles.length === 0) {
-            this.isUploading = false;
+        files.forEach(file => {
+            const error = this.validateFile(file);
+            if (error) {
+                validationErrors.push(error);
+            } else {
+                validFiles.push(file);
+            }
+        });
+
+        if (!validFiles.length) {
+            this.uploadProgress = { total: 0, completed: 0, errors: validationErrors };
             return;
         }
 
-        // For multiple files, track uploads individually and update progress
-        let completedUploads = 0;
-        let successfulUploads: MediaItem[] = [];
-
-        // Upload each file one by one
-        const uploadNext = (index: number) => {
-            if (index >= imageFiles.length) {
-                // All uploads complete
-                this.isUploading = false;
-
-                // Add all successful uploads to gallery
-                successfulUploads.forEach(mediaItem => {
-                    this.addMediaItemToGallery(mediaItem);
-                });
-
-                this.updateMediaItems(); // Update parent component
-                return;
-            }
-
-            const file = imageFiles[index];
-            this.mediaService.uploadFile(file)
-                .pipe(
-                    finalize(() => {
-                        completedUploads++;
-                        this.uploadProgress = Math.round((completedUploads / imageFiles.length) * 100);
-
-                        // Process next file
-                        uploadNext(index + 1);
-                    })
-                )
-                .subscribe({
-                    next: (event) => {
-                        if (event.type === HttpEventType.Response) {
-                            // Upload completed successfully
-                            const mediaItem = event.body as MediaItem;
-                            successfulUploads.push(mediaItem);
-                        }
-                    },
-                    error: (err) => {
-                        console.error(`Error uploading file ${file.name}:`, err);
-                        this.uploadErrors.push(`Failed to upload ${file.name}`);
-                    }
-                });
+        this.isUploading = true;
+        this.uploadProgress = {
+            total: validFiles.length,
+            completed: 0,
+            errors: validationErrors
         };
 
-        // Start uploading the first file
-        uploadNext(0);
+        // Use concurrent uploads with limit
+        this.uploadFilesConcurrently(validFiles, 3); // Max 3 concurrent uploads
     }
 
-    // Add a new MediaItem to the gallery
+    private uploadFilesConcurrently(files: File[], concurrencyLimit: number): void {
+        const successfulUploads: MediaItem[] = [];
+        let activeUploads = 0;
+        let fileIndex = 0;
+
+        const processNext = () => {
+            while (activeUploads < concurrencyLimit && fileIndex < files.length) {
+                const file = files[fileIndex++];
+                activeUploads++;
+
+                this.mediaService.uploadFile(file)
+                    .pipe(
+                        finalize(() => {
+                            activeUploads--;
+                            this.uploadProgress.completed++;
+
+                            if (this.uploadProgress.completed === this.uploadProgress.total) {
+                                this.finalizeUpload(successfulUploads);
+                            } else {
+                                processNext(); // Process next file
+                            }
+                        }),
+                        takeUntilDestroyed(this.destroyRef)
+                    )
+                    .subscribe({
+                        next: (event) => {
+                            if (event.type === HttpEventType.Response && event.body) {
+                                successfulUploads.push(event.body as MediaItem);
+                            }
+                        },
+                        error: (err) => {
+                            console.error(`Upload failed for ${file.name}:`, err);
+                            this.uploadProgress.errors.push(`Failed to upload ${file.name}`);
+                        }
+                    });
+            }
+        };
+
+        processNext();
+    }
+
+    private finalizeUpload(successfulUploads: MediaItem[]): void {
+        this.isUploading = false;
+
+        successfulUploads.forEach(mediaItem => {
+            this.addMediaItemToGallery(mediaItem);
+        });
+
+        if (successfulUploads.length > 0) {
+            this.updateMediaItems();
+        }
+    }
+
     private addMediaItemToGallery(mediaItem: MediaItem): void {
-        const isPrimary = this.galleryImages.length === 0; // Make primary if it's the first image
+        const isPrimary = this.galleryImages.length === 0;
 
         this.galleryImages.push({
             id: mediaItem.id,
             name: mediaItem.filename,
             url: mediaItem.filePath,
             originalItem: mediaItem,
-            isPrimary: isPrimary
+            isPrimary
         });
     }
 
     downloadImage(imageId: string): void {
         const image = this.galleryImages.find(img => img.id === imageId);
-        if (image) {
-            const link = document.createElement('a');
-            link.href = 'https://127.0.0.1:8002' + image.url;
-            link.download = image.name;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        if (!image) return;
+
+        // Use a more robust download approach
+        fetch(`https://127.0.0.1:8002${image.url}`)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = image.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(err => {
+                console.error('Download failed:', err);
+                // Fallback to direct link
+                const link = document.createElement('a');
+                link.href = `https://127.0.0.1:8002${image.url}`;
+                link.download = image.name;
+                link.click();
+            });
+
         this.closeAllMenus();
     }
 
     deleteImage(imageId: string): void {
         const index = this.galleryImages.findIndex(img => img.id === imageId);
-        if (index !== -1) {
-            // Check if deleting primary image
-            const isPrimary = this.galleryImages[index].isPrimary;
-            const mediaItem = this.galleryImages[index].originalItem;
+        if (index === -1) return;
 
-            // Remove the image from the gallery
-            this.galleryImages.splice(index, 1);
+        const isPrimary = this.galleryImages[index].isPrimary;
+        this.galleryImages.splice(index, 1);
 
-            // If it was primary, set the first remaining image as primary
-            if (isPrimary && this.galleryImages.length > 0) {
-                this.galleryImages[0].isPrimary = true;
-            }
-
-            // Optional: Delete from server if needed
-            // Uncomment this section if you want to delete the file from the server
-            /*
-            this.mediaService.deleteMediaItem(mediaItem.id).subscribe({
-                next: () => {
-                    console.log('Media item deleted from server');
-                },
-                error: (err) => {
-                    console.error('Error deleting media item from server:', err);
-                }
-            });
-            */
-
-            this.updateMediaItems(); // Update parent component
+        // Set new primary if needed
+        if (isPrimary && this.galleryImages.length > 0) {
+            this.galleryImages[0].isPrimary = true;
         }
+
+        this.updateMediaItems();
         this.closeAllMenus();
     }
 
     makePrimary(imageId: string): void {
-        // First, remove primary from all images
+        const targetImage = this.galleryImages.find(img => img.id === imageId);
+        if (!targetImage) return;
+
+        // Remove primary from all images and set new primary
         this.galleryImages.forEach(img => {
-            img.isPrimary = false;
+            img.isPrimary = img.id === imageId;
         });
 
-        // Then set the selected image as primary
-        const image = this.galleryImages.find(img => img.id === imageId);
-        if (image) {
-            image.isPrimary = true;
-            this.updateMediaItems(); // Update parent component with new primary image
-        }
+        this.updateMediaItems();
         this.closeAllMenus();
     }
 
-    // Enhanced drag and drop functionality for reordering images
+    // Optimized drag and drop for reordering
     dragStart(event: DragEvent, index: number): void {
-        if (event.dataTransfer) {
-            // Set the data for reordering
-            event.dataTransfer.setData('text/plain', index.toString());
-            // Set flag for image dragging
-            this.isDraggingImage = true;
+        if (!event.dataTransfer || !this.galleryImages[index]) return;
 
-            // Store the dragged image ID
-            if (this.galleryImages[index]) {
-                this.draggedImageId = this.galleryImages[index].id;
-            }
+        event.dataTransfer.setData('text/plain', index.toString());
+        event.dataTransfer.effectAllowed = 'move';
 
-            // Add a custom class to the dragged element for styling
+        this.isDraggingImage = true;
+        this.draggedImageId = this.galleryImages[index].id;
+
+        // Use requestAnimationFrame for better performance
+        requestAnimationFrame(() => {
             const element = event.target as HTMLElement;
-            if (element) {
-                setTimeout(() => {
-                    element.classList.add('image-gallery__item--dragging');
-                }, 0);
-            }
-        }
+            element?.classList.add('image-gallery__item--dragging');
+        });
     }
 
     dragEnd(event: DragEvent): void {
-        this.isDraggingImage = false;
-        this.draggedImageId = null;
-        this.dropTargetImageId = null;
-
-        // Remove dragging class from all items
-        const dragItems = document.querySelectorAll('.image-gallery__item');
-        dragItems.forEach(item => {
-            item.classList.remove('image-gallery__item--dragging');
-            item.classList.remove('image-gallery__item--drop-target');
-        });
+        this.resetDragState();
     }
 
     dragEnter(event: DragEvent, imageId: string): void {
         if (this.isDraggingImage && this.draggedImageId !== imageId) {
             this.dropTargetImageId = imageId;
-
-            // Highlight the drop target
-            const element = event.currentTarget as HTMLElement;
-            if (element) {
-                element.classList.add('image-gallery__item--drop-target');
-            }
         }
     }
 
     dragLeave(event: DragEvent): void {
-        const element = event.currentTarget as HTMLElement;
-        if (element) {
-            element.classList.remove('image-gallery__item--drop-target');
+        // Only reset if leaving the actual item, not child elements
+        if (!event.currentTarget || !event.relatedTarget) return;
+
+        const currentTarget = event.currentTarget as HTMLElement;
+        const relatedTarget = event.relatedTarget as HTMLElement;
+
+        if (!currentTarget.contains(relatedTarget)) {
+            this.dropTargetImageId = null;
         }
-        this.dropTargetImageId = null;
     }
 
     allowDrop(event: DragEvent): void {
@@ -341,115 +389,100 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
 
     drop(event: DragEvent, dropIndex: number): void {
         event.preventDefault();
+
         const dragIndex = Number(event.dataTransfer?.getData('text/plain'));
-
-        if (!isNaN(dragIndex) && dragIndex !== dropIndex) {
-            const item = this.galleryImages[dragIndex];
-            this.galleryImages.splice(dragIndex, 1);
-            this.galleryImages.splice(dropIndex, 0, item);
-
-            this.updateMediaItems(); // Update parent component after reordering
+        if (isNaN(dragIndex) || dragIndex === dropIndex) {
+            this.resetDragState();
+            return;
         }
 
-        // Reset all drag states
+        // Perform the reorder
+        const [draggedItem] = this.galleryImages.splice(dragIndex, 1);
+        this.galleryImages.splice(dropIndex, 0, draggedItem);
+
+        this.updateMediaItems();
+        this.resetDragState();
+    }
+
+    private resetDragState(): void {
         this.isDraggingImage = false;
         this.draggedImageId = null;
         this.dropTargetImageId = null;
 
-        // Remove all drag-related classes
-        const dragItems = document.querySelectorAll('.image-gallery__item');
-        dragItems.forEach(item => {
-            item.classList.remove('image-gallery__item--dragging');
-            item.classList.remove('image-gallery__item--drop-target');
+        // Clean up drag classes
+        requestAnimationFrame(() => {
+            document.querySelectorAll('.image-gallery__item--dragging, .image-gallery__item--drop-target')
+                .forEach(el => {
+                    el.classList.remove('image-gallery__item--dragging', 'image-gallery__item--drop-target');
+                });
         });
     }
 
     downloadAllImages(): void {
-        this.galleryImages.forEach((image, index) => {
-            const link = document.createElement('a');
-            link.href = 'https://127.0.0.1:8002' + image.url;
-            link.download = image.name;
-            document.body.appendChild(link);
+        if (!this.galleryImages.length) return;
 
-            // Use setTimeout to avoid browser blocking multiple downloads
+        // Download with proper delay to avoid browser blocking
+        this.galleryImages.forEach((image, index) => {
             setTimeout(() => {
-                link.click();
-                document.body.removeChild(link);
-            }, 100 * index); // Stagger downloads to avoid browser limitations
+                this.downloadImage(image.id);
+            }, index * 150);
         });
     }
 
-    deleteAllImages(): void {
-        if (confirm('Are you sure you want to delete all images?')) {
-            // Optional: Delete all images from server
-            /*
-            const deleteObservables = this.galleryImages.map(image =>
-                this.mediaService.deleteMediaItem(image.originalItem.id)
-            );
+    async deleteAllImages(): Promise<void> {
+        if (!confirm('Are you sure you want to delete all images?')) return;
 
-            forkJoin(deleteObservables).subscribe({
-                next: () => {
-                    console.log('All media items deleted from server');
-                    this.galleryImages = [];
-                    this.updateMediaItems();
-                },
-                error: (err) => {
-                    console.error('Error deleting media items from server:', err);
-                }
-            });
-            */
-
-            // Just remove from UI if we're not deleting from server
-            this.galleryImages = [];
-            this.updateMediaItems(); // Update parent component
-        }
+        this.galleryImages = [];
+        this.updateMediaItems();
     }
 
     startRenameImage(imageId: string): void {
-        // Find the image and set isRenaming flag
         const image = this.galleryImages.find(img => img.id === imageId);
         if (image) {
             image.isRenaming = true;
             image.newName = image.name;
+
+            // Focus the input after the view updates
+            setTimeout(() => {
+                const input = document.querySelector(`input[data-image-id="${imageId}"]`) as HTMLInputElement;
+                input?.focus();
+            });
         }
         this.closeAllMenus();
     }
 
     saveImageRename(imageId: string, event?: Event): void {
-        if (event) {
-            event.preventDefault();
-        }
+        event?.preventDefault();
 
         const image = this.galleryImages.find(img => img.id === imageId);
-        if (image && image.newName && image.newName.trim() !== '') {
-            image.name = image.newName;
-            image.originalItem.filename = image.newName; // Update the original MediaItem
-            image.isRenaming = false;
-
-            // Optional: Update filename on server
-            // This would require implementing a method in MediaService to update a MediaItem
-            /*
-            this.mediaService.updateMediaItem(image.originalItem.id, { filename: image.newName }).subscribe({
-                next: (updatedItem) => {
-                    console.log('Media item renamed successfully');
-                },
-                error: (err) => {
-                    console.error('Error renaming media item:', err);
-                }
-            });
-            */
-
-            this.updateMediaItems(); // Update parent component
-        } else if (image) {
-            // If invalid name, revert back
-            image.isRenaming = false;
+        if (!image?.newName?.trim()) {
+            this.cancelImageRename(imageId);
+            return;
         }
+
+        image.name = image.newName.trim();
+        image.originalItem.filename = image.name;
+        image.isRenaming = false;
+
+        this.updateMediaItems();
     }
 
     cancelImageRename(imageId: string): void {
         const image = this.galleryImages.find(img => img.id === imageId);
         if (image) {
             image.isRenaming = false;
+            image.newName = undefined;
         }
+    }
+
+    // Getter for upload progress percentage
+    get uploadProgressPercentage(): number {
+        if (this.uploadProgress.total === 0) return 0;
+        return Math.round((this.uploadProgress.completed / this.uploadProgress.total) * 100);
+    }
+
+    // Getter for has upload errors
+    get hasUploadErrors(): boolean {
+        return this.uploadProgress.errors.length > 0;
     }
 }

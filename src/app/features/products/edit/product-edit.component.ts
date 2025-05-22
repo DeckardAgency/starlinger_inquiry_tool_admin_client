@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcrumbs.component";
 import { ProductImageGalleryComponent } from "@shared/components/product-image-gallery/product-image-gallery.component";
@@ -19,6 +19,13 @@ import {
     transition
 } from '@angular/animations';
 import {NotificationService} from "@services/notification.service";
+import {SelectComponent} from "@shared/components/select/select.component";
+
+interface Country {
+    id: number;
+    name: string;
+    code: string;
+}
 
 @Component({
     selector: 'app-product-edit',
@@ -30,7 +37,8 @@ import {NotificationService} from "@services/notification.service";
         BreadcrumbsComponent,
         ProductImageGalleryComponent,
         ProductFeaturedImageComponent,
-        TextEditorComponent
+        TextEditorComponent,
+        SelectComponent
     ],
     templateUrl: './product-edit.component.html',
     styleUrls: ['./product-edit.component.scss'],
@@ -93,6 +101,47 @@ export class ProductEditComponent implements OnInit {
     dataLoaded = false;
     isLoading = false; // Added loading state flag
 
+    //
+    selectForm!: FormGroup;
+    submitted = false;
+    formValues: any;
+
+    // Sample data
+    colors: string[] = [
+        'Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange'
+    ];
+
+    countries: Country[] = [
+        { id: 1, name: 'United States', code: 'US' },
+        { id: 2, name: 'United Kingdom', code: 'UK' },
+        { id: 3, name: 'Canada', code: 'CA' },
+        { id: 4, name: 'Australia', code: 'AU' },
+        { id: 5, name: 'Germany', code: 'DE' },
+        { id: 6, name: 'France', code: 'FR' },
+        { id: 7, name: 'Japan', code: 'JP' },
+        { id: 8, name: 'Brazil', code: 'BR' },
+        { id: 9, name: 'India', code: 'IN' },
+        { id: 10, name: 'China', code: 'CN' }
+    ];
+
+    programmingLanguages: string[] = [
+        'JavaScript', 'TypeScript', 'Python', 'Java', 'C#', 'Ruby', 'Go', 'Rust', 'PHP', 'Swift'
+    ];
+
+    skills: string[] = [
+        'Angular', 'React', 'Vue.js', 'Node.js', 'Express', 'MongoDB', 'PostgreSQL',
+        'GraphQL', 'REST API', 'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP',
+        'CI/CD', 'Testing', 'Redux', 'RxJS', 'SCSS', 'Tailwind CSS'
+    ];
+
+    roles: string[] = [
+        'Developer', 'Designer', 'Product Manager', 'QA Engineer', 'DevOps Engineer'
+    ];
+
+    disabledOptions: string[] = [
+        'Option 1', 'Option 2', 'Option 3'
+    ];
+
     constructor(
         private fb: FormBuilder,
         private router: Router,
@@ -143,6 +192,17 @@ export class ProductEditComponent implements OnInit {
                 this.isLoading = false;
                 this.notificationService.error('Failed to load product data. Please try again later.');
             }
+        });
+
+        //
+        this.selectForm = this.fb.group({
+            color: [null],
+            country: [null],
+            searchableCountry: [null],
+            languages: [[]],
+            skills: [[]],
+            role: [null, Validators.required],
+            disabledOption: [{value: null, disabled: true}]
         });
     }
 
@@ -394,5 +454,19 @@ export class ProductEditComponent implements OnInit {
         this.currentTechnicalDescription = productData.technicalDescription;
 
         console.log('productForm', this.productForm);
+    }
+
+    onSelectionChange($event: any) {
+        console.log('Selection changed', $event);
+    }
+
+    onSubmit() {
+        if (this.selectForm.valid) {
+            this.submitted = true;
+            this.formValues = this.selectForm.value;
+            console.log('Form submitted:', this.selectForm.value);
+        } else {
+            this.selectForm.markAllAsTouched();
+        }
     }
 }

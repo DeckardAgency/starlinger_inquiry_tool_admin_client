@@ -1,19 +1,24 @@
 <div class="image-gallery" (click)="closeAllMenus()">
-
     <div class="image-gallery__header">
         <div class="image-gallery__actions">
-            <!-- Upload image button - fixed to work correctly -->
-            <button class="image-gallery__button image-gallery__upload-button" (click)="onFileInputClick()">
-                Upload image
+            <!-- Upload image button -->
+            <button
+                    class="image-gallery__button image-gallery__upload-button"
+                    (click)="onFileInputClick()"
+                    [disabled]="isUploading"
+                    type="button">
+                {{ isUploading ? 'Uploading...' : 'Upload image' }}
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M3.33331 7.99992H12.6666M7.99998 3.33325V12.6666" stroke="#FAFAFA" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
 
             <!-- Download all images button -->
-            <button class="image-gallery__button image-gallery__download-all-button"
+            <button
+                    class="image-gallery__button image-gallery__download-all-button"
                     (click)="downloadAllImages(); $event.stopPropagation()"
-                    [disabled]="galleryImages.length === 0">
+                    [disabled]="galleryImages.length === 0"
+                    type="button">
                 Download all images
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M4.66667 6.66667L8 10M8 10L11.3333 6.66667M8 10V2" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
@@ -21,9 +26,11 @@
             </button>
 
             <!-- Delete all images button -->
-            <button class="image-gallery__button image-gallery__delete-all-button"
+            <button
+                    class="image-gallery__button image-gallery__delete-all-button"
                     (click)="deleteAllImages(); $event.stopPropagation()"
-                    [disabled]="galleryImages.length === 0">
+                    [disabled]="galleryImages.length === 0"
+                    type="button">
                 Delete all images
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M2 3.99992H14M12.6667 3.99992V13.3333C12.6667 13.9999 12 14.6666 11.3333 14.6666H4.66667C4 14.6666 3.33333 13.9999 3.33333 13.3333V3.99992M5.33333 3.99992V2.66659C5.33333 1.99992 6 1.33325 6.66667 1.33325H9.33333C10 1.33325 10.6667 1.99992 10.6667 2.66659V3.99992M6.66667 7.33325V11.3333M9.33333 7.33325V11.3333" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
@@ -33,12 +40,13 @@
     </div>
 
     <!-- Drag and drop upload area -->
-    <div class="image-gallery__drop-area"
-         [class.image-gallery__drop-area--active]="isDraggingOver"
-         (dragover)="onDragOver($event)"
-         (dragleave)="onDragLeave($event)"
-         (drop)="onDrop($event)"
-         *ngIf="!isUploading && galleryImages.length === 0">
+    <div
+            class="image-gallery__drop-area"
+            [class.image-gallery__drop-area--active]="isDraggingOver"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            *ngIf="!isUploading && galleryImages.length === 0">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="17 8 12 3 7 8"></polyline>
@@ -46,21 +54,27 @@
         </svg>
         <p>Drop files here to upload</p>
         <p>or click the upload button above</p>
+        <p class="image-gallery__drop-area-note">Supports JPEG, PNG, GIF, WebP (max 10MB each)</p>
     </div>
 
+    <!-- Loading state -->
     <div class="image-gallery__loading" *ngIf="isUploading">
         <svg class="image-gallery__spinner" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"></path>
         </svg>
-        Uploading images... {{ uploadProgress }}%
+        <div class="image-gallery__loading-text">
+            Uploading images... {{ uploadProgressPercentage }}%
+            <small>({{ uploadProgress.completed }}/{{ uploadProgress.total }})</small>
+        </div>
 
         <!-- Display errors if any -->
-        <div *ngIf="uploadErrors.length > 0" class="image-gallery__upload-errors">
-            <p *ngFor="let error of uploadErrors">{{ error }}</p>
+        <div *ngIf="hasUploadErrors" class="image-gallery__upload-errors">
+            <p *ngFor="let error of uploadProgress.errors; trackBy: trackByImageId">{{ error }}</p>
         </div>
     </div>
 
+    <!-- Empty state -->
     <div class="image-gallery__empty" *ngIf="galleryImages.length === 0 && !isUploading">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -72,99 +86,35 @@
     </div>
 
     <!-- Grid area with drag-and-drop for uploads -->
-    <div class="image-gallery__grid-container"
-         [class.image-gallery__grid-container--drag-over]="isDraggingOver"
-         (dragover)="onDragOver($event)"
-         (dragleave)="onDragLeave($event)"
-         (drop)="onDrop($event)"
-         *ngIf="galleryImages.length > 0">
+    <div
+            class="image-gallery__grid-container"
+            [class.image-gallery__grid-container--drag-over]="isDraggingOver"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            *ngIf="galleryImages.length > 0">
 
         <div class="image-gallery__grid">
-            <div class="image-gallery__item"
-                 *ngFor="let image of galleryImages; let i = index"
-                 draggable="true"
-                 (dragstart)="dragStart($event, i)"
-                 (dragend)="dragEnd($event)"
-                 (dragenter)="dragEnter($event, image.id)"
-                 (dragleave)="dragLeave($event)"
-                 (dragover)="allowDrop($event)"
-                 (drop)="drop($event, i)"
-                 [class.image-gallery__item--dragged]="draggedImageId === image.id"
-                 [class.image-gallery__item--drop-target]="dropTargetImageId === image.id">
-
-                <div class="image-gallery__info">
-                    <!-- Regular display name -->
-                    <span class="image-gallery__name" *ngIf="!image.isRenaming">{{ image.name }}</span>
-
-                    <div>
-                        <!-- Image menu button -->
-                        <button class="image-gallery__action-button image-gallery__menu-button" (click)="toggleImageMenu(image.id); $event.stopPropagation()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M9.99996 10.8333C10.4602 10.8333 10.8333 10.4602 10.8333 9.99992C10.8333 9.53968 10.4602 9.16659 9.99996 9.16659C9.53972 9.16659 9.16663 9.53968 9.16663 9.99992C9.16663 10.4602 9.53972 10.8333 9.99996 10.8333Z" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M9.99996 4.99992C10.4602 4.99992 10.8333 4.62682 10.8333 4.16659C10.8333 3.70635 10.4602 3.33325 9.99996 3.33325C9.53972 3.33325 9.16663 3.70635 9.16663 4.16659C9.16663 4.62682 9.53972 4.99992 9.99996 4.99992Z" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M9.99996 16.6666C10.4602 16.6666 10.8333 16.2935 10.8333 15.8333C10.8333 15.373 10.4602 14.9999 9.99996 14.9999C9.53972 14.9999 9.16663 15.373 9.16663 15.8333C9.16663 16.2935 9.53972 16.6666 9.99996 16.6666Z" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-
-                        <!-- Dropdown menu for image actions -->
-                        <div class="image-gallery__menu" *ngIf="activeImageMenu === image.id" (click)="$event.stopPropagation()">
-                            <button class="image-gallery__menu-item" (click)="makePrimary(image.id)" *ngIf="!image.isPrimary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                                </svg>
-                                Make primary
-                            </button>
-                            <button class="image-gallery__menu-item" (click)="startRenameImage(image.id)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 20h9"></path>
-                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                                </svg>
-                                Rename
-                            </button>
-                            <button class="image-gallery__menu-item" (click)="downloadImage(image.id)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="7 10 12 15 17 10"></polyline>
-                                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                                </svg>
-                                Download
-                            </button>
-                            <button class="image-gallery__menu-item" (click)="deleteImage(image.id)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                </svg>
-                                Delete
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Rename form -->
-                    <form *ngIf="image.isRenaming" (submit)="saveImageRename(image.id, $event)" class="image-gallery__rename-form">
-                        <input type="text"
-                               [(ngModel)]="image.newName"
-                               name="imageName"
-                               class="image-gallery__rename-input"
-                               (click)="$event.stopPropagation()"
-                               (keydown.escape)="cancelImageRename(image.id)">
-                        <div class="image-gallery__rename-actions">
-                            <button type="submit" class="image-gallery__rename-save">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 6L9 17l-5-5"></path>
-                                </svg>
-                            </button>
-                            <button type="button" class="image-gallery__rename-cancel" (click)="cancelImageRename(image.id); $event.stopPropagation()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            <div
+                    class="image-gallery__item"
+                    *ngFor="let image of galleryImages; let i = index; trackBy: trackByImageId"
+                    draggable="true"
+                    (dragstart)="dragStart($event, i)"
+                    (dragend)="dragEnd($event)"
+                    (dragenter)="dragEnter($event, image.id)"
+                    (dragleave)="dragLeave($event)"
+                    (dragover)="allowDrop($event)"
+                    (drop)="drop($event, i)"
+                    [class.image-gallery__item--dragged]="draggedImageId === image.id"
+                    [class.image-gallery__item--drop-target]="dropTargetImageId === image.id"
+                    [attr.data-image-id]="image.id">
 
                 <div class="image-gallery__image-container">
-                    <img [src]="'https://127.0.0.1:8002' + image.url" [alt]="image.name" class="image-gallery__image">
+                    <img
+                            [src]="'https://127.0.0.1:8002' + image.url"
+                            [alt]="image.name"
+                            class="image-gallery__image"
+                            loading="lazy">
 
                     <div class="image-gallery__primary-badge" *ngIf="image.isPrimary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -172,6 +122,116 @@
                         </svg>
                         Primary
                     </div>
+
+                    <!-- Image menu button -->
+                    <button
+                            class="image-gallery__action-button image-gallery__menu-button"
+                            (click)="toggleImageMenu(image.id); $event.stopPropagation()"
+                            type="button"
+                            [attr.aria-label]="'Options for ' + image.name"
+                            [attr.aria-expanded]="activeImageMenu === image.id">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M9.99996 10.8333C10.4602 10.8333 10.8333 10.4602 10.8333 9.99992C10.8333 9.53968 10.4602 9.16659 9.99996 9.16659C9.53972 9.16659 9.16663 9.53968 9.16663 9.99992C9.16663 10.4602 9.53972 10.8333 9.99996 10.8333Z" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9.99996 4.99992C10.4602 4.99992 10.8333 4.62682 10.8333 4.16659C10.8333 3.70635 10.4602 3.33325 9.99996 3.33325C9.53972 3.33325 9.16663 3.70635 9.16663 4.16659C9.16663 4.62682 9.53972 4.99992 9.99996 4.99992Z" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9.99996 16.6666C10.4602 16.6666 10.8333 16.2935 10.8333 15.8333C10.8333 15.373 10.4602 14.9999 9.99996 14.9999C9.53972 14.9999 9.16663 15.373 9.16663 15.8333C9.16663 16.2935 9.53972 16.6666 9.99996 16.6666Z" stroke="#232323" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown menu for image actions -->
+                    <div
+                            class="image-gallery__menu"
+                            *ngIf="activeImageMenu === image.id"
+                            (click)="$event.stopPropagation()"
+                            role="menu">
+                        <button
+                                class="image-gallery__menu-item"
+                                (click)="makePrimary(image.id)"
+                                *ngIf="!image.isPrimary"
+                                type="button"
+                                role="menuitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                            </svg>
+                            Make primary
+                        </button>
+                        <button
+                                class="image-gallery__menu-item"
+                                (click)="startRenameImage(image.id)"
+                                type="button"
+                                role="menuitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                            Rename
+                        </button>
+                        <button
+                                class="image-gallery__menu-item"
+                                (click)="downloadImage(image.id)"
+                                type="button"
+                                role="menuitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download
+                        </button>
+                        <button
+                                class="image-gallery__menu-item"
+                                (click)="deleteImage(image.id)"
+                                type="button"
+                                role="menuitem">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+
+                <div class="image-gallery__info">
+                    <!-- Regular display name -->
+                    <span class="image-gallery__name" *ngIf="!image.isRenaming">{{ image.name }}</span>
+
+                    <!-- Rename form -->
+                    <form
+                            *ngIf="image.isRenaming"
+                            (submit)="saveImageRename(image.id, $event)"
+                            class="image-gallery__rename-form">
+                        <input
+                                type="text"
+                                [(ngModel)]="image.newName"
+                                name="imageName"
+                                class="image-gallery__rename-input"
+                                (click)="$event.stopPropagation()"
+                                (keydown.escape)="cancelImageRename(image.id)"
+                                [attr.data-image-id]="image.id"
+                                required
+                                maxlength="255">
+                        <div class="image-gallery__rename-actions">
+                            <button
+                                    type="submit"
+                                    class="image-gallery__rename-save"
+                                    [disabled]="!image.newName?.trim()"
+                                    title="Save changes">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 6L9 17l-5-5"></path>
+                                </svg>
+                            </button>
+                            <button
+                                    type="button"
+                                    class="image-gallery__rename-cancel"
+                                    (click)="cancelImageRename(image.id); $event.stopPropagation()"
+                                    title="Cancel">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

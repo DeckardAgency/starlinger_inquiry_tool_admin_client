@@ -1,14 +1,16 @@
 .featured-image {
   padding: 1rem;
-  width: fit-content;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
 
   &__header {
     margin-bottom: 1rem;
   }
 
   &__title {
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.125rem;
+    font-weight: 600;
     margin: 0 0 0.5rem 0;
     color: #333;
   }
@@ -16,7 +18,7 @@
   &__description {
     font-size: 0.875rem;
     color: #666;
-    margin: 0;
+    margin: 0 0 1rem 0;
   }
 
   // Drop area styles
@@ -30,11 +32,19 @@
     border-radius: 8px;
     background-color: #f9f9f9;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    outline: none;
 
-    &:hover {
+    &:hover,
+    &:focus {
       border-color: #999;
       background-color: #f0f0f0;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+    }
+
+    &:focus-visible {
+      outline: 2px solid #4f46e5;
+      outline-offset: 2px;
     }
 
     &--active {
@@ -75,6 +85,7 @@
     justify-content: center;
     border-radius: 8px;
     background-color: #f9f9f9;
+    border: 1px solid #eee;
   }
 
   &__progress-container {
@@ -109,7 +120,7 @@
     background-color: #FEF2F2;
     border: 1px solid #FCA5A5;
     border-radius: 8px;
-    color: #DC2626;
+    color: #B91C1C;
 
     svg {
       margin-bottom: 0.5rem;
@@ -119,6 +130,7 @@
     p {
       margin: 0 0 1rem 0;
       font-size: 0.875rem;
+      text-align: center;
     }
   }
 
@@ -130,9 +142,16 @@
     border-radius: 4px;
     font-size: 0.875rem;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 
-    &:hover {
-      background-color: darken(#DC2626, 10%);
+    &:hover,
+    &:focus {
+      background-color: #B91C1C;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #DC2626;
+      outline-offset: 2px;
     }
   }
 
@@ -142,6 +161,7 @@
     border-radius: 8px;
     overflow: hidden;
     background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 
   &__image {
@@ -169,7 +189,12 @@
     border-radius: 4px;
     font-size: 0.875rem;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
+
+    &:focus-visible {
+      outline: 2px solid #4f46e5;
+      outline-offset: 2px;
+    }
 
     svg {
       width: 16px;
@@ -182,7 +207,8 @@
     border: 1px solid #eee;
     color: #333;
 
-    &:hover {
+    &:hover,
+    &:focus {
       background-color: #f0f0f0;
     }
   }
@@ -192,8 +218,9 @@
     border: 1px solid #FCA5A5;
     color: #DC2626;
 
-    &:hover {
-      background-color: darken(#FEF2F2, 5%);
+    &:hover,
+    &:focus {
+      background-color: #fee2e2;
     }
   }
 
@@ -201,6 +228,7 @@
     padding: 0.5rem 1rem 1rem;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     border-top: 1px solid #eee;
     font-size: 0.75rem;
     color: #666;
@@ -217,14 +245,14 @@
   &__mime-type {
     color: #999;
   }
-}
 
-// Animation for loading spinner
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+  @media (prefers-reduced-motion: reduce) {
+    &__drop-area,
+    &__retry-button,
+    &__change-button,
+    &__remove-button,
+    &__progress-bar {
+      transition: none;
+    }
   }
 }
