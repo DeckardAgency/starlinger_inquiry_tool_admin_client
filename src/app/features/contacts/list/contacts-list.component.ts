@@ -15,7 +15,6 @@ interface Contact {
 
 @Component({
     selector: 'app-contacts-list',
-    standalone: true,
     imports: [CommonModule, BreadcrumbsComponent],
     templateUrl: './contacts-list.component.html',
     styleUrls: ['./contacts-list.component.scss']

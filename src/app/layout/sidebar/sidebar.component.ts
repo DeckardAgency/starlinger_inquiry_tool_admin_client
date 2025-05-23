@@ -8,37 +8,36 @@ import { trigger, transition, style, animate, state } from '@angular/animations'
 import { filter } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-sidebar',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss'],
-  animations: [
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('200ms ease-in', style({ opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('200ms ease-out', style({ opacity: 0 }))
-      ])
-    ]),
-    trigger('expandCollapse', [
-      state('void', style({
-        height: '0',
-        overflow: 'hidden',
-        opacity: 0,
-        margin: '0'
-      })),
-      state('*', style({
-        height: '*',
-        opacity: 1
-      })),
-      transition('void <=> *', [
-        animate('300ms ease-in-out')
-      ])
-    ])
-  ]
+    selector: 'app-sidebar',
+    imports: [CommonModule, RouterModule],
+    templateUrl: './sidebar.component.html',
+    styleUrls: ['./sidebar.component.scss'],
+    animations: [
+        trigger('fadeInOut', [
+            transition(':enter', [
+                style({ opacity: 0 }),
+                animate('200ms ease-in', style({ opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('200ms ease-out', style({ opacity: 0 }))
+            ])
+        ]),
+        trigger('expandCollapse', [
+            state('void', style({
+                height: '0',
+                overflow: 'hidden',
+                opacity: 0,
+                margin: '0'
+            })),
+            state('*', style({
+                height: '*',
+                opacity: 1
+            })),
+            transition('void <=> *', [
+                animate('300ms ease-in-out')
+            ])
+        ])
+    ]
 })
 export class SidebarComponent implements OnInit {
   isInquiriesExpanded = signal<boolean>(true);

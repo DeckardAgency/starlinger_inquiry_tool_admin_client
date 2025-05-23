@@ -36,7 +36,6 @@ interface SelectionState {
 
 @Component({
     selector: 'app-product-list',
-    standalone: true,
     imports: [CommonModule, BreadcrumbsComponent, FormsModule],
     templateUrl: './products-list.component.html',
     styleUrls: ['./products-list.component.scss'],

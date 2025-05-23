@@ -16,11 +16,10 @@ interface InquiryHistory {
 }
 
 @Component({
-  selector: 'app-inquiry-table',
-  standalone: true,
-  imports: [CommonModule, InquiryShimmerComponent],
-  templateUrl: './inquiry-table.component.html',
-  styleUrls: ['./inquiry-table.component.scss']
+    selector: 'app-inquiry-table',
+    imports: [CommonModule, InquiryShimmerComponent],
+    templateUrl: './inquiry-table.component.html',
+    styleUrls: ['./inquiry-table.component.scss']
 })
 export class InquiryTableComponent implements OnInit {
   @Input() inquiries: InquiryHistory[] = [];

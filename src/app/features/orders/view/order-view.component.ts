@@ -25,7 +25,6 @@ interface OrderMachine {
 
 @Component({
     selector: 'app-order-view',
-    standalone: true,
     imports: [
         CommonModule,
         BreadcrumbsComponent

@@ -18,16 +18,15 @@ interface InquiryHistory {
 }
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    PerformanceOverviewComponent,
-    InquiryTableComponent,
-    InquiryCardComponent
-  ],
-  templateUrl: "dashboard.component.html",
-  styleUrls: ['./dashboard.component.scss']
+    selector: 'app-dashboard',
+    imports: [
+        CommonModule,
+        PerformanceOverviewComponent,
+        InquiryTableComponent,
+        InquiryCardComponent
+    ],
+    templateUrl: "dashboard.component.html",
+    styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
   breadcrumbs = [

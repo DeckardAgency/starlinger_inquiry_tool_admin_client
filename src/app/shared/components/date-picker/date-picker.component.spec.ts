@@ -45,7 +45,8 @@ Object.defineProperty(window, 'localStorage', {
         [storageKey]="storageKey">
       </app-date-picker>
     </form>
-  `
+  `,
+    standalone: false
 })
 class ReactiveFormHostComponent {
     testForm = new FormGroup({
@@ -75,7 +76,8 @@ class ReactiveFormHostComponent {
       [placeholder]="placeholder"
       [storageKey]="storageKey">
     </app-date-picker>
-  `
+  `,
+    standalone: false
 })
 class SimpleHostComponent {
     isRange = false;

@@ -24,7 +24,6 @@ interface SelectedProduct {
 
 @Component({
     selector: 'app-product-new',
-    standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbsComponent],
     templateUrl: './machines-new.component.html',
     styleUrls: ['./machines-new.component.scss']

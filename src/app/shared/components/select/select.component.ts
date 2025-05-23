@@ -6,7 +6,6 @@ import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-select',
-    standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule],
     templateUrl: './select.component.html',
     styleUrl: './select.component.scss',

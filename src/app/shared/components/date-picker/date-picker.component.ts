@@ -32,39 +32,38 @@ interface StoredSelection {
 }
 
 @Component({
-  selector: 'app-date-picker',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarComponent],
-  templateUrl: './date-picker.component.html',
-  styleUrls: ['./date-picker.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DatePickerComponent),
-      multi: true
-    }
-  ],
-  animations: [
-    trigger('calendarAnimation', [
-      transition('void => visible', [
-        style({
-          opacity: 0,
-          transform: 'translateY(-20px) scale(0.95)'
-        }),
-        animate('200ms ease-out', style({
-          opacity: 1,
-          transform: 'translateY(0) scale(1)'
-        }))
-      ]),
-      transition('visible => hidden', [
-        animate('150ms ease-in', style({
-          opacity: 0,
-          transform: 'translateY(-20px) scale(0.95)'
-        }))
-      ])
-    ])
-  ]
+    selector: 'app-date-picker',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarComponent],
+    templateUrl: './date-picker.component.html',
+    styleUrls: ['./date-picker.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => DatePickerComponent),
+            multi: true
+        }
+    ],
+    animations: [
+        trigger('calendarAnimation', [
+            transition('void => visible', [
+                style({
+                    opacity: 0,
+                    transform: 'translateY(-20px) scale(0.95)'
+                }),
+                animate('200ms ease-out', style({
+                    opacity: 1,
+                    transform: 'translateY(0) scale(1)'
+                }))
+            ]),
+            transition('visible => hidden', [
+                animate('150ms ease-in', style({
+                    opacity: 0,
+                    transform: 'translateY(-20px) scale(0.95)'
+                }))
+            ])
+        ])
+    ]
 })
 export class DatePickerComponent implements OnInit, ControlValueAccessor {
   private readonly destroyRef = inject(DestroyRef);

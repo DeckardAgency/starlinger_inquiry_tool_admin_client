@@ -23,7 +23,6 @@ interface SelectedProduct {
 
 @Component({
     selector: 'app-product-edit',
-    standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule, BreadcrumbsComponent],
     templateUrl: './machines-edit.component.html',
     styleUrls: ['./machines-edit.component.scss']

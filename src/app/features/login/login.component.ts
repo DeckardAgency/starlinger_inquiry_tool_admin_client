@@ -6,19 +6,18 @@ import { AuthService } from '@core/auth/auth.service';
 import { animate, style, transition, trigger } from '@angular/animations';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
-  animations: [
-    trigger('fadeAnimation', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('200ms ease-out', style({ opacity: 1 }))
-      ])
-    ])
-  ]
+    selector: 'app-login',
+    imports: [CommonModule, FormsModule, RouterModule],
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.scss'],
+    animations: [
+        trigger('fadeAnimation', [
+            transition(':enter', [
+                style({ opacity: 0 }),
+                animate('200ms ease-out', style({ opacity: 1 }))
+            ])
+        ])
+    ]
 })
 export class LoginComponent implements OnInit {
   username: string = '';

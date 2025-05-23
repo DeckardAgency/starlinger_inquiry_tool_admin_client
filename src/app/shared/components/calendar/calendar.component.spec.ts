@@ -20,7 +20,8 @@ import { CalendarComponent, CalendarDate } from './calendar.component';
       (rangeSelected)="onRangeSelected($event)"
       (closeCalendar)="onCloseCalendar()">
     </app-calendar>
-  `
+  `,
+    standalone: false
 })
 class TestHostComponent {
     isRange = false;

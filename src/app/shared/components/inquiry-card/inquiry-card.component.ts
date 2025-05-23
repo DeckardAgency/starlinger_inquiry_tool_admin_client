@@ -13,19 +13,18 @@ export interface Inquiry {
 }
 
 @Component({
-  selector: 'app-inquiry-card',
-  templateUrl: './inquiry-card.component.html',
-  styleUrls: ['./inquiry-card.component.scss'],
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  animations: [
-    trigger('fadeIn', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('400ms ease-out', style({ opacity: 1 }))
-      ])
-    ])
-  ]
+    selector: 'app-inquiry-card',
+    templateUrl: './inquiry-card.component.html',
+    styleUrls: ['./inquiry-card.component.scss'],
+    imports: [CommonModule, RouterModule],
+    animations: [
+        trigger('fadeIn', [
+            transition(':enter', [
+                style({ opacity: 0 }),
+                animate('400ms ease-out', style({ opacity: 1 }))
+            ])
+        ])
+    ]
 })
 export class InquiryCardComponent {
   @Input() inquiry!: Inquiry;

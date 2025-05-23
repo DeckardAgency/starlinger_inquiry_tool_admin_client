@@ -19,11 +19,10 @@ export class FilterResultsPipe implements PipeTransform {
 }
 
 @Component({
-  selector: 'app-search',
-  standalone: true,
-  imports: [CommonModule, FormsModule, FilterResultsPipe],
-  templateUrl: './search.component.html',
-  styleUrls: ['./search.component.scss']
+    selector: 'app-search',
+    imports: [CommonModule, FormsModule, FilterResultsPipe],
+    templateUrl: './search.component.html',
+    styleUrls: ['./search.component.scss']
 })
 export class SearchComponent implements OnInit {
   @ViewChild('searchInput') searchInput!: ElementRef;

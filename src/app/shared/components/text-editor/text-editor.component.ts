@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-text-editor',
-    standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './text-editor.component.html',
     styleUrls: ['./text-editor.component.scss']

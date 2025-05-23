@@ -14,7 +14,6 @@ interface Contact {
 
 @Component({
     selector: 'app-accounts-edit',
-    standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule],
     templateUrl: './accounts-edit.component.html',
     styleUrls: ['./accounts-edit.component.scss']

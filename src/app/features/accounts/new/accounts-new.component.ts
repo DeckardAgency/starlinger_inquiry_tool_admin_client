@@ -13,7 +13,6 @@ interface Contact {
 
 @Component({
     selector: 'app-accounts-new',
-    standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule],
     templateUrl: './accounts-new.component.html',
     styleUrls: ['./accounts-new.component.scss']

@@ -36,12 +36,11 @@ interface FilterState {
 
 @Component({
     selector: 'app-orders-list',
-    standalone: true,
     imports: [CommonModule, BreadcrumbsComponent, FormsModule],
     templateUrl: './orders-list.component.html',
     styleUrls: ['./orders-list.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [OrderService],
+    providers: [OrderService]
 })
 export class OrdersListComponent implements OnInit, OnDestroy {
     // Inject services

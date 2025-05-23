@@ -39,7 +39,6 @@ interface UploadProgress {
 
 @Component({
     selector: 'app-product-image-gallery',
-    standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './product-image-gallery.component.html',
     styleUrls: ['./product-image-gallery.component.scss'],

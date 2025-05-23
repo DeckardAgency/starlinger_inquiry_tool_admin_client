@@ -44,12 +44,11 @@ interface DateRestrictions {
 }
 
 @Component({
-  selector: 'app-calendar',
-  standalone: true,
-  imports: [CommonModule, DatePipe],
-  templateUrl: './calendar.component.html',
-  styleUrls: ['./calendar.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-calendar',
+    imports: [CommonModule, DatePipe],
+    templateUrl: './calendar.component.html',
+    styleUrls: ['./calendar.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   private readonly destroyRef = inject(DestroyRef);

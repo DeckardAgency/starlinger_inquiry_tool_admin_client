@@ -9,7 +9,6 @@ import { Subject } from 'rxjs';
 
 @Component({
     selector: 'app-product-featured-image',
-    standalone: true,
     imports: [CommonModule],
     templateUrl: './product-featured-image.component.html',
     styleUrls: ['./product-featured-image.component.scss']

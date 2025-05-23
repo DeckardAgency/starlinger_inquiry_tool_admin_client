@@ -9,7 +9,6 @@ import { PaginationLinks } from "@models/pagination.model";
 
 @Component({
     selector: 'app-product-list',
-    standalone: true,
     imports: [CommonModule, BreadcrumbsComponent],
     templateUrl: './machines-list.component.html',
     styleUrls: ['./machines-list.component.scss'],

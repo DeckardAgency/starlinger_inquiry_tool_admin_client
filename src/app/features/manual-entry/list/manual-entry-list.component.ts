@@ -36,12 +36,11 @@ interface FilterState {
 
 @Component({
     selector: 'app-manual-entry-list',
-    standalone: true,
     imports: [CommonModule, BreadcrumbsComponent, FormsModule],
     templateUrl: './manual-entry-list.component.html',
     styleUrls: ['./manual-entry-list.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [ManualEntryService],
+    providers: [ManualEntryService]
 })
 export class ManualEntryListComponent implements OnInit, OnDestroy {
     // Inject services

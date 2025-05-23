@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-icon',
-  standalone: true,
-  imports: [CommonModule],
-  template: `<span class="icon" [ngClass]="iconClass" [innerHTML]="svgIcon"></span>`,
-  styles: [`
+    selector: 'app-icon',
+    imports: [CommonModule],
+    template: `<span class="icon" [ngClass]="iconClass" [innerHTML]="svgIcon"></span>`,
+    styles: [`
     .icon {
       display: flex;
       align-items: center;

@@ -13,7 +13,6 @@ interface PerformanceMetric {
 
 @Component({
     selector: 'app-performance-overview',
-    standalone: true,
     imports: [CommonModule, DatePickerComponent, ReactiveFormsModule],
     templateUrl: './performance-overview.component.html',
     styleUrls: ['./performance-overview.component.scss']

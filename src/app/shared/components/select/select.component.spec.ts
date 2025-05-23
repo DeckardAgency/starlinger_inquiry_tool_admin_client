@@ -24,7 +24,8 @@ import { SelectComponent } from './select.component';
       </form>
       <button class="outside-element">Outside Element</button>
     </div>
-  `
+  `,
+    standalone: false
 })
 class TestHostComponent {
     form: FormGroup;

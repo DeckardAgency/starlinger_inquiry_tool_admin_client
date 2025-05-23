@@ -18,7 +18,6 @@ interface Account {
 
 @Component({
     selector: 'app-accounts-list',
-    standalone: true,
     imports: [CommonModule, BreadcrumbsComponent],
     templateUrl: './accounts-list.component.html',
     styleUrls: ['./accounts-list.component.scss']

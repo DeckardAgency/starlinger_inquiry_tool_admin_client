@@ -29,7 +29,6 @@ interface Country {
 
 @Component({
     selector: 'app-product-edit',
-    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -47,14 +46,12 @@ interface Country {
             // Fade in and translate up slightly
             transition(':enter', [
                 style({ opacity: 0, transform: 'translateY(10px)' }),
-                animate('300ms ease-out',
-                    style({ opacity: 1, transform: 'translateY(0)' }))
+                animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
             ]),
             // Fade out and translate down slightly
             transition(':leave', [
                 style({ opacity: 1, transform: 'translateY(0)' }),
-                animate('200ms ease-in',
-                    style({ opacity: 0, transform: 'translateY(10px)' }))
+                animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(10px)' }))
             ])
         ]),
         trigger('tabIndicator', [
