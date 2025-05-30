@@ -77,6 +77,28 @@
     background: #22C55E;
     padding: 4px 8px;
     font-weight: 500;
+    transition: background-color 0.3s ease;
+
+    // Status-specific colors
+    &--submitted {
+      background: #3B0075;
+    }
+
+    &--confirmed {
+      background: #FFA500;
+    }
+
+    &--dispatched {
+      background: #28A745;
+    }
+
+    &--completed {
+      background: #28A745;
+    }
+
+    &--canceled {
+      background: #DC3545;
+    }
   }
 
   &__export-button,
@@ -263,6 +285,11 @@
     text-align: right;
   }
 
+  &__field-select {
+    max-width: 200px;
+    min-width: 150px;
+  }
+
   &__toggle {
     position: relative;
     width: 36px;
@@ -303,6 +330,28 @@
 
   &__products-section {
     margin-bottom: 24px;
+  }
+
+  &__products-table {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E4E4E7;
+  }
+
+  &__empty-state {
+    padding: 48px;
+    text-align: center;
+    color: #71717A;
+    background-color: #fff;
+    border-radius: 8px;
+    border: 1px solid #E4E4E7;
+  }
+
+  &__custom-price {
+    color: #F59E0B;
+    font-weight: 500;
   }
 
   &__machine-section {
@@ -425,5 +474,84 @@
     font-size: 1rem;
     font-weight: 500;
     color: white;
+  }
+
+  // Log messages section
+  &__logs-section {
+    margin-top: 24px;
+    padding: 16px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E4E4E7;
+  }
+
+  &__logs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__log-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F4F4F5;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__log-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap;
+
+    &--canceled {
+      background-color: #DC3545;
+    }
+
+    &--completed {
+      background-color: #28A745;
+    }
+
+    &--dispatched {
+      background-color: #28A745;
+    }
+
+    &--confirmed {
+      background-color: #FFA500;
+    }
+
+    &--submitted {
+      background-color: #3B0075;
+    }
+
+    &--default {}
+  }
+
+  &__log-date {
+    font-size: 0.875rem;
+    color: #232323;
+    min-width: 140px;
+  }
+
+  &__log-user {
+    font-size: 0.875rem;
+    color: #71717A;
+    min-width: 100px;
+  }
+
+  &__log-comment {
+    font-size: 0.875rem;
+    color: #232323;
+    flex: 1;
   }
 }

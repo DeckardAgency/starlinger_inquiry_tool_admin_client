@@ -89,6 +89,13 @@
                             (click)="setActiveTab('imageGallery')">
                         Image Gallery
                     </button>
+
+                    <button
+                            class="product-new__tab"
+                            [class.product-new__tab--active]="activeTab === 'productDocuments'"
+                            (click)="setActiveTab('productDocuments')">
+                        Product Documents
+                    </button>
                 </div>
 
                 <!-- Tab Indicator Animation -->
@@ -134,6 +141,13 @@
                                 [mediaItems]="productForm.get('imageGallery')?.value || []"
                                 (mediaItemsChange)="onImageGalleryChange($event)">
                         </app-product-image-gallery>
+                    </div>
+
+                    <!-- productDocuments Section -->
+                    <div class="product-new__editor-container product-new__product-documents"
+                         *ngIf="activeTab === 'productDocuments'"
+                         [@tabAnimation]>
+                        Product documents content
                     </div>
                 </div>
             </div>

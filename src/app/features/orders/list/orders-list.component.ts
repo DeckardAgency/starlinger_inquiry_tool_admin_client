@@ -78,7 +78,7 @@ export class OrdersListComponent implements OnInit, OnDestroy {
         activeTab: 'latest',
         statusFilters: {
             latest: [], // Empty array means all statuses
-            completed: ['paid'],
+            completed: ['completed'],
             canceled: ['canceled']
         }
     });

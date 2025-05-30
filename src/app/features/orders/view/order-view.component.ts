@@ -3,31 +3,25 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcrumbs.component";
 import { OrderService } from '@services/http/order.service';
-import { Order } from '@models/order.model';
+import { Order, OrderLog } from '@models/order.model';
 import { finalize, delay } from 'rxjs/operators';
 import { of } from 'rxjs';
+import {FormsModule, ReactiveFormsModule, FormBuilder, FormGroup} from "@angular/forms";
+import {SelectComponent} from "@shared/components/select/select.component";
 
-interface OrderProduct {
-    partNo: string;
-    productName: string;
-    weight: string;
-    quantity: number;
-    unitPrice: number;
-    discount: string;
-    price: number;
-}
-
-interface OrderMachine {
-    name: string;
-    products: OrderProduct[];
-    isOpen: boolean;
+interface StatusOption {
+    value: string;
+    label: string;
 }
 
 @Component({
     selector: 'app-order-view',
     imports: [
         CommonModule,
-        BreadcrumbsComponent
+        BreadcrumbsComponent,
+        FormsModule,
+        ReactiveFormsModule,
+        SelectComponent
     ],
     templateUrl: './order-view.component.html',
     styleUrls: ['./order-view.component.scss']
@@ -41,91 +35,52 @@ export class OrderViewComponent implements OnInit {
     order: Order | null = null;
     isLoading = true;
     error: string | null = null;
+    statusForm: FormGroup;
 
-    // Mock data for display - in a real app, this would come from the API
-    internalReference = '000123-ABC';
-    dateCreated = '14-03-2024';
-    partsOrdered = 12;
-
-    paymentType = 'Bank transfer';
-    deliveryType = 'DHL';
-    priceWithoutTax = 4764.74;
-    totalPrice = 5724.20;
-    priceTax = 956.40;
-
-    // Mock machines data
-    machines: OrderMachine[] = [
-        {
-            name: '200XE Winding Machine',
-            isOpen: true,
-            products: [
-                {
-                    partNo: 'AIVV-01152',
-                    productName: 'Power panel T30 4,3" WOVGA color touch',
-                    weight: '0,4 kg',
-                    quantity: 2,
-                    unitPrice: 556.17,
-                    discount: '10 %',
-                    price: 1112.34
-                },
-                {
-                    partNo: 'ZME-01171D',
-                    productName: 'Modul FU-Stacofil 200XE',
-                    weight: '1,4 kg',
-                    quantity: 3,
-                    unitPrice: 442.46,
-                    discount: '20 %',
-                    price: 1327.38
-                },
-                {
-                    partNo: 'AEPI-01072',
-                    productName: 'ABTASTKOPF f. induktives Winkelmesssystem',
-                    weight: '0,263 kg',
-                    quantity: 2,
-                    unitPrice: 868.10,
-                    discount: '–',
-                    price: 1736.36
-                }
-            ]
-        },
-        {
-            name: 'Alpha 6.0 Machine',
-            isOpen: true,
-            products: [
-                {
-                    partNo: 'AIHR-01039',
-                    productName: 'Heating element',
-                    weight: '1,5 kg',
-                    quantity: 3,
-                    unitPrice: 1855.01,
-                    discount: '10 %',
-                    price: 5565.03
-                },
-                {
-                    partNo: 'VYC-00245F',
-                    productName: 'SL 6 Shuttle Wheel (6,5") for Reed 10"',
-                    weight: '0,09 kg',
-                    quantity: 2,
-                    unitPrice: 11.54,
-                    discount: '–',
-                    price: 23.08
-                }
-            ]
-        }
+    // Status options for the select component
+    statusOptions: StatusOption[] = [
+        { value: 'submitted', label: 'Submitted' },
+        { value: 'confirmed', label: 'Confirmed' },
+        { value: 'dispatched', label: 'Dispatched' },
+        { value: 'completed', label: 'Completed' },
+        { value: 'canceled', label: 'Canceled' }
     ];
 
-    // Order totals
-    grandTotal = 9764.19;
-    amountPaid = 7811.352;
+    // Order totals calculated from items
+    grandTotal = 0;
+    priceWithoutTax = 0;
+    priceTax = 0;
+
+    // Status badge mapping for log messages
+    statusBadgeMap: { [key: string]: string } = {
+        'submitted': 'Submitted',
+        'confirmed': 'Confirmed',
+        'dispatched': 'Dispatched',
+        'completed': 'Completed',
+        'canceled': 'Canceled'
+    };
 
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private orderService: OrderService
-    ) {}
+        private orderService: OrderService,
+        private fb: FormBuilder
+    ) {
+        // Initialize the form with a default status
+        this.statusForm = this.fb.group({
+            status: ['draft'] // Default status
+        });
+    }
 
     ngOnInit(): void {
         this.loadOrderData();
+
+        // Subscribe to status changes
+        this.statusForm.get('status')?.valueChanges.subscribe(value => {
+            console.log('Status changed to:', value);
+            // Here you would typically call an API to update the order status
+            // this.updateOrderStatus(value);
+        });
     }
 
     /**
@@ -167,6 +122,16 @@ export class OrderViewComponent implements OnInit {
                             ];
                         }
 
+                        // Set the current status in the form
+                        if (order.status) {
+                            this.statusForm.patchValue({
+                                status: order.status
+                            });
+                        }
+
+                        // Calculate totals from order items
+                        this.calculateTotals();
+
                         console.log('Order data loaded:', order);
                     } else {
                         this.error = 'Order not found';
@@ -187,10 +152,32 @@ export class OrderViewComponent implements OnInit {
     }
 
     /**
+     * Calculate order totals from items
+     */
+    calculateTotals(): void {
+        if (!this.order || !this.order.items) {
+            return;
+        }
+
+        // Calculate grand total from order totalAmount or sum of items
+        this.grandTotal = this.order.totalAmount || 0;
+
+        // If we don't have totalAmount, calculate from items
+        if (!this.grandTotal && this.order.items.length > 0) {
+            this.grandTotal = this.order.items.reduce((sum, item) => sum + item.subtotal, 0);
+        }
+
+        // Calculate price without tax (assuming 20% VAT for demo)
+        const taxRate = 0.20;
+        this.priceWithoutTax = this.grandTotal / (1 + taxRate);
+        this.priceTax = this.grandTotal - this.priceWithoutTax;
+    }
+
+    /**
      * Toggle open/close state of a machine section
      */
-    toggleMachine(machine: OrderMachine): void {
-        machine.isOpen = !machine.isOpen;
+    toggleMachine(machine: any): void {
+        // This method is no longer needed as we're not using machine sections
     }
 
     /**
@@ -212,7 +199,130 @@ export class OrderViewComponent implements OnInit {
      * Save changes to the order
      */
     saveOrder(): void {
-        // Implement save functionality
-        alert('Save functionality would be implemented here');
+        if (!this.order) {
+            return;
+        }
+
+        // Get the current form values
+        const currentStatus = this.statusForm.get('status')?.value;
+
+        // Here you would typically call your API to save the order
+        console.log('Saving order with status:', currentStatus);
+        console.log('Saving order:', this.order);
+
+        // Show a success message or handle the save
+        alert(`Order saved with status: ${this.getCurrentStatusLabel()}`);
+
+        // In a real implementation:
+        const updateData = { status: currentStatus };
+        this.orderService.updateOrder(this.order.id, updateData)
+            .subscribe({
+                next: () => {
+                    // Show success message
+                    // Reload order to get updated logs
+                    this.loadOrderData();
+                },
+                error: (err) => {
+                    // Handle error
+                }
+            });
+    }
+
+    /**
+     * Handle status change from the select component
+     */
+    onStatusChange(selectedOption: any): void {
+        console.log('Status selection changed:', selectedOption);
+
+        // The select component will automatically update the form control
+        // through the ControlValueAccessor interface
+
+        // You can perform additional actions here if needed
+        // For example, show a confirmation dialog for certain status changes
+        if (selectedOption?.value === 'canceled') {
+            // You might want to confirm this action
+            console.log('Order is being canceled');
+        }
+    }
+
+    /**
+     * Get the label for the current status to display in the header
+     */
+    getCurrentStatusLabel(): string {
+        const currentStatus = this.statusForm.get('status')?.value;
+        const statusOption = this.statusOptions.find(opt => opt.value === currentStatus);
+        return statusOption?.label || 'Unknown';
+    }
+
+    /**
+     * Get the CSS class for the status badge based on the current status
+     */
+    getStatusClass(): string {
+        const currentStatus = this.statusForm.get('status')?.value;
+
+        switch (currentStatus) {
+            case 'submitted':
+                return 'order-view__status--submitted';
+            case 'confirmed':
+                return 'order-view__status--confirmed';
+            case 'dispatched':
+                return 'order-view__status--dispatched';
+            case 'completed':
+                return 'order-view__status--completed';
+            case 'canceled':
+                return 'order-view__status--canceled';
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Get the CSS class for log status badges
+     */
+    getLogStatusClass(status: string): string {
+        const normalizedStatus = status.toLowerCase().replace(/ /g, '_');
+
+        switch (normalizedStatus) {
+            case 'submitted':
+                return 'order-view__log-status--submitted';
+            case 'confirmed':
+                return 'order-view__log-status--confirmed';
+            case 'dispatched':
+                return 'order-view__log-status--dispatched';
+            case 'completed':
+                return 'order-view__log-status--completed';
+            case 'canceled':
+                return 'order-view__log-status--canceled';
+            default:
+                return 'order-view__log-status--default';
+        }
+    }
+
+    /**
+     * Format log date
+     */
+    formatLogDate(dateString: string): string {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
+        return `${day}-${month}-${year}  ${hours}:${minutes}`;
+    }
+
+    /**
+     * Format date for display
+     */
+    formatDate(dateString: string | undefined): string {
+        if (!dateString) return 'N/A';
+
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+
+        return `${day}/${month}/${year}`;
     }
 }

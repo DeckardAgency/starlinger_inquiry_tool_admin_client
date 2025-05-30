@@ -90,7 +90,7 @@ export class ProductEditComponent implements OnInit {
         { label: 'Edit Product' },
     ];
     productForm!: FormGroup;
-    activeTab: "shortDescription" | "technicalDescription" | "featuredImage" | "imageGallery" = 'shortDescription';
+    activeTab: "shortDescription" | "technicalDescription" | "featuredImage" | "imageGallery" | "productDocuments" = 'shortDescription';
     currentPage: number = 1;
     totalPages: number = 3;
     currentShortDescription = '';
@@ -218,7 +218,7 @@ export class ProductEditComponent implements OnInit {
         });
     }
 
-    setActiveTab(tab: "shortDescription" | "technicalDescription" | "featuredImage" | "imageGallery"): void {
+    setActiveTab(tab: "shortDescription" | "technicalDescription" | "featuredImage" | "imageGallery" | "productDocuments"): void {
         this.activeTab = tab;
     }
 

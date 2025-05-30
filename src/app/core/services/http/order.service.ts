@@ -98,6 +98,31 @@ export class OrderService {
     }
 
     /**
+     * Update an order
+     */
+    updateOrder(id: string, updateData: Partial<Order>): Observable<Order> {
+
+        const options = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/merge-patch+json',
+                'Accept': 'application/ld+json'
+            })
+        };
+
+        return this.http.patch<Order>(
+            `${this.apiUrl}/${id}`,
+            updateData,
+            options
+        ).pipe(
+            tap(response => console.log('Order updated:', response)),
+            catchError(error => {
+                console.error('Error updating order:', error);
+                throw error;
+            })
+        );
+    }
+
+    /**
      * Extract total pages from the response
      */
     private extractTotalPages(response: OrdersResponse): number {
