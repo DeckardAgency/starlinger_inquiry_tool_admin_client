@@ -101,7 +101,7 @@
 
                     <div class="order-view__field">
                         <span class="order-view__field-label">Created</span>
-                        <span class="order-view__field-value">{{ formatDate(order?.createdAt) }}</span>
+                        <span class="order-view__field-value">{{ order?.createdAt | dateFilter:'dd.MM.yyyy @ HH:mm' }}</span>
                     </div>
 
                     <form [formGroup]="statusForm">
@@ -124,7 +124,7 @@
 
                     <div class="order-view__field">
                         <span class="order-view__field-label">Last saved</span>
-                        <span class="order-view__field-value">{{ formatDate(order?.lastSavedAt) }}</span>
+                        <span class="order-view__field-value">{{ order?.lastSavedAt | dateFilter:'dd.MM.yyyy @ HH:mm' }}</span>
                     </div>
                 </div>
 

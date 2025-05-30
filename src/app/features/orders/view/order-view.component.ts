@@ -8,6 +8,7 @@ import { finalize, delay } from 'rxjs/operators';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from "@angular/forms";
 import { SelectComponent } from "@shared/components/select/select.component";
 import { PriceFilterAdvancedPipe } from "@shared/pipes/price-filter-advanced.pipe";
+import {DateFilterPipe} from "@shared/pipes/date-filter.pipe";
 
 interface StatusOption {
     value: string;
@@ -22,7 +23,8 @@ interface StatusOption {
         FormsModule,
         ReactiveFormsModule,
         SelectComponent,
-        PriceFilterAdvancedPipe
+        PriceFilterAdvancedPipe,
+        DateFilterPipe
     ],
     templateUrl: './order-view.component.html',
     styleUrls: ['./order-view.component.scss']
