@@ -1,4 +1,5 @@
 import { PaginationLinks } from '@models/pagination.model';
+import {User} from "@models/auth.model";
 
 export interface OrderProduct {
     '@context'?: string;
@@ -53,7 +54,7 @@ export interface Order {
     isDraft?: boolean;
     lastSavedAt: string;
     items: OrderItem[];
-    user: string; // IRI reference to user
+    user: User;
     logs?: OrderLog[];
 }
 

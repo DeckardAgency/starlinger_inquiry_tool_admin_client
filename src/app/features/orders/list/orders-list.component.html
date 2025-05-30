@@ -147,8 +147,8 @@
                     <td class="orders__table-cell">{{ order.orderNumber }}</td>
                     <td class="orders__table-cell">
                         <div class="orders__customer">
-                            <div class="orders__customer-avatar">{{ getUserInitials(order.user) }}</div>
-                            <span class="orders__customer-name">{{ getUserName(order.user) }}</span>
+                            <div class="orders__customer-avatar">{{ order.user.firstName[0] }} {{ order.user.lastName[0] }}</div>
+                            <span class="orders__customer-name">{{ order.user.firstName }} {{ order.user.lastName }}</span>
                         </div>
                     </td>
                     <td class="orders__table-cell">{{ countTotalItems(order) }}</td>

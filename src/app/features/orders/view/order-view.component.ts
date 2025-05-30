@@ -4,11 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcrumbs.component";
 import { OrderService } from '@services/http/order.service';
 import { Order } from '@models/order.model';
-import { finalize, delay } from 'rxjs/operators';
+import {finalize, delay, switchMap} from 'rxjs/operators';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from "@angular/forms";
 import { SelectComponent } from "@shared/components/select/select.component";
 import { PriceFilterAdvancedPipe } from "@shared/pipes/price-filter-advanced.pipe";
 import {DateFilterPipe} from "@shared/pipes/date-filter.pipe";
+import {tap} from "rxjs";
 
 interface StatusOption {
     value: string;
@@ -39,6 +40,9 @@ export class OrderViewComponent implements OnInit {
     isLoading = true;
     error: string | null = null;
     statusForm: FormGroup;
+
+    // Track the saved status separately from the form value
+    savedStatus: string = '';
 
     // Status options for the select component
     statusOptions: StatusOption[] = [
@@ -106,7 +110,7 @@ export class OrderViewComponent implements OnInit {
 
         this.orderService.getOrder(orderId)
             .pipe(
-                // Add a small delay to show loading state in development
+                // Add a small delay to show the loading state in development
                 delay(300),
                 finalize(() => {
                     this.isLoading = false;
@@ -125,8 +129,9 @@ export class OrderViewComponent implements OnInit {
                             ];
                         }
 
-                        // Set the current status in the form
+                        // Set the current status in the form and track the saved status
                         if (order.status) {
+                            this.savedStatus = order.status;
                             this.statusForm.patchValue({
                                 status: order.status
                             });
@@ -206,27 +211,25 @@ export class OrderViewComponent implements OnInit {
             return;
         }
 
-        // Get the current form values
         const currentStatus = this.statusForm.get('status')?.value;
-
-        // Here you would typically call your API to save the order
-        console.log('Saving order with status:', currentStatus);
-        console.log('Saving order:', this.order);
-
-        // Show a success message or handle the save
-        alert(`Order saved with status: ${this.getCurrentStatusLabel()}`);
-
-        // In a real implementation:
         const updateData = { status: currentStatus };
+
         this.orderService.updateOrder(this.order.id, updateData)
+            .pipe(
+                tap(() => alert(`Order saved with status: ${this.getCurrentStatusLabel()}`)),
+                // Switch to loading the order after the update completes
+                switchMap(() => this.orderService.getOrder(this.order!.id))
+            )
             .subscribe({
-                next: () => {
-                    // Show success message
-                    // Reload order to get updated logs
-                    this.loadOrderData();
+                next: (updatedOrder) => {
+                    this.order = updatedOrder;
+                    // Update the saved status after successful save
+                    this.savedStatus = updatedOrder.status || '';
+                    this.calculateTotals();
                 },
                 error: (err) => {
-                    // Handle error
+                    console.error('Error updating order:', err);
+                    alert('Failed to save order');
                 }
             });
     }
@@ -258,12 +261,18 @@ export class OrderViewComponent implements OnInit {
     }
 
     /**
-     * Get the CSS class for the status badge based on the current status
+     * Get the saved status label to display in the header badge
+     */
+    getSavedStatusLabel(): string {
+        const statusOption = this.statusOptions.find(opt => opt.value === this.savedStatus);
+        return statusOption?.label || 'Unknown';
+    }
+
+    /**
+     * Get the CSS class for the status badge based on the saved status
      */
     getStatusClass(): string {
-        const currentStatus = this.statusForm.get('status')?.value;
-
-        switch (currentStatus) {
+        switch (this.savedStatus) {
             case 'submitted':
                 return 'order-view__status--submitted';
             case 'confirmed':
@@ -277,6 +286,14 @@ export class OrderViewComponent implements OnInit {
             default:
                 return '';
         }
+    }
+
+    /**
+     * Check if there are unsaved changes
+     */
+    hasUnsavedChanges(): boolean {
+        const currentStatus = this.statusForm.get('status')?.value;
+        return currentStatus !== this.savedStatus;
     }
 
     /**
@@ -328,4 +345,6 @@ export class OrderViewComponent implements OnInit {
 
         return `${day}/${month}/${year}`;
     }
+
+    protected readonly status = status;
 }
