@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcrumbs.component";
 import { OrderService } from '@services/http/order.service';
-import { Order, OrderLog } from '@models/order.model';
+import { Order } from '@models/order.model';
 import { finalize, delay } from 'rxjs/operators';
-import { of } from 'rxjs';
-import {FormsModule, ReactiveFormsModule, FormBuilder, FormGroup} from "@angular/forms";
-import {SelectComponent} from "@shared/components/select/select.component";
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from "@angular/forms";
+import { SelectComponent } from "@shared/components/select/select.component";
+import { PriceFilterAdvancedPipe } from "@shared/pipes/price-filter-advanced.pipe";
 
 interface StatusOption {
     value: string;
@@ -21,7 +21,8 @@ interface StatusOption {
         BreadcrumbsComponent,
         FormsModule,
         ReactiveFormsModule,
-        SelectComponent
+        SelectComponent,
+        PriceFilterAdvancedPipe
     ],
     templateUrl: './order-view.component.html',
     styleUrls: ['./order-view.component.scss']

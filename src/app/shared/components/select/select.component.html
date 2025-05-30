@@ -20,10 +20,10 @@
             <div class="select__chip" *ngFor="let option of selectedOptions">
                 {{ getDisplayValue(option) }}
                 <button
-                        class="select__chip-remove"
-                        (click)="removeOption(option, $event)"
-                        tabindex="-1"
-                        aria-label="Remove option">
+                    class="select__chip-remove"
+                    (click)="removeOption(option, $event)"
+                    tabindex="-1"
+                    aria-label="Remove option">
                     ×
                 </button>
             </div>
@@ -35,28 +35,32 @@
 
         <div class="select__actions">
             <button
-                    *ngIf="selectedOptions.length && !disabled"
-                    class="select__clear"
-                    (click)="clearSelection($event)"
-                    tabindex="-1"
-                    aria-label="Clear selection">
+                *ngIf="clearable && selectedOptions.length && !disabled"
+                class="select__clear"
+                (click)="clearSelection($event)"
+                tabindex="-1"
+                aria-label="Clear selection">
                 ×
             </button>
-            <div class="select__icon" [class.select__icon--open]="isOpen">▼</div>
+            <div class="select__icon" [class.select__icon--open]="isOpen">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 6L8 10L12 6" stroke="#232323" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
         </div>
     </div>
 
     <div class="select__dropdown" *ngIf="isOpen">
         <div class="select__search" *ngIf="searchable">
             <input
-                    type="text"
-                    class="select__search-input"
-                    placeholder="Search..."
-                    [value]="searchText"
-                    (input)="onSearch($event)"
-                    (click)="$event.stopPropagation()"
-                    (keydown.escape)="$event.stopPropagation()"
-                    aria-label="Search">
+                type="text"
+                class="select__search-input"
+                placeholder="Search..."
+                [value]="searchText"
+                (input)="onSearch($event)"
+                (click)="$event.stopPropagation()"
+                (keydown.escape)="$event.stopPropagation()"
+                aria-label="Search">
         </div>
 
         <div class="select__no-results" *ngIf="filteredOptions.length === 0">
@@ -65,12 +69,12 @@
 
         <div class="select__options" role="listbox">
             <div
-                    *ngFor="let option of filteredOptions"
-                    class="select__option"
-                    [class.select__option--selected]="isSelected(option)"
-                    (click)="selectOption(option)"
-                    role="option"
-                    [attr.aria-selected]="isSelected(option)">
+                *ngFor="let option of filteredOptions"
+                class="select__option"
+                [class.select__option--selected]="isSelected(option)"
+                (click)="selectOption(option)"
+                role="option"
+                [attr.aria-selected]="isSelected(option)">
                 <div class="select__checkbox" *ngIf="multiple">
                     <div class="select__checkbox-inner" *ngIf="isSelected(option)"></div>
                 </div>

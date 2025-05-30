@@ -1,14 +1,26 @@
-// select.component.ts
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, forwardRef } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    HostListener,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    forwardRef,
+    ViewEncapsulation
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Component({
     selector: 'app-select',
+    standalone: true,
     imports: [CommonModule, FormsModule, ReactiveFormsModule],
     templateUrl: './select.component.html',
     styleUrl: './select.component.scss',
+    encapsulation: ViewEncapsulation.None,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -27,6 +39,7 @@ export class SelectComponent implements OnInit, OnDestroy, ControlValueAccessor 
     @Input() disabled: boolean = false;
     @Input() required: boolean = false;
     @Input() closeOnOutsideClick: boolean = true;
+    @Input() clearable: boolean = true; // New input property
 
     @Output() selectionChange = new EventEmitter<any>();
     @Output() opened = new EventEmitter<void>();

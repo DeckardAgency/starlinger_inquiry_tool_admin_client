@@ -105,16 +105,18 @@
                     </div>
 
                     <form [formGroup]="statusForm">
-                        <div class="order-view__field">
+                        <div class="order-view__field order-view__field--status">
                             <span class="order-view__field-label">Status</span>
                             <div class="order-view__field-select">
                                 <app-select
-                                        formControlName="status"
-                                        [options]="statusOptions"
-                                        displayField="label"
-                                        valueField="value"
-                                        (selectionChange)="onStatusChange($event)"
-                                        placeholder="Select status">
+                                    class="order-select"
+                                    formControlName="status"
+                                    [options]="statusOptions"
+                                    [clearable]="false"
+                                    displayField="label"
+                                    valueField="value"
+                                    (selectionChange)="onStatusChange($event)"
+                                    placeholder="Select status">
                                 </app-select>
                             </div>
                         </div>
@@ -147,17 +149,17 @@
 
                     <div class="order-view__field">
                         <span class="order-view__field-label">Price without tax</span>
-                        <span class="order-view__field-value">€ {{ priceWithoutTax }}</span>
+                        <span class="order-view__field-value">€ {{ priceWithoutTax | priceFilterAdvanced }}</span>
                     </div>
 
                     <div class="order-view__field">
                         <span class="order-view__field-label">Total price</span>
-                        <span class="order-view__field-value">€ {{ grandTotal }}</span>
+                        <span class="order-view__field-value">€ {{ grandTotal | priceFilterAdvanced }}</span>
                     </div>
 
                     <div class="order-view__field">
                         <span class="order-view__field-label">Price tax (20%)</span>
-                        <span class="order-view__field-value">€ {{ priceTax }}</span>
+                        <span class="order-view__field-value">€ {{ priceTax | priceFilterAdvanced }}</span>
                     </div>
                 </div>
             </div>
@@ -186,25 +188,24 @@
                     <table class="order-view__table">
                         <thead>
                         <tr>
-                            <th class="order-view__table-header">Product ID</th>
+                            <th class="order-view__table-header">Part no.</th>
                             <th class="order-view__table-header">Product name</th>
+                            <th class="order-view__table-header">Weight</th>
                             <th class="order-view__table-header">Quantity</th>
                             <th class="order-view__table-header">Unit price</th>
-                            <th class="order-view__table-header">Subtotal</th>
-                            <th class="order-view__table-header">Custom price</th>
+                            <th class="order-view__table-header">Discount</th>
+                            <th class="order-view__table-header">Price</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr class="order-view__table-row" *ngFor="let item of order?.items">
-                            <td class="order-view__table-cell">{{ item.product.id.substring(0, 8) }}...</td>
+                            <td class="order-view__table-cell">{{ item.product.partNo }}</td>
                             <td class="order-view__table-cell">{{ item.product.name }}</td>
+                            <td class="order-view__table-cell">{{ item.product.weight }}</td>
                             <td class="order-view__table-cell">{{ item.quantity }}</td>
-                            <td class="order-view__table-cell">€ {{ item.unitPrice }}</td>
-                            <td class="order-view__table-cell">€ {{ item.subtotal }}</td>
-                            <td class="order-view__table-cell">
-                                <span *ngIf="item.isCustomPrice" class="order-view__custom-price">Yes</span>
-                                <span *ngIf="!item.isCustomPrice">No</span>
-                            </td>
+                            <td class="order-view__table-cell">€ {{ item.unitPrice | priceFilterAdvanced }}</td>
+                            <td class="order-view__table-cell"></td>
+                            <td class="order-view__table-cell">€ {{ item.subtotal | priceFilterAdvanced }}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -219,7 +220,7 @@
                 <div class="order-view__total-section">
                     <div class="order-view__total-row">
                         <span class="order-view__total-label">Total price</span>
-                        <span class="order-view__total-value">€ {{ grandTotal }}</span>
+                        <span class="order-view__total-value">€ {{ grandTotal | priceFilterAdvanced }}</span>
                     </div>
                 </div>
             </div>
@@ -228,9 +229,7 @@
             <div class="order-view__logs-section" *ngIf="order?.logs">
                 <h2 class="order-view__section-title">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <path d="M10 2L3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19H15C15.5304 19 16.0391 18.7893 16.4142 18.4142C16.7893 18.0391 17 17.5304 17 17V7L10 2Z" stroke="#71717A" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M10 9V15" stroke="#71717A" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M7 12H13" stroke="#71717A" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.3333 13.3333L15 14.9999L18.3333 11.6666M17.5 8.33317V6.6665C17.4997 6.37423 17.4225 6.08718 17.2763 5.83414C17.13 5.5811 16.9198 5.37097 16.6667 5.22484L10.8333 1.8915C10.58 1.74522 10.2926 1.66821 10 1.66821C9.70744 1.66821 9.42003 1.74522 9.16667 1.8915L3.33333 5.22484C3.08022 5.37097 2.86998 5.5811 2.72372 5.83414C2.57745 6.08718 2.5003 6.37423 2.5 6.6665V13.3332C2.5003 13.6254 2.57745 13.9125 2.72372 14.1655C2.86998 14.4186 3.08022 14.6287 3.33333 14.7748L9.16667 18.1082C9.42003 18.2545 9.70744 18.3315 10 18.3315C10.2926 18.3315 10.58 18.2545 10.8333 18.1082L12.5 17.1582M6.25 3.55827L13.75 7.84993M2.7417 5.83325L10 9.99992M10 9.99992L17.2584 5.83325M10 9.99992L10 18.3333" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     Log messages
                 </h2>
