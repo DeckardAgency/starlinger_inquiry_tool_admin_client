@@ -143,7 +143,7 @@
                     <td class="orders__table-cell">
                         <span class="orders__type-badge">Order</span>
                     </td>
-                    <td class="orders__table-cell">{{ formatDate(order.createdAt) }}</td>
+                    <td class="orders__table-cell">{{ order.createdAt | dateFilter:'dd.MM.yyyy @ HH:mm' }}</td>
                     <td class="orders__table-cell">{{ order.orderNumber }}</td>
                     <td class="orders__table-cell">
                         <div class="orders__customer">

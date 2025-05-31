@@ -7,6 +7,7 @@ import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcru
 import { Order } from '@models/order.model';
 import { OrderService } from '@services/http/order.service';
 import { PaginationLinks } from '@models/pagination.model';
+import {DateFilterPipe} from "@shared/pipes/date-filter.pipe";
 
 // Interfaces to represent component state
 interface OrdersState {
@@ -36,7 +37,7 @@ interface FilterState {
 
 @Component({
     selector: 'app-orders-list',
-    imports: [CommonModule, BreadcrumbsComponent, FormsModule],
+    imports: [CommonModule, BreadcrumbsComponent, FormsModule, DateFilterPipe],
     templateUrl: './orders-list.component.html',
     styleUrls: ['./orders-list.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -85,12 +86,11 @@ export class OrdersListComponent implements OnInit, OnDestroy {
 
     // Map status values to display text
     statusDisplayMap: Record<string, string> = {
-        'pending': 'Pending',
-        'processing': 'Processing',
         'completed': 'Completed',
-        'canceled': 'Canceled',
-        'rejected': 'Rejected',
-        'archived': 'Archived'
+        'dispatched': 'Dispatched',
+        'confirmed': 'Confirmed',
+        'submitted': 'Submitted',
+        'canceled': 'Canceled'
     };
 
     // Computed values

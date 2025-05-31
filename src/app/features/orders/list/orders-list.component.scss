@@ -416,41 +416,29 @@
     border-radius: 10px;
     font-size: 0.75rem;
     font-weight: 500;
-
-    &--completed {
-      background-color: #e6f7e6;
-      color: #2e7d32;
-    }
-
-    &--paid {
-      background-color: #237804;
-      color: #ffffff;
-    }
+    color: #ffffff;
 
     &--canceled {
-      color: #ffffff;
-      background-color: #DC2626;
+      background-color: #DC3545;
     }
 
-    &--rejected {
-      background-color: #e8eaf6;
-      color: #3f51b5;
+    &--completed {
+      background-color: #28A745;
     }
 
-    &--archived {
-      background-color: #fff8e1;
-      color: #ff8f00;
+    &--dispatched {
+      background-color: #28A745;
     }
 
-    &--pending {
-      background-color: #e3f2fd;
-      color: #1976d2;
+    &--confirmed {
+      background-color: #FFA500;
     }
 
-    &--processing {
-      background-color: #AD7F00;
-      color: #ffffff;
+    &--submitted {
+      background-color: #3B0075;
     }
+
+    &--default {}
   }
 
   &__options {

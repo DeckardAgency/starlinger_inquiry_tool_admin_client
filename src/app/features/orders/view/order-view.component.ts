@@ -227,7 +227,7 @@ export class OrderViewComponent implements OnInit {
                     this.order = updatedOrder;
 
                     // Show success notification
-                    this.notificationService.success(`Order was updated successfully!`);
+                    // this.notificationService.success(`Order was updated successfully!`);
 
                     // Update the saved status after a successful save
                     this.savedStatus = updatedOrder.status || '';
