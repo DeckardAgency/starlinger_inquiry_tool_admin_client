@@ -8,8 +8,9 @@ import {finalize, delay, switchMap} from 'rxjs/operators';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from "@angular/forms";
 import { SelectComponent } from "@shared/components/select/select.component";
 import { PriceFilterAdvancedPipe } from "@shared/pipes/price-filter-advanced.pipe";
-import {DateFilterPipe} from "@shared/pipes/date-filter.pipe";
-import {tap} from "rxjs";
+import { DateFilterPipe } from "@shared/pipes/date-filter.pipe";
+import { tap } from "rxjs";
+import { NotificationService } from "@services/notification.service";
 
 interface StatusOption {
     value: string;
@@ -71,7 +72,8 @@ export class OrderViewComponent implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
         private orderService: OrderService,
-        private fb: FormBuilder
+        private fb: FormBuilder,
+        private notificationService: NotificationService
     ) {
         // Initialize the form with a default status
         this.statusForm = this.fb.group({
@@ -223,7 +225,11 @@ export class OrderViewComponent implements OnInit {
             .subscribe({
                 next: (updatedOrder) => {
                     this.order = updatedOrder;
-                    // Update the saved status after successful save
+
+                    // Show success notification
+                    this.notificationService.success(`Order was updated successfully!`);
+
+                    // Update the saved status after a successful save
                     this.savedStatus = updatedOrder.status || '';
                     this.calculateTotals();
                 },
