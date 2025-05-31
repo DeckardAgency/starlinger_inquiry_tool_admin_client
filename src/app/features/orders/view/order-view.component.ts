@@ -198,11 +198,74 @@ export class OrderViewComponent implements OnInit {
     }
 
     /**
-     * Export the order to a file
+     * Export the order to PDF
      */
     exportOrder(): void {
-        // Implement export functionality
-        alert('Export functionality would be implemented here');
+        if (!this.order) {
+            this.notificationService.error('No order loaded to export');
+            return;
+        }
+
+        // Show loading state
+        const exportButton = document.querySelector('.order-view__export-button') as HTMLButtonElement;
+        const originalButtonContent = exportButton?.innerHTML;
+
+        if (exportButton) {
+            exportButton.disabled = true;
+            exportButton.innerHTML = `
+            <svg class="spinner" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 1V4M8 12V15M3.05 3.05L5.17 5.17M10.83 10.83L12.95 12.95M1 8H4M12 8H15M3.05 12.95L5.17 10.83M10.83 5.17L12.95 3.05" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Exporting...
+        `;
+        }
+
+        this.orderService.exportOrderPdf(this.order.id).subscribe({
+            next: (blob) => {
+                // Create a download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+
+                // Set filename with order number and current date
+                const date = new Date();
+                const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                a.download = `order_${this.order!.orderNumber}_${dateStr}.pdf`;
+
+                // Trigger download
+                document.body.appendChild(a);
+                a.click();
+
+                // Cleanup
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                // Show success notification
+                this.notificationService.success('Order exported successfully!');
+            },
+            error: (error) => {
+                console.error('Export error:', error);
+
+                // Show a specific error message based on an error type
+                if (error.status === 403) {
+                    this.notificationService.error('You do not have permission to export this order.');
+                } else if (error.status === 404) {
+                    this.notificationService.error('Order not found.');
+                } else if (error.status === 0) {
+                    this.notificationService.error('Network error. Please check your connection.');
+                } else {
+                    this.notificationService.error('Failed to export order. Please try again.');
+                }
+            },
+            complete: () => {
+                // Reset button state
+                if (exportButton && originalButtonContent) {
+                    exportButton.disabled = false;
+                    exportButton.innerHTML = originalButtonContent;
+                }
+            }
+        });
     }
 
     /**
@@ -310,17 +373,17 @@ export class OrderViewComponent implements OnInit {
 
         switch (normalizedStatus) {
             case 'submitted':
-                return 'order-view__log-status--submitted';
+                return 'logs-section__status--submitted';
             case 'confirmed':
-                return 'order-view__log-status--confirmed';
+                return 'logs-section__status--confirmed';
             case 'dispatched':
-                return 'order-view__log-status--dispatched';
+                return 'logs-section__status--dispatched';
             case 'completed':
-                return 'order-view__log-status--completed';
+                return 'logs-section__status--completed';
             case 'canceled':
-                return 'order-view__log-status--canceled';
+                return 'logs-section__status--canceled';
             default:
-                return 'order-view__log-status--default';
+                return 'logs-section__status--default';
         }
     }
 

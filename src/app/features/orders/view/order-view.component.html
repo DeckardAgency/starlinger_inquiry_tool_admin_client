@@ -215,25 +215,24 @@
             </div>
 
             <!-- Log Messages Section -->
-            <div class="order-view__logs-section" *ngIf="order?.logs">
-                <h2 class="order-view__section-title">
+            <div class="logs-section" *ngIf="order?.logs">
+                <h2 class="logs-section__title">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <path d="M13.3333 13.3333L15 14.9999L18.3333 11.6666M17.5 8.33317V6.6665C17.4997 6.37423 17.4225 6.08718 17.2763 5.83414C17.13 5.5811 16.9198 5.37097 16.6667 5.22484L10.8333 1.8915C10.58 1.74522 10.2926 1.66821 10 1.66821C9.70744 1.66821 9.42003 1.74522 9.16667 1.8915L3.33333 5.22484C3.08022 5.37097 2.86998 5.5811 2.72372 5.83414C2.57745 6.08718 2.5003 6.37423 2.5 6.6665V13.3332C2.5003 13.6254 2.57745 13.9125 2.72372 14.1655C2.86998 14.4186 3.08022 14.6287 3.33333 14.7748L9.16667 18.1082C9.42003 18.2545 9.70744 18.3315 10 18.3315C10.2926 18.3315 10.58 18.2545 10.8333 18.1082L12.5 17.1582M6.25 3.55827L13.75 7.84993M2.7417 5.83325L10 9.99992M10 9.99992L17.2584 5.83325M10 9.99992L10 18.3333" stroke="#71717A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     Log messages
                 </h2>
 
-                <div class="order-view__logs">
-                    <div class="order-view__log-item" *ngFor="let log of order?.logs">
-                        <span class="order-view__log-status" [ngClass]="getLogStatusClass(log.newStatus)">
-                            {{ log.newStatus }}
-                        </span>
-                        <span class="order-view__log-date">{{ formatLogDate(log.createdAt) }}</span>
-                        <span class="order-view__log-user">#username</span>
-                        <span class="order-view__log-comment">{{ log.comment }}</span>
+                <div class="logs-section__container">
+                    <div class="logs-section__item" *ngFor="let log of order?.logs">
+                        <div class="logs-section__status" [ngClass]="getLogStatusClass(log.newStatus)">{{ log.newStatus }}</div>
+                        <div class="logs-section__date">{{ log.createdAt | dateFilter:'dd.MM.yyyy @ HH:mm' }}</div>
+                        <div class="logs-section__user">#username</div>
+                        <div class="logs-section__comment">{{ log.comment }}</div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>

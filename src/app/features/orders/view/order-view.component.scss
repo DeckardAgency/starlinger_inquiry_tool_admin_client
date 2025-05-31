@@ -1,4 +1,3 @@
-// order-view.component.scss
 .order-view {
   width: 100%;
   color: #333;
@@ -79,7 +78,6 @@
     font-weight: 500;
     transition: background-color 0.3s ease;
 
-    // Status-specific colors
     &--submitted {
       background: #3B0075;
     }
@@ -152,7 +150,6 @@
     padding: 0 1rem;
   }
 
-  // Loading state
   &__loading {
     display: flex;
     flex-direction: column;
@@ -184,7 +181,6 @@
     to { transform: rotate(360deg); }
   }
 
-  // Error state
   &__error {
     display: flex;
     flex-direction: column;
@@ -268,8 +264,6 @@
         width: 100% !important;
       }
     }
-
-
   }
 
   &__field-toggle {
@@ -464,7 +458,6 @@
     align-items: center;
     padding: 1rem;
     border-top: 1px solid #E4E4E7;
-
   }
 
   &__total-label {
@@ -497,23 +490,43 @@
     color: white;
   }
 
-  // Log messages section
-  &__logs-section {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    //padding: 1rem;
+  // Logs section styles have been moved to logs-section.scss
+}
+
+
+// logs-section.scss
+.logs-section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+
+  &__title {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: #232323;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
   }
 
-  &__logs {
-    padding: 0rem 1rem 0rem 1rem;
+  &__container {
+    padding: 0 1rem;
     display: flex;
     flex-direction: column;
     border-radius: 8px;
     border: 1px solid #E4E4E7;
+    background-color: #fff;
   }
 
-  &__log-item {
-    display: flex;
+  &__item {
+    display: grid;
+    grid-template-columns: 120px 160px 100px 1fr;
     align-items: center;
     gap: 16px;
     padding: 12px 0;
@@ -522,18 +535,25 @@
     &:last-child {
       border-bottom: none;
     }
+
+    // Responsive behavior
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
   }
 
-  &__log-status {
+  &__status {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     padding: 4px 12px;
     border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 500;
     color: white;
     white-space: nowrap;
-    min-width: 100px;
+    width: fit-content;
 
     &--canceled {
       background-color: #DC3545;
@@ -555,24 +575,25 @@
       background-color: #3B0075;
     }
 
-    &--default {}
+    &--default {
+      background-color: #6C757D;
+    }
   }
 
-  &__log-date {
+  &__date {
     font-size: 0.875rem;
     color: #232323;
-    min-width: 140px;
+    font-weight: 500;
   }
 
-  &__log-user {
+  &__user {
     font-size: 0.875rem;
     color: #71717A;
-    min-width: 100px;
   }
 
-  &__log-comment {
+  &__comment {
     font-size: 0.875rem;
     color: #232323;
-    flex: 1;
+    line-height: 1.4;
   }
 }

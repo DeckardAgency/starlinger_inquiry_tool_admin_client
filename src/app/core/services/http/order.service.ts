@@ -143,4 +143,20 @@ export class OrderService {
         // Default to 1 if we can't determine
         return 1;
     }
+
+    /**
+     * Export order to PDF
+     */
+    exportOrderPdf(orderId: string): Observable<Blob> {
+        return this.http.get(
+            `${this.apiUrl}/${orderId}/export/pdf`,
+            {
+                headers: new HttpHeaders({
+                    'Accept': 'application/pdf'
+                }),
+                responseType: 'blob'
+            }
+        );
+    }
+
 }
