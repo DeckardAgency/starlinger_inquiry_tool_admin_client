@@ -19,14 +19,7 @@ import {
     transition
 } from '@angular/animations';
 import {NotificationService} from "@services/notification.service";
-import {SelectComponent} from "@shared/components/select/select.component";
 import {ProductDocumentComponent} from "@shared/components/product-document/product-document.component";
-
-interface Country {
-    id: number;
-    name: string;
-    code: string;
-}
 
 @Component({
     selector: 'app-product-edit',
@@ -38,7 +31,6 @@ interface Country {
         ProductImageGalleryComponent,
         ProductFeaturedImageComponent,
         TextEditorComponent,
-        SelectComponent,
         ProductDocumentComponent
     ],
     templateUrl: './product-edit.component.html',
@@ -98,48 +90,7 @@ export class ProductEditComponent implements OnInit {
     currentShortDescription = '';
     currentTechnicalDescription = '';
     dataLoaded = false;
-    isLoading = false; // Added loading state flag
-
-    //
-    selectForm!: FormGroup;
-    submitted = false;
-    formValues: any;
-
-    // Sample data
-    colors: string[] = [
-        'Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange'
-    ];
-
-    countries: Country[] = [
-        { id: 1, name: 'United States', code: 'US' },
-        { id: 2, name: 'United Kingdom', code: 'UK' },
-        { id: 3, name: 'Canada', code: 'CA' },
-        { id: 4, name: 'Australia', code: 'AU' },
-        { id: 5, name: 'Germany', code: 'DE' },
-        { id: 6, name: 'France', code: 'FR' },
-        { id: 7, name: 'Japan', code: 'JP' },
-        { id: 8, name: 'Brazil', code: 'BR' },
-        { id: 9, name: 'India', code: 'IN' },
-        { id: 10, name: 'China', code: 'CN' }
-    ];
-
-    programmingLanguages: string[] = [
-        'JavaScript', 'TypeScript', 'Python', 'Java', 'C#', 'Ruby', 'Go', 'Rust', 'PHP', 'Swift'
-    ];
-
-    skills: string[] = [
-        'Angular', 'React', 'Vue.js', 'Node.js', 'Express', 'MongoDB', 'PostgreSQL',
-        'GraphQL', 'REST API', 'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP',
-        'CI/CD', 'Testing', 'Redux', 'RxJS', 'SCSS', 'Tailwind CSS'
-    ];
-
-    roles: string[] = [
-        'Developer', 'Designer', 'Product Manager', 'QA Engineer', 'DevOps Engineer'
-    ];
-
-    disabledOptions: string[] = [
-        'Option 1', 'Option 2', 'Option 3'
-    ];
+    isLoading = false;
 
     constructor(
         private fb: FormBuilder,
@@ -148,7 +99,6 @@ export class ProductEditComponent implements OnInit {
         protected route: ActivatedRoute,
         private notificationService: NotificationService
     ) {
-        // Initialize the form in the constructor to ensure it's available before Angular binds form controls
         this.initForm();
     }
 
@@ -192,17 +142,6 @@ export class ProductEditComponent implements OnInit {
                 this.notificationService.error('Failed to load product data. Please try again later.');
             }
         });
-
-        //
-        this.selectForm = this.fb.group({
-            color: [null],
-            country: [null],
-            searchableCountry: [null],
-            languages: [[]],
-            skills: [[]],
-            role: [null, Validators.required],
-            disabledOption: [{value: null, disabled: true}]
-        });
     }
 
     initForm(): void {
@@ -216,8 +155,8 @@ export class ProductEditComponent implements OnInit {
             weight: [''],
             technicalDescription: [''],
             featuredImage: [null],
-            imageGallery: [[]], // Initialize as an empty array for media items
-            documents: [[]] // Initialize as an empty array for media items
+            imageGallery: [[]],
+            documents: [[]]
         });
     }
 
@@ -261,7 +200,7 @@ export class ProductEditComponent implements OnInit {
                         }
                     });
             } else {
-                // Create new product
+                // Create a new product
                 this.productService.createProduct(productData)
                     .pipe(
                         finalize(() => {
@@ -323,7 +262,7 @@ export class ProductEditComponent implements OnInit {
                         }
                     });
             } else {
-                // Create new product
+                // Create a new product
                 this.productService.createProduct(productData)
                     .pipe(
                         finalize(() => {
@@ -455,20 +394,6 @@ export class ProductEditComponent implements OnInit {
         this.currentTechnicalDescription = productData.technicalDescription;
 
         console.log('productForm', this.productForm);
-    }
-
-    onSelectionChange($event: any) {
-        console.log('Selection changed', $event);
-    }
-
-    onSubmit() {
-        if (this.selectForm.valid) {
-            this.submitted = true;
-            this.formValues = this.selectForm.value;
-            console.log('Form submitted:', this.selectForm.value);
-        } else {
-            this.selectForm.markAllAsTouched();
-        }
     }
 
     onDocumentsChange(documents: MediaItem[]): void {

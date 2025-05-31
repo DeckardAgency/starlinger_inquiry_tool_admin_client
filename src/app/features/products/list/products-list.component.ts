@@ -159,7 +159,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Update products state while maintaining immutability
+     * Update the product state while maintaining immutability
      */
     private updateProductsState(update: Partial<ProductsState>): void {
         this.productsState.update(state => ({
@@ -169,7 +169,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Update selection state while maintaining immutability
+     * Update the selection state while maintaining immutability
      */
     private updateSelectionState(update: Partial<SelectionState>): void {
         this.selectionState.update(state => ({
