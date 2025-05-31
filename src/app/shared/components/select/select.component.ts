@@ -13,6 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
     selector: 'app-select',
@@ -27,6 +28,24 @@ import { Subject } from 'rxjs';
             useExisting: forwardRef(() => SelectComponent),
             multi: true
         }
+    ],
+    animations: [
+        trigger('dropdownAnimation', [
+            state('void', style({
+                opacity: 0,
+                transform: 'translateY(-10px)'
+            })),
+            state('*', style({
+                opacity: 1,
+                transform: 'translateY(0)'
+            })),
+            transition('void => *', [
+                animate('200ms cubic-bezier(0.4, 0, 0.2, 1)')
+            ]),
+            transition('* => void', [
+                animate('150ms cubic-bezier(0.4, 0, 0.2, 1)')
+            ])
+        ])
     ]
 })
 export class SelectComponent implements OnInit, OnDestroy, ControlValueAccessor {
@@ -173,6 +192,13 @@ export class SelectComponent implements OnInit, OnDestroy, ControlValueAccessor 
     getDisplayValue(option: any): string {
         if (!option) return '';
         return typeof option === 'object' ? option[this.displayField] : option.toString();
+    }
+
+    getOptionClass(option: any): string {
+        if (typeof option === 'object' && option.class) {
+            return `select__option--${option.class}`;
+        }
+        return '';
     }
 
     updateValue(): void {

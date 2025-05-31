@@ -1,18 +1,18 @@
 <!-- select.component.html -->
 <div class="select" [class.select--disabled]="disabled">
     <div
-            class="select__field"
-            [class.select__field--open]="isOpen"
-            [class.select__field--disabled]="disabled"
-            (click)="toggleDropdown()"
-            (keydown)="onKeyDown($event)"
-            tabindex="0"
-            role="combobox"
-            [attr.aria-expanded]="isOpen"
-            [attr.aria-required]="required"
-            [attr.aria-disabled]="disabled">
+        class="select__field"
+        [class.select__field--open]="isOpen"
+        [class.select__field--disabled]="disabled"
+        (click)="toggleDropdown()"
+        (keydown)="onKeyDown($event)"
+        tabindex="0"
+        role="combobox"
+        [attr.aria-expanded]="isOpen"
+        [attr.aria-required]="required"
+        [attr.aria-disabled]="disabled">
 
-        <div class="select__value" *ngIf="!multiple && selectedOptions.length">
+        <div class="select__value" *ngIf="!multiple && selectedOptions.length" [ngClass]="getOptionClass(selectedOptions[0])">
             {{ getDisplayValue(selectedOptions[0]) }}
         </div>
 
@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    <div class="select__dropdown" *ngIf="isOpen">
+    <div class="select__dropdown" *ngIf="isOpen" @dropdownAnimation>
         <div class="select__search" *ngIf="searchable">
             <input
                 type="text"
@@ -72,6 +72,7 @@
                 *ngFor="let option of filteredOptions"
                 class="select__option"
                 [class.select__option--selected]="isSelected(option)"
+                [ngClass]="getOptionClass(option)"
                 (click)="selectOption(option)"
                 role="option"
                 [attr.aria-selected]="isSelected(option)">

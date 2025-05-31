@@ -15,6 +15,7 @@ import { NotificationService } from "@services/notification.service";
 interface StatusOption {
     value: string;
     label: string;
+    class?: string;
 }
 
 @Component({
@@ -47,11 +48,11 @@ export class OrderViewComponent implements OnInit {
 
     // Status options for the select component
     statusOptions: StatusOption[] = [
-        { value: 'submitted', label: 'Submitted' },
-        { value: 'confirmed', label: 'Confirmed' },
-        { value: 'dispatched', label: 'Dispatched' },
-        { value: 'completed', label: 'Completed' },
-        { value: 'canceled', label: 'Canceled' }
+        { value: 'submitted', label: 'Submitted', class: 'submitted' },
+        { value: 'confirmed', label: 'Confirmed', class: 'confirmed' },
+        { value: 'dispatched', label: 'Dispatched', class: 'dispatched' },
+        { value: 'completed', label: 'Completed', class: 'completed' },
+        { value: 'canceled', label: 'Canceled', class: 'canceled' }
     ];
 
     // Order totals calculated from items

@@ -40,10 +40,11 @@ $transition-duration: 0.2s;
     border-radius: $border-radius;
     background-color: $color-background;
     cursor: pointer;
-    transition: all $transition-duration;
+    transition: all $transition-duration cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover:not(#{$this}__field--disabled) {
       border-color: $color-border-hover;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
 
     &:focus {
@@ -56,6 +57,7 @@ $transition-duration: 0.2s;
       border-color: $color-primary;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
+      box-shadow: 0 0 0 2px $color-primary-shadow;
     }
 
     &--disabled {
@@ -70,6 +72,7 @@ $transition-duration: 0.2s;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    animation: fadeIn 0.2s ease-out;
   }
 
   // Placeholder text
@@ -96,6 +99,14 @@ $transition-duration: 0.2s;
     padding: 2px 8px;
     font-size: 0.9em;
     max-width: 100%;
+    animation: chipSlideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.15s ease;
+
+    &:hover {
+      background-color: darken($color-chip, 5%);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
     &-remove {
       display: flex;
@@ -110,9 +121,13 @@ $transition-duration: 0.2s;
       font-size: 1.1em;
       cursor: pointer;
       padding: 0;
+      transition: all 0.15s ease;
+      border-radius: 50%;
 
       &:hover {
         color: $color-text;
+        background-color: rgba(0, 0, 0, 0.1);
+        transform: scale(1.1);
       }
     }
   }
@@ -138,9 +153,13 @@ $transition-duration: 0.2s;
     cursor: pointer;
     padding: 0;
     margin-right: 4px;
+    transition: all 0.15s ease;
+    opacity: 0.6;
 
     &:hover {
       color: $color-text;
+      transform: scale(1.2);
+      opacity: 1;
     }
   }
 
@@ -149,7 +168,7 @@ $transition-duration: 0.2s;
     width: 16px;
     height: 16px;
     color: $color-text-secondary;
-    transition: transform $transition-duration;
+    transition: transform $transition-duration cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center;
 
     &--open {
@@ -170,14 +189,16 @@ $transition-duration: 0.2s;
     border-bottom-right-radius: $border-radius;
     background-color: $color-background;
     z-index: 1000;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     overflow-y: auto;
+    overflow-x: hidden;
   }
 
   // Search container
   &__search {
     padding: 8px;
     border-bottom: 1px solid #eee;
+    animation: fadeIn 0.2s ease-out;
 
     &-input {
       width: 100%;
@@ -185,10 +206,12 @@ $transition-duration: 0.2s;
       border: 1px solid #ddd;
       border-radius: $border-radius;
       font-size: 0.9em;
+      transition: all 0.15s ease;
 
       &:focus {
         outline: none;
         border-color: $color-primary;
+        box-shadow: 0 0 0 2px $color-primary-shadow;
       }
     }
   }
@@ -204,15 +227,37 @@ $transition-duration: 0.2s;
     align-items: center;
     padding: 0.5rem 0.75rem;
     cursor: pointer;
-    transition: background-color $transition-duration;
+    transition: all 0.15s ease;
+    position: relative;
+
+    &::before {
+      //content: '';
+      //position: absolute;
+      //left: 0;
+      //top: 0;
+      //bottom: 0;
+      //width: 3px;
+      //background-color: $color-primary;
+      //transform: scaleX(0);
+      //transition: transform 0.2s ease;
+    }
 
     &:hover {
-      background-color: $color-background-hover;
+      //background-color: $color-background-hover;
+      padding-left: 1rem;
+
+      &::before {
+        transform: scaleX(1);
+      }
     }
 
     &--selected {
       background-color: $color-primary-light;
       font-weight: 500;
+
+      &::before {
+        transform: scaleX(1);
+      }
     }
   }
 
@@ -226,12 +271,14 @@ $transition-duration: 0.2s;
     margin-right: 8px;
     border: 1px solid $color-border;
     border-radius: 3px;
+    transition: all 0.15s ease;
 
     &-inner {
       width: 8px;
       height: 8px;
       background-color: $color-primary;
       border-radius: 1px;
+      animation: checkboxScale 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
@@ -241,5 +288,61 @@ $transition-duration: 0.2s;
     text-align: center;
     color: $color-placeholder;
     font-style: italic;
+    animation: fadeIn 0.2s ease-out;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes chipSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes checkboxScale {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Smooth scrollbar for dropdown
+.select__dropdown {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #aaa;
+    }
   }
 }
