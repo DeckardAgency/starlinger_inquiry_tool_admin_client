@@ -175,9 +175,9 @@
                         <div *ngIf="!dataLoaded && route.snapshot.paramMap.get('id')" class="product-new__skeleton-image"></div>
                         <!-- Show featured image selector when data is loaded -->
                         <app-product-featured-image
-                                *ngIf="dataLoaded || !route.snapshot.paramMap.get('id')"
-                                [featuredImage]="productForm.get('featuredImage')?.value"
-                                (featuredImageChange)="onFeaturedImageChange($event)">
+                            *ngIf="dataLoaded || !route.snapshot.paramMap.get('id')"
+                            [featuredImage]="productForm.get('featuredImage')?.value"
+                            (featuredImageChange)="onFeaturedImageChange($event)">
                         </app-product-featured-image>
                     </div>
 
@@ -191,9 +191,9 @@
                         </div>
                         <!-- Show image gallery when data is loaded -->
                         <app-product-image-gallery
-                                *ngIf="dataLoaded || !route.snapshot.paramMap.get('id')"
-                                [mediaItems]="productForm.get('imageGallery')?.value || []"
-                                (mediaItemsChange)="onImageGalleryChange($event)">
+                            *ngIf="dataLoaded || !route.snapshot.paramMap.get('id')"
+                            [mediaItems]="productForm.get('imageGallery')?.value || []"
+                            (mediaItemsChange)="onImageGalleryChange($event)">
                         </app-product-image-gallery>
                     </div>
 
@@ -201,7 +201,11 @@
                     <div class="product-new__editor-container product-new__product-documents"
                          *ngIf="activeTab === 'productDocuments'"
                          [@tabAnimation]>
-                        <app-product-document></app-product-document>
+
+                        <app-product-document
+                            [documents]="productForm.get('documents')?.value || []"
+                            (documentsChange)="onDocumentsChange($event)">
+                        </app-product-document>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcrumbs.component";
 import { ProductImageGalleryComponent } from "@shared/components/product-image-gallery/product-image-gallery.component";
@@ -9,7 +9,7 @@ import { ProductService } from "@services/http/product.service";
 import { switchMap, finalize, delay } from "rxjs/operators";
 import { of } from "rxjs";
 import { Product } from "@models/product.model";
-import { MediaItem } from "@models/media.model";
+import { MediaItem } from '@models/media.model';
 import { ProductFeaturedImageComponent } from "@shared/components/product-featured-image/product-featured-image.component";
 import {
     trigger,
@@ -216,7 +216,8 @@ export class ProductEditComponent implements OnInit {
             weight: [''],
             technicalDescription: [''],
             featuredImage: [null],
-            imageGallery: [[]] // Initialize as an empty array for media items
+            imageGallery: [[]], // Initialize as an empty array for media items
+            documents: [[]] // Initialize as an empty array for media items
         });
     }
 
@@ -445,7 +446,8 @@ export class ProductEditComponent implements OnInit {
             // Handle the MediaItem objects appropriately
             featuredImage: productData.featuredImage,
             // For the image gallery, we set it directly to the array of media items
-            imageGallery: productData.imageGallery || []
+            imageGallery: productData.imageGallery || [],
+            documents: productData.documents || []
         });
 
         // Update the description content for text editors
@@ -467,5 +469,11 @@ export class ProductEditComponent implements OnInit {
         } else {
             this.selectForm.markAllAsTouched();
         }
+    }
+
+    onDocumentsChange(documents: MediaItem[]): void {
+        // Update the form with the new documents
+        this.productForm.patchValue({ 'documents': documents });
+        console.log('Documents updated:', documents);
     }
 }

@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MediaItem } from '@models/media.model';
 
 type FileType = 'PDF' | 'DOC' | 'DOCX' | 'XLS' | 'XLSX' | 'PPT' | 'PPTX' | 'ZIP' | 'IMG' | 'TXT';
 type SortField = 'type' | 'name' | 'size';
@@ -10,8 +11,10 @@ interface DocumentFile {
     type: FileType;
     name: string;
     size: string;
-    sizeInBytes: number; // For accurate sorting
+    sizeInBytes: number;
     selected?: boolean;
+    url?: string;
+    mediaItem?: MediaItem; // Reference to original MediaItem
 }
 
 interface ConfirmDialog {
@@ -28,57 +31,12 @@ interface ConfirmDialog {
     templateUrl: './product-document.component.html',
     styleUrls: ['./product-document.component.scss']
 })
-export class ProductDocumentComponent {
-    documents: DocumentFile[] = [
-        {
-            id: '1',
-            type: 'PDF',
-            name: 'Product brochure.pdf',
-            size: '1.2 MB',
-            sizeInBytes: 1258291,
-            selected: false
-        },
-        {
-            id: '2',
-            type: 'PDF',
-            name: 'Product warranty.pdf',
-            size: '0.7 MB',
-            sizeInBytes: 734003,
-            selected: false
-        },
-        {
-            id: '3',
-            type: 'DOCX',
-            name: 'Installation guide.docx',
-            size: '2.5 MB',
-            sizeInBytes: 2621440,
-            selected: false
-        },
-        {
-            id: '4',
-            type: 'XLSX',
-            name: 'Price list.xlsx',
-            size: '0.9 MB',
-            sizeInBytes: 943718,
-            selected: false
-        },
-        {
-            id: '5',
-            type: 'ZIP',
-            name: 'Product images.zip',
-            size: '15.3 MB',
-            sizeInBytes: 16039116,
-            selected: false
-        },
-        {
-            id: '6',
-            type: 'PPT',
-            name: 'Sales presentation.ppt',
-            size: '5.8 MB',
-            sizeInBytes: 6081740,
-            selected: false
-        }
-    ];
+export class ProductDocumentComponent implements OnInit, OnChanges {
+    @Input() documents: MediaItem[] = [];
+    @Output() documentsChange = new EventEmitter<MediaItem[]>();
+
+    // Internal documents array that we'll manipulate
+    internalDocuments: DocumentFile[] = [];
 
     activeDropdownId: string | null = null;
     sortField: SortField = 'name';
@@ -90,20 +48,88 @@ export class ProductDocumentComponent {
         message: ''
     };
 
+    ngOnInit(): void {
+        // Initialize internal documents with input documents
+        this.initializeDocuments();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        // Update internal documents when input changes
+        if (changes['documents'] && changes['documents'].currentValue) {
+            this.initializeDocuments();
+        }
+    }
+
+    private initializeDocuments(): void {
+        if (this.documents && Array.isArray(this.documents)) {
+            this.internalDocuments = this.documents.map(mediaItem => this.convertMediaItemToDocumentFile(mediaItem));
+        } else {
+            this.internalDocuments = [];
+        }
+    }
+
+    private convertMediaItemToDocumentFile(mediaItem: MediaItem): DocumentFile {
+        const fileType = this.getFileTypeFromName(mediaItem.filename) || this.getFileTypeFromMimeType(mediaItem.mimeType) || 'TXT';
+        const fileSize = this.formatFileSize(0); // You might want to add size to MediaItem interface
+
+        return {
+            id: mediaItem.id,
+            type: fileType,
+            name: mediaItem.filename,
+            size: fileSize,
+            sizeInBytes: 0, // Default to 0 since MediaItem doesn't have size
+            selected: false,
+            url: mediaItem.filePath,
+            mediaItem: mediaItem
+        };
+    }
+
+    private formatFileSize(bytes: number): string {
+        if (bytes === 0) return '0 Bytes';
+
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    private getFileTypeFromMimeType(mimeType: string): FileType | null {
+        const mimeTypeMap: Record<string, FileType> = {
+            'application/pdf': 'PDF',
+            'application/msword': 'DOC',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+            'application/vnd.ms-excel': 'XLS',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
+            'application/vnd.ms-powerpoint': 'PPT',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
+            'application/zip': 'ZIP',
+            'application/x-zip-compressed': 'ZIP',
+            'text/plain': 'TXT'
+        };
+
+        // Check for image mime types
+        if (mimeType.startsWith('image/')) {
+            return 'IMG';
+        }
+
+        return mimeTypeMap[mimeType] || null;
+    }
+
     get allSelected(): boolean {
-        return this.documents.length > 0 && this.documents.every(doc => doc.selected);
+        return this.internalDocuments.length > 0 && this.internalDocuments.every(doc => doc.selected);
     }
 
     get someSelected(): boolean {
-        return this.documents.some(doc => doc.selected) && !this.allSelected;
+        return this.internalDocuments.some(doc => doc.selected) && !this.allSelected;
     }
 
     get selectedCount(): number {
-        return this.documents.filter(doc => doc.selected).length;
+        return this.internalDocuments.filter(doc => doc.selected).length;
     }
 
     get sortedDocuments(): DocumentFile[] {
-        return [...this.documents].sort((a, b) => {
+        return [...this.internalDocuments].sort((a, b) => {
             let compareValue = 0;
 
             switch (this.sortField) {
@@ -124,11 +150,13 @@ export class ProductDocumentComponent {
 
     toggleAllSelection(): void {
         const shouldSelect = !this.allSelected;
-        this.documents.forEach(doc => doc.selected = shouldSelect);
+        this.internalDocuments.forEach(doc => doc.selected = shouldSelect);
+        // No need to emit changes for selection
     }
 
     toggleSelection(doc: DocumentFile): void {
         doc.selected = !doc.selected;
+        // No need to emit changes for selection
     }
 
     toggleDropdown(docId: string, event: Event): void {
@@ -147,7 +175,9 @@ export class ProductDocumentComponent {
 
     downloadDocument(doc: DocumentFile): void {
         console.log('Downloading:', doc.name);
-        // Implement actual download logic here
+        if (doc.url) {
+            window.open(doc.url, '_blank');
+        }
         this.closeDropdown();
     }
 
@@ -157,9 +187,10 @@ export class ProductDocumentComponent {
             title: 'Delete Document',
             message: `Are you sure you want to delete "${doc.name}"?`,
             action: () => {
-                const index = this.documents.findIndex(d => d.id === doc.id);
+                const index = this.internalDocuments.findIndex(d => d.id === doc.id);
                 if (index > -1) {
-                    this.documents.splice(index, 1);
+                    this.internalDocuments.splice(index, 1);
+                    this.emitDocumentsChange();
                 }
                 this.closeConfirmDialog();
             }
@@ -168,9 +199,14 @@ export class ProductDocumentComponent {
     }
 
     bulkDownload(): void {
-        const selectedDocs = this.documents.filter(doc => doc.selected);
+        const selectedDocs = this.internalDocuments.filter(doc => doc.selected);
         console.log('Downloading documents:', selectedDocs.map(d => d.name));
-        // Implement bulk download logic
+        selectedDocs.forEach(doc => {
+            if (doc.url) {
+                // Add a small delay between downloads to avoid browser blocking
+                setTimeout(() => window.open(doc.url!, '_blank'), 100);
+            }
+        });
     }
 
     bulkDelete(): void {
@@ -180,7 +216,8 @@ export class ProductDocumentComponent {
             title: 'Delete Documents',
             message: `Are you sure you want to delete ${selectedCount} selected document${selectedCount > 1 ? 's' : ''}?`,
             action: () => {
-                this.documents = this.documents.filter(doc => !doc.selected);
+                this.internalDocuments = this.internalDocuments.filter(doc => !doc.selected);
+                this.emitDocumentsChange();
                 this.closeConfirmDialog();
             }
         };
@@ -241,5 +278,41 @@ export class ProductDocumentComponent {
             TXT: '#6b7280'
         };
         return colors[type] || '#6b7280';
+    }
+
+    /**
+     * Helper method to determine file type from filename
+     */
+    private getFileTypeFromName(filename: string): FileType | null {
+        if (!filename) return null;
+
+        const extension = filename.split('.').pop()?.toUpperCase();
+        if (!extension) return null;
+
+        const validTypes: FileType[] = ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'PPT', 'PPTX', 'ZIP', 'IMG', 'TXT'];
+
+        if (validTypes.includes(extension as FileType)) {
+            return extension as FileType;
+        }
+
+        // Check for image extensions
+        const imageExtensions = ['JPG', 'JPEG', 'PNG', 'GIF', 'BMP', 'SVG', 'WEBP'];
+        if (imageExtensions.includes(extension)) {
+            return 'IMG';
+        }
+
+        return null;
+    }
+
+    /**
+     * Emit the updated documents array to a parent component
+     */
+    private emitDocumentsChange(): void {
+        // Convert back to the MediaItem array, excluding deleted items
+        const updatedMediaItems = this.internalDocuments
+            .filter(doc => doc.mediaItem)
+            .map(doc => doc.mediaItem!);
+
+        this.documentsChange.emit(updatedMediaItems);
     }
 }

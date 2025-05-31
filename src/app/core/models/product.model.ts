@@ -15,6 +15,7 @@ export interface Product {
     technicalDescription: string;
     featuredImage: MediaItem | string | null;  // Can be a MediaItem object or an IRI string
     imageGallery: MediaItem[] | string[];     // Can be an array of MediaItem objects or IRI strings
+    documents: MediaItem[] | string[];     // Can be an array of MediaItem objects or IRI strings
 }
 
 export interface ProductsResponse {
