@@ -79,7 +79,7 @@
             <h2 class="sidebar__section-title">Product hub</h2>
             <ul class="sidebar__sub-list">
                 <li class="sidebar__item">
-                  <a routerLink="/machines/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                  <a routerLink="/machines/list" [class.sidebar__link--active]="isRouteActive('machines')" class="sidebar__link">
                 <span class="icon-shop sidebar__icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path d="M8.00016 5.33317V2.6665H5.3335M1.3335 9.33317H2.66683M13.3335 9.33317H14.6668M10.0002 8.6665V9.99984M6.00016 8.6665V9.99984M4.00016 5.33317H12.0002C12.7365 5.33317 13.3335 5.93012 13.3335 6.6665V11.9998C13.3335 12.7362 12.7365 13.3332 12.0002 13.3332H4.00016C3.26378 13.3332 2.66683 12.7362 2.66683 11.9998V6.6665C2.66683 5.93012 3.26378 5.33317 4.00016 5.33317Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

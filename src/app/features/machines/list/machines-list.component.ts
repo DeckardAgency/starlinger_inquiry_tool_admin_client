@@ -2,35 +2,35 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { finalize } from 'rxjs';
-import { ProductService } from "@services/http/product.service";
-import { Product } from "@models/product.model";
+import { MachineService } from "@services/http/machine.service";
+import { Machine } from "@models/machine.model";
 import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcrumbs.component";
-import { PaginationLinks } from "@models/pagination.model";
+import { PaginationLinks } from "@models/machine.model";
 
 @Component({
-    selector: 'app-product-list',
+    selector: 'app-machines-list',
     imports: [CommonModule, BreadcrumbsComponent],
     templateUrl: './machines-list.component.html',
     styleUrls: ['./machines-list.component.scss'],
-    providers: [ProductService]
+    providers: [MachineService]
 })
 export class MachinesListComponent implements OnInit {
     breadcrumbs = [
         { label: 'Machines' }
     ];
 
-    products: Product[] = [];
+    machines: Machine[] = [];
     showOptions: boolean = false;
-    selectedProductId: string | null = null;
+    selectedMachineId: string | null = null;
 
-    // Set to track selected product IDs
-    selectedProductIds: Set<string> = new Set<string>();
+    // Set to track selected machine IDs
+    selectedMachineIds: Set<string> = new Set<string>();
     allSelected: boolean = false;
 
     // Pagination properties
     currentPage: number = 1;
     totalPages: number = 1;
-    totalProducts: number = 0;
+    totalMachines: number = 0;
     pagination: PaginationLinks = {};
     pagesArray: number[] = [];
 
@@ -40,7 +40,7 @@ export class MachinesListComponent implements OnInit {
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private productService: ProductService
+        private machineService: MachineService
     ) {}
 
     ngOnInit(): void {
@@ -48,19 +48,19 @@ export class MachinesListComponent implements OnInit {
         this.route.queryParams.subscribe(params => {
             const page = params['page'] ? parseInt(params['page'], 10) : 1;
             this.currentPage = page;
-            this.loadProducts(page);
+            this.loadMachines(page);
         });
     }
 
-    loadProducts(page: number = 1): void {
+    loadMachines(page: number = 1): void {
         this.loading = true;
         this.error = null;
 
-        // Clear selections when loading new products
-        this.selectedProductIds.clear();
+        // Clear selections when loading new machines
+        this.selectedMachineIds.clear();
         this.allSelected = false;
 
-        this.productService.getProducts(page)
+        this.machineService.getMachines(page)
             .pipe(
                 finalize(() => {
                     this.loading = false;
@@ -68,10 +68,10 @@ export class MachinesListComponent implements OnInit {
             )
             .subscribe({
                 next: (data) => {
-                    this.products = data.products.map(product => ({...product}));
+                    this.machines = data.machines.map(machine => ({...machine}));
 
                     // Update pagination data
-                    this.totalProducts = data.totalItems;
+                    this.totalMachines = data.totalItems;
                     if (data.pagination.last != null) {
                         this.totalPages = parseInt(data.pagination.last);
                     }
@@ -82,8 +82,8 @@ export class MachinesListComponent implements OnInit {
                     this.generatePagesArray();
                 },
                 error: (err) => {
-                    console.error('Error loading products', err);
-                    this.error = 'Failed to load products. Please try again later.';
+                    console.error('Error loading machines', err);
+                    this.error = 'Failed to load machines. Please try again later.';
                 }
             });
     }
@@ -118,138 +118,138 @@ export class MachinesListComponent implements OnInit {
         }
     }
 
-    toggleOptions(productId: string): void {
-        if (this.selectedProductId === productId) {
+    toggleOptions(machineId: string): void {
+        if (this.selectedMachineId === machineId) {
             this.showOptions = !this.showOptions;
         } else {
-            this.selectedProductId = productId;
+            this.selectedMachineId = machineId;
             this.showOptions = true;
         }
     }
 
     /**
-     * Check if a product is currently selected
+     * Check if a machine is currently selected
      */
-    isProductSelected(productId: string): boolean {
-        return this.selectedProductIds.has(productId);
+    isMachineSelected(machineId: string): boolean {
+        return this.selectedMachineIds.has(machineId);
     }
 
     /**
-     * Toggle selection for all products
+     * Toggle selection for all machines
      */
     toggleSelectAll(event: Event): void {
         const checked = (event.target as HTMLInputElement).checked;
         this.allSelected = checked;
 
         if (checked) {
-            // Select all products
-            this.products.forEach(product => {
-                this.selectedProductIds.add(product.id);
+            // Select all machines
+            this.machines.forEach(machine => {
+                this.selectedMachineIds.add(machine.id);
             });
         } else {
-            // Deselect all products
-            this.selectedProductIds.clear();
+            // Deselect all machines
+            this.selectedMachineIds.clear();
         }
     }
 
     /**
-     * Toggle selection for a single product
+     * Toggle selection for a single machine
      */
-    toggleSelectProduct(event: Event, productId: string): void {
+    toggleSelectMachine(event: Event, machineId: string): void {
         const checked = (event.target as HTMLInputElement).checked;
 
         if (checked) {
-            this.selectedProductIds.add(productId);
+            this.selectedMachineIds.add(machineId);
 
-            // Check if all products are now selected
-            this.allSelected = this.selectedProductIds.size === this.products.length;
+            // Check if all machines are now selected
+            this.allSelected = this.selectedMachineIds.size === this.machines.length;
         } else {
-            this.selectedProductIds.delete(productId);
+            this.selectedMachineIds.delete(machineId);
             this.allSelected = false;
         }
     }
 
-    addProduct(): void {
-        this.router.navigate(['/products/new']);
+    addMachine(): void {
+        this.router.navigate(['/machines/new']);
     }
 
-    editProduct(productId: string): void {
-        this.router.navigate([`/products/`, productId, 'edit']);
+    editMachine(machineId: string): void {
+        this.router.navigate([`/machines/`, machineId, 'edit']);
     }
 
-    deleteProduct(productId: string): void {
-        if (confirm('Are you sure you want to delete this product?')) {
-            this.productService.deleteProduct(productId).subscribe({
+    deleteMachine(machineId: string): void {
+        if (confirm('Are you sure you want to delete this machine?')) {
+            this.machineService.deleteMachine(machineId).subscribe({
                 next: () => {
                     // Remove from local array
-                    this.products = this.products.filter(p => p.id !== productId);
+                    this.machines = this.machines.filter(m => m.id !== machineId);
 
-                    // Remove from selected products if it was selected
-                    if (this.selectedProductIds.has(productId)) {
-                        this.selectedProductIds.delete(productId);
+                    // Remove from selected machines if it was selected
+                    if (this.selectedMachineIds.has(machineId)) {
+                        this.selectedMachineIds.delete(machineId);
                     }
 
                     // Update total
-                    this.totalProducts--;
+                    this.totalMachines--;
 
                     // Refresh the current page if it's empty
-                    if (this.products.length === 0 && this.currentPage > 1) {
+                    if (this.machines.length === 0 && this.currentPage > 1) {
                         this.changePage(this.currentPage - 1);
                     }
                 },
                 error: (err) => {
-                    console.error('Error deleting product', err);
-                    alert('Failed to delete product. Please try again.');
+                    console.error('Error deleting machine', err);
+                    alert('Failed to delete machine. Please try again.');
                 }
             });
         }
     }
 
     /**
-     * Get all selected product IDs
+     * Get all selected machine IDs
      */
-    getSelectedProductIds(): string[] {
-        return Array.from(this.selectedProductIds);
+    getSelectedMachineIds(): string[] {
+        return Array.from(this.selectedMachineIds);
     }
 
     /**
-     * Delete all selected products
+     * Delete all selected machines
      */
-    deleteSelectedProducts(): void {
-        const selectedCount = this.selectedProductIds.size;
+    deleteSelectedMachines(): void {
+        const selectedCount = this.selectedMachineIds.size;
 
         if (selectedCount === 0) {
             return;
         }
 
-        if (confirm(`Are you sure you want to delete ${selectedCount} selected product${selectedCount > 1 ? 's' : ''}?`)) {
+        if (confirm(`Are you sure you want to delete ${selectedCount} selected machine${selectedCount > 1 ? 's' : ''}?`)) {
             // Implementation depends on if your API supports bulk delete
             // For now, we'll delete one by one
-            const selectedIds = this.getSelectedProductIds();
+            const selectedIds = this.getSelectedMachineIds();
 
             // Track deletion progress
             let deletedCount = 0;
             let errorCount = 0;
 
             selectedIds.forEach(id => {
-                this.productService.deleteProduct(id).subscribe({
+                this.machineService.deleteMachine(id).subscribe({
                     next: () => {
                         deletedCount++;
 
                         if (deletedCount + errorCount === selectedCount) {
                             // All deletion requests completed
-                            this.loadProducts(this.currentPage);
-                            alert(`Successfully deleted ${deletedCount} products. Failed to delete ${errorCount} products.`);
+                            this.loadMachines(this.currentPage);
+                            alert(`Successfully deleted ${deletedCount} machines. Failed to delete ${errorCount} machines.`);
                         }
                     },
                     error: (err) => {
-                        console.error('Error deleting product', err);
+                        console.error('Error deleting machine', err);
                         errorCount++;
 
                         if (deletedCount + errorCount === selectedCount) {
                             // All deletion requests completed
-                            this.loadProducts(this.currentPage);
-                            alert(`Successfully deleted ${deletedCount} products. Failed to delete ${errorCount} products.`);
+                            this.loadMachines(this.currentPage);
+                            alert(`Successfully deleted ${deletedCount} machines. Failed to delete ${errorCount} machines.`);
                         }
                     }
                 });
@@ -309,9 +309,9 @@ export class MachinesListComponent implements OnInit {
      * Get text showing the current results range and total
      */
     getResultsText(): string {
-        const itemsPerPage = 30; // Assuming 20 items per page
+        const itemsPerPage = 30; // Assuming 30 items per page
         const startItem = (this.currentPage - 1) * itemsPerPage + 1;
-        const endItem = Math.min(this.currentPage * itemsPerPage, this.totalProducts);
-        return `Showing ${startItem} to ${endItem} from ${this.totalProducts} results`;
+        const endItem = Math.min(this.currentPage * itemsPerPage, this.totalMachines);
+        return `Showing ${startItem} to ${endItem} from ${this.totalMachines} results`;
     }
 }
