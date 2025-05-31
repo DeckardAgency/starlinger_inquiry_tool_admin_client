@@ -137,7 +137,7 @@
     height: 40px;
 
     &:hover {
-      background-color: darken(#DC2626, 5%);
+      background-color: rgba(220, 38, 38, 0.90);
     }
 
     svg {
@@ -499,11 +499,10 @@
     color: white;
   }
 
-  // Logs section styles have been moved to logs-section.scss
 }
 
 
-// logs-section.scss
+// logs-section
 .logs-section {
   padding: 1rem;
   border-top: 1px solid #E4E4E7;

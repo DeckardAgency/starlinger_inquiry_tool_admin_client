@@ -173,19 +173,19 @@ export class OrderViewComponent implements OnInit {
         // Calculate grand total from order totalAmount or sum of items
         this.grandTotal = this.order.totalAmount || 0;
 
-        // If we don't have totalAmount, calculate from items
+        // If we don't have the totalAmount, calculate from items
         if (!this.grandTotal && this.order.items.length > 0) {
             this.grandTotal = this.order.items.reduce((sum, item) => sum + item.subtotal, 0);
         }
 
-        // Calculate price without tax (assuming 20% VAT for demo)
+        // Calculate price without a tax (assuming 20% VAT for demo)
         const taxRate = 0.20;
         this.priceWithoutTax = this.grandTotal / (1 + taxRate);
         this.priceTax = this.grandTotal - this.priceWithoutTax;
     }
 
     /**
-     * Toggle open/close state of a machine section
+     * Toggle the open / close state of a machine section
      */
     toggleMachine(machine: any): void {
         // This method is no longer needed as we're not using machine sections
@@ -291,7 +291,7 @@ export class OrderViewComponent implements OnInit {
                     this.order = updatedOrder;
 
                     // Show success notification
-                    // this.notificationService.success(`Order was updated successfully!`);
+                    this.notificationService.success(`Order was updated successfully!`);
 
                     // Update the saved status after a successful save
                     this.savedStatus = updatedOrder.status || '';

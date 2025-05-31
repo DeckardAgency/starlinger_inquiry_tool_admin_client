@@ -227,7 +227,7 @@
                     <div class="logs-section__item" *ngFor="let log of order?.logs">
                         <div class="logs-section__status" [ngClass]="getLogStatusClass(log.newStatus)">{{ log.newStatus }}</div>
                         <div class="logs-section__date">{{ log.createdAt | dateFilter:'dd.MM.yyyy @ HH:mm' }}</div>
-                        <div class="logs-section__user">#username</div>
+                        <div class="logs-section__user">System</div>
                         <div class="logs-section__comment">{{ log.comment }}</div>
                     </div>
                 </div>
