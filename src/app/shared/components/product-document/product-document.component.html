@@ -1,0 +1,154 @@
+<div class="product-document" (click)="onDocumentClick($event)">
+    <!-- Bulk Actions Bar -->
+    <div class="product-document__bulk-actions" *ngIf="selectedCount > 0">
+        <div class="product-document__bulk-info">
+            {{ selectedCount }} item{{ selectedCount > 1 ? 's' : '' }} selected
+        </div>
+        <div class="product-document__bulk-buttons">
+            <button class="product-document__bulk-button" (click)="bulkDownload()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 12L3 7L4.4 5.6L7 8.2V0H9V8.2L11.6 5.6L13 7L8 12Z" fill="currentColor"/>
+                    <path d="M14 14H2V9H4V12H12V9H14V14Z" fill="currentColor"/>
+                </svg>
+                Download
+            </button>
+            <button class="product-document__bulk-button product-document__bulk-button--danger" (click)="bulkDelete()">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 1V0H11V1H16V3H14V16H2V3H0V1H5ZM4 3V14H12V3H4ZM6 5H8V12H6V5ZM10 5H8V12H10V5Z" fill="currentColor"/>
+                </svg>
+                Delete
+            </button>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <table class="product-document__table">
+        <thead class="product-document__header">
+        <tr class="product-document__header-row">
+            <th class="product-document__header-cell product-document__header-cell--checkbox">
+                <input
+                        type="checkbox"
+                        class="product-document__checkbox product-document__checkbox--header"
+                        [checked]="allSelected"
+                        [indeterminate]="someSelected"
+                        (change)="toggleAllSelection()"
+                >
+            </th>
+            <th class="product-document__header-cell product-document__header-cell--type">
+                <button class="product-document__sort-button" (click)="sort('type')">
+                    File type
+                    <span class="product-document__sort-icon" *ngIf="sortField === 'type'">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+                </button>
+            </th>
+            <th class="product-document__header-cell product-document__header-cell--name">
+                <button class="product-document__sort-button" (click)="sort('name')">
+                    Name
+                    <span class="product-document__sort-icon" *ngIf="sortField === 'name'">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+                </button>
+            </th>
+            <th class="product-document__header-cell product-document__header-cell--size">
+                <button class="product-document__sort-button product-document__sort-button--right" (click)="sort('size')">
+                    Size
+                    <span class="product-document__sort-icon" *ngIf="sortField === 'size'">
+              {{ sortDirection === 'asc' ? '↑' : '↓' }}
+            </span>
+                </button>
+            </th>
+            <th class="product-document__header-cell product-document__header-cell--actions"></th>
+        </tr>
+        </thead>
+        <tbody class="product-document__body">
+        <tr
+                *ngFor="let doc of sortedDocuments"
+                class="product-document__row"
+                [class.product-document__row--selected]="doc.selected"
+        >
+            <td class="product-document__cell product-document__cell--checkbox">
+                <input
+                        type="checkbox"
+                        class="product-document__checkbox"
+                        [checked]="doc.selected"
+                        (change)="toggleSelection(doc)"
+                >
+            </td>
+            <td class="product-document__cell product-document__cell--type">
+                <div class="product-document__type-wrapper">
+                    <svg
+                            class="product-document__type-icon"
+                            [style.color]="getFileColor(doc.type)"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                    >
+                        <path [attr.d]="getFileIcon(doc.type)"/>
+                    </svg>
+                    <span class="product-document__type-badge">{{ doc.type }}</span>
+                </div>
+            </td>
+            <td class="product-document__cell product-document__cell--name">
+                <span class="product-document__file-name">{{ doc.name }}</span>
+            </td>
+            <td class="product-document__cell product-document__cell--size">
+                <span class="product-document__file-size">{{ doc.size }}</span>
+            </td>
+            <td class="product-document__cell product-document__cell--actions">
+                <div class="product-document__actions-wrapper">
+                    <button
+                            class="product-document__more-button"
+                            (click)="toggleDropdown(doc.id, $event)"
+                            aria-label="More options"
+                            [attr.aria-expanded]="activeDropdownId === doc.id"
+                    >
+                        ⋮
+                    </button>
+                    <div
+                            class="product-document__dropdown"
+                            [class.product-document__dropdown--active]="activeDropdownId === doc.id"
+                    >
+                        <button
+                                class="product-document__dropdown-item"
+                                (click)="downloadDocument(doc)"
+                        >
+                            <svg class="product-document__dropdown-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 12L3 7L4.4 5.6L7 8.2V0H9V8.2L11.6 5.6L13 7L8 12Z" fill="currentColor"/>
+                                <path d="M14 14H2V9H4V12H12V9H14V14Z" fill="currentColor"/>
+                            </svg>
+                            Download
+                        </button>
+                        <button
+                                class="product-document__dropdown-item product-document__dropdown-item--danger"
+                                (click)="deleteDocument(doc)"
+                        >
+                            <svg class="product-document__dropdown-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 1V0H11V1H16V3H14V16H2V3H0V1H5ZM4 3V14H12V3H4ZM6 5H8V12H6V5ZM10 5H8V12H10V5Z" fill="currentColor"/>
+                            </svg>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Confirmation Dialog -->
+    <div class="product-document__dialog-overlay" *ngIf="confirmDialog.show" (click)="closeConfirmDialog()">
+        <div class="product-document__dialog" (click)="$event.stopPropagation()">
+            <h3 class="product-document__dialog-title">{{ confirmDialog.title }}</h3>
+            <p class="product-document__dialog-message">{{ confirmDialog.message }}</p>
+            <div class="product-document__dialog-actions">
+                <button class="product-document__dialog-button" (click)="closeConfirmDialog()">
+                    Cancel
+                </button>
+                <button class="product-document__dialog-button product-document__dialog-button--danger" (click)="confirmAction()">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

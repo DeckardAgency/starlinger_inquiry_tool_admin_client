@@ -20,6 +20,7 @@ import {
 } from '@angular/animations';
 import {NotificationService} from "@services/notification.service";
 import {SelectComponent} from "@shared/components/select/select.component";
+import {ProductDocumentComponent} from "@shared/components/product-document/product-document.component";
 
 interface Country {
     id: number;
@@ -37,7 +38,8 @@ interface Country {
         ProductImageGalleryComponent,
         ProductFeaturedImageComponent,
         TextEditorComponent,
-        SelectComponent
+        SelectComponent,
+        ProductDocumentComponent
     ],
     templateUrl: './product-edit.component.html',
     styleUrls: ['./product-edit.component.scss'],
