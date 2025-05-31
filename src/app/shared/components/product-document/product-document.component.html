@@ -1,4 +1,31 @@
 <div class="product-document" (click)="onDocumentClick($event)">
+    <!-- Header with Upload Button -->
+    <div class="product-document__header-actions">
+        <button class="product-document__upload-button" (click)="onUploadFileClick()" [disabled]="isUploading">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 4L3 9L4.4 10.4L7 7.8V16H9V7.8L11.6 10.4L13 9L8 4Z" fill="currentColor"/>
+                <path d="M14 2H2V7H4V4H12V7H14V2Z" fill="currentColor"/>
+            </svg>
+            {{ isUploading ? 'Uploading...' : 'Upload document' }}
+        </button>
+
+        <!-- Upload Progress -->
+        <div class="product-document__upload-progress" *ngIf="isUploading">
+            <div class="product-document__progress-bar">
+                <div class="product-document__progress-fill" [style.width.%]="uploadProgress"></div>
+            </div>
+            <span class="product-document__progress-text">{{ uploadProgress }}%</span>
+        </div>
+
+        <!-- Upload Error -->
+        <div class="product-document__upload-error" *ngIf="uploadError">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 14A6 6 0 1 0 8 2a6 6 0 0 0 0 12ZM8 4.5V9M8 10.5v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            {{ uploadError }}
+        </div>
+    </div>
+
     <!-- Bulk Actions Bar -->
     <div class="product-document__bulk-actions" *ngIf="selectedCount > 0">
         <div class="product-document__bulk-info">
@@ -21,8 +48,21 @@
         </div>
     </div>
 
+    <!-- Empty State -->
+    <div class="product-document__empty-state" *ngIf="internalDocuments.length === 0 && !isUploading">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        <p class="product-document__empty-text">No documents uploaded yet</p>
+        <p class="product-document__empty-subtext">Click the upload button to add documents</p>
+    </div>
+
     <!-- Table -->
-    <table class="product-document__table">
+    <table class="product-document__table" *ngIf="internalDocuments.length > 0">
         <thead class="product-document__header">
         <tr class="product-document__header-row">
             <th class="product-document__header-cell product-document__header-cell--checkbox">

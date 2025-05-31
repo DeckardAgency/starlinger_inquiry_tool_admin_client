@@ -1,6 +1,10 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MediaItem } from '@models/media.model';
+import { MediaService } from '@services/http/media.service';
+import { HttpEventType } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type FileType = 'PDF' | 'DOC' | 'DOCX' | 'XLS' | 'XLSX' | 'PPT' | 'PPTX' | 'ZIP' | 'IMG' | 'TXT';
 type SortField = 'type' | 'name' | 'size';
@@ -35,6 +39,8 @@ export class ProductDocumentComponent implements OnInit, OnChanges {
     @Input() documents: MediaItem[] = [];
     @Output() documentsChange = new EventEmitter<MediaItem[]>();
 
+    private readonly destroyRef = inject(DestroyRef);
+
     // Internal documents array that we'll manipulate
     internalDocuments: DocumentFile[] = [];
 
@@ -42,11 +48,33 @@ export class ProductDocumentComponent implements OnInit, OnChanges {
     sortField: SortField = 'name';
     sortDirection: SortDirection = 'asc';
 
+    // Upload related properties
+    isUploading = false;
+    uploadProgress = 0;
+    uploadError: string | null = null;
+
     confirmDialog: ConfirmDialog = {
         show: false,
         title: '',
         message: ''
     };
+
+    // Accepted file types for documents
+    private readonly ACCEPTED_DOCUMENT_TYPES = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/zip',
+        'application/x-zip-compressed',
+        'text/plain'
+    ];
+    private readonly MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB for documents
+
+    constructor(private readonly mediaService: MediaService) {}
 
     ngOnInit(): void {
         // Initialize internal documents with input documents
@@ -70,14 +98,14 @@ export class ProductDocumentComponent implements OnInit, OnChanges {
 
     private convertMediaItemToDocumentFile(mediaItem: MediaItem): DocumentFile {
         const fileType = this.getFileTypeFromName(mediaItem.filename) || this.getFileTypeFromMimeType(mediaItem.mimeType) || 'TXT';
-        const fileSize = this.formatFileSize(0); // You might want to add size to MediaItem interface
+        const fileSize = this.formatFileSize( 0);
 
         return {
             id: mediaItem.id,
             type: fileType,
             name: mediaItem.filename,
             size: fileSize,
-            sizeInBytes: 0, // Default to 0 since MediaItem doesn't have size
+            sizeInBytes: 0,
             selected: false,
             url: mediaItem.filePath,
             mediaItem: mediaItem
@@ -148,6 +176,81 @@ export class ProductDocumentComponent implements OnInit, OnChanges {
         });
     }
 
+    onUploadFileClick(): void {
+        // Create a temporary file input
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = this.ACCEPTED_DOCUMENT_TYPES.join(',');
+
+        fileInput.addEventListener('change', (event) => {
+            const input = event.target as HTMLInputElement;
+            if (input.files?.length) {
+                this.uploadFile(input.files[0]);
+            }
+        });
+
+        fileInput.click();
+    }
+
+    private validateFile(file: File): string | null {
+        if (!this.ACCEPTED_DOCUMENT_TYPES.includes(file.type)) {
+            return `Unsupported file type. Please use PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, ZIP, or TXT files.`;
+        }
+
+        if (file.size > this.MAX_FILE_SIZE) {
+            return `File size exceeds 50MB limit.`;
+        }
+
+        return null;
+    }
+
+    private uploadFile(file: File): void {
+        // Validate file first
+        const error = this.validateFile(file);
+        if (error) {
+            this.uploadError = error;
+            return;
+        }
+
+        this.isUploading = true;
+        this.uploadProgress = 0;
+        this.uploadError = null;
+
+        this.mediaService.uploadFile(file)
+            .pipe(
+                finalize(() => {
+                    this.isUploading = false;
+                    this.uploadProgress = 0;
+                }),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe({
+                next: (event) => {
+                    if (event.type === HttpEventType.UploadProgress) {
+                        this.uploadProgress = Math.round(100 * (event.loaded / (event.total || 1)));
+                    } else if (event.type === HttpEventType.Response && event.body) {
+                        const uploadedMediaItem = event.body as MediaItem;
+                        this.addDocumentToList(uploadedMediaItem);
+                    }
+                },
+                error: (err) => {
+                    console.error('Upload failed:', err);
+                    this.uploadError = `Failed to upload ${file.name}. Please try again.`;
+                }
+            });
+    }
+
+    private addDocumentToList(mediaItem: MediaItem): void {
+        // Convert the uploaded media item to document file format
+        const documentFile = this.convertMediaItemToDocumentFile(mediaItem);
+
+        // Add to internal documents
+        this.internalDocuments.push(documentFile);
+
+        // Emit the updated documents list
+        this.emitDocumentsChange();
+    }
+
     toggleAllSelection(): void {
         const shouldSelect = !this.allSelected;
         this.internalDocuments.forEach(doc => doc.selected = shouldSelect);
@@ -176,7 +279,7 @@ export class ProductDocumentComponent implements OnInit, OnChanges {
     downloadDocument(doc: DocumentFile): void {
         console.log('Downloading:', doc.name);
         if (doc.url) {
-            window.open(doc.url, '_blank');
+            window.open(`https://127.0.0.1:8002${doc.url}`, '_blank');
         }
         this.closeDropdown();
     }
@@ -204,7 +307,7 @@ export class ProductDocumentComponent implements OnInit, OnChanges {
         selectedDocs.forEach(doc => {
             if (doc.url) {
                 // Add a small delay between downloads to avoid browser blocking
-                setTimeout(() => window.open(doc.url!, '_blank'), 100);
+                setTimeout(() => window.open(`https://127.0.0.1:8002${doc.url}`, '_blank'), 100);
             }
         });
     }
