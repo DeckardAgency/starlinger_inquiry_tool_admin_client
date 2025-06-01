@@ -3,17 +3,17 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { finalize, Subject, debounceTime, distinctUntilChanged, takeUntil, switchMap, catchError, map, of, combineLatest } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { ProductService } from "@services/http/product.service";
-import { Product } from "@models/product.model";
-import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcrumbs.component";
-import { PaginationLinks } from "@models/pagination.model";
+import { ClientService } from '@services/http/client.service';
+import { Client, ClientDetail } from '@models/client.model';
+import { BreadcrumbsComponent } from '@shared/components/ui/breadcrumbs/breadcrumbs.component';
+import { PaginationLinks } from '@models/pagination.model';
 
 // Interfaces to represent component state
-interface ProductsState {
-    products: Product[];
+interface ClientsState {
+    clients: Client[];
     loading: boolean;
     error: string | null;
-    totalProducts: number;
+    totalClients: number;
     currentPage: number;
     totalPages: number;
     pagination: PaginationLinks;
@@ -22,6 +22,7 @@ interface ProductsState {
 interface SearchState {
     term: string;
     params: Record<string, string>;
+    searchType: 'name' | 'code';
 }
 
 interface SortState {
@@ -35,30 +36,31 @@ interface SelectionState {
 }
 
 @Component({
-    selector: 'app-product-list',
-    imports: [CommonModule, BreadcrumbsComponent, FormsModule],
-    templateUrl: './products-list.component.html',
-    styleUrls: ['./products-list.component.scss'],
-    providers: [ProductService],
+    selector: 'app-clients-list',
+    imports: [CommonModule, BreadcrumbsComponent, FormsModule, RouterLink],
+    templateUrl: './clients-list.component.html',
+    styleUrls: ['./clients-list.component.scss'],
+    providers: [ClientService],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProductsListComponent implements OnInit, OnDestroy {
+export class ClientsListComponent implements OnInit, OnDestroy {
     // Inject services
     private router = inject(Router);
     private route = inject(ActivatedRoute);
-    private productService = inject(ProductService);
+    private clientService = inject(ClientService);
 
     // UI state
-    breadcrumbs = [{ label: 'Products' }];
+    breadcrumbs = [{ label: 'Clients' }];
     showOptions = signal(false);
-    selectedProductId = signal<string | null>(null);
+    selectedClientId = signal<string | null>(null);
+    showExportMenu = signal(false);
 
     // State signals for reactive updates
-    productsState = signal<ProductsState>({
-        products: [],
+    clientsState = signal<ClientsState>({
+        clients: [],
         loading: false,
         error: null,
-        totalProducts: 0,
+        totalClients: 0,
         currentPage: 1,
         totalPages: 1,
         pagination: {}
@@ -66,7 +68,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
 
     searchState = signal<SearchState>({
         term: '',
-        params: {}
+        params: {},
+        searchType: 'name'
     });
 
     sortState = signal<SortState>({
@@ -81,6 +84,8 @@ export class ProductsListComponent implements OnInit, OnDestroy {
 
     // Computed values based on state
     pagesArray = computed(() => this.generatePagesArray());
+    hasSelectedClients = computed(() => this.selectionState().selectedIds.size > 0);
+    selectedCount = computed(() => this.selectionState().selectedIds.size);
 
     // Event subjects
     private searchInputSubject = new Subject<string>();
@@ -92,7 +97,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     );
 
     constructor() {
-        // Remove the effect that was causing performance issues
+        // Remove the effect that was causing the infinite loop
         // The allSelected state will be managed directly in the toggle methods
     }
 
@@ -120,22 +125,31 @@ export class ProductsListComponent implements OnInit, OnDestroy {
                 searchParams['name'] = params['name'];
                 this.searchState.update(state => ({
                     term: params['name'],
-                    params: searchParams
+                    params: searchParams,
+                    searchType: 'name'
+                }));
+            } else if (params['code']) {
+                searchParams['code'] = params['code'];
+                this.searchState.update(state => ({
+                    term: params['code'],
+                    params: searchParams,
+                    searchType: 'code'
                 }));
             } else if (this.searchState().term) {
                 this.searchState.update(state => ({
                     term: '',
-                    params: {}
+                    params: {},
+                    searchType: 'name'
                 }));
             }
 
-            // Update current page and load products
-            this.productsState.update(state => ({
+            // Update current page and load clients
+            this.clientsState.update(state => ({
                 ...state,
                 currentPage: page
             }));
 
-            this.loadProducts(
+            this.loadClients(
                 page,
                 this.sortState().field,
                 this.sortState().direction,
@@ -150,10 +164,10 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Update the product state while maintaining immutability
+     * Update the client state while maintaining immutability
      */
-    private updateProductsState(update: Partial<ProductsState>): void {
-        this.productsState.update(state => ({
+    private updateClientsState(update: Partial<ClientsState>): void {
+        this.clientsState.update(state => ({
             ...state,
             ...update
         }));
@@ -191,6 +205,20 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Handle search type change
+     */
+    onSearchTypeChange(type: 'name' | 'code'): void {
+        this.searchState.update(state => ({
+            ...state,
+            searchType: type
+        }));
+        // Re-execute search if there's a term
+        if (this.searchState().term) {
+            this.handleSearch(this.searchState().term);
+        }
+    }
+
+    /**
      * Handle search logic and navigate with search params
      */
     handleSearch(term: string): void {
@@ -199,14 +227,17 @@ export class ProductsListComponent implements OnInit, OnDestroy {
 
         // Add search term if not empty
         if (term.trim()) {
-            queryParams.name = term.trim();
+            const searchType = this.searchState().searchType;
+            queryParams[searchType] = term.trim();
             this.searchState.update(state => ({
+                ...state,
                 term: term.trim(),
-                params: { name: term.trim() }
+                params: { [searchType]: term.trim() }
             }));
         } else {
             // Clear search params when empty
             this.searchState.update(state => ({
+                ...state,
                 term: '',
                 params: {}
             }));
@@ -223,7 +254,7 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: queryParams,
-            replaceUrl: true // Replace current URL instead of adding to history
+            replaceUrl: true
         });
     }
 
@@ -240,11 +271,11 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     clearSearch(): void {
         this.searchState.update(state => ({
             term: '',
-            params: {}
+            params: {},
+            searchType: 'name'
         }));
 
-        // Completely reset URL - remove name parameter and set page to 1
-        // While preserving only sorting parameters if they exist
+        // Completely reset URL - remove search parameters and set page to 1
         const queryParams: any = { page: 1 };
 
         // Only include sort parameters if they exist
@@ -258,33 +289,33 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: queryParams,
-            replaceUrl: true // Replace the URL instead of adding to browser history
+            replaceUrl: true
         });
 
-        // Directly load products without search params
-        this.loadProducts(1, this.sortState().field, this.sortState().direction, {});
+        // Directly load clients without search params
+        this.loadClients(1, this.sortState().field, this.sortState().direction, {});
     }
 
     /**
-     * Load products with improved error handling and loading state management
+     * Load clients with improved error handling and loading state management
      */
-    loadProducts(
+    loadClients(
         page: number = 1,
         sortField: string | null = null,
         sortDirection: 'asc' | 'desc' | null = null,
         searchParams: Record<string, string> = {}
     ): void {
         // Update loading state
-        this.updateProductsState({ loading: true, error: null });
+        this.updateClientsState({ loading: true, error: null });
 
-        // Clear selections when loading new products
+        // Clear selections when loading new clients
         this.updateSelectionState({
             selectedIds: new Set<string>(),
             allSelected: false
         });
 
         // Optimized service call with improved error handling
-        this.productService.getProducts(
+        this.clientService.getClients(
             page,
             sortField || undefined,
             sortDirection || undefined,
@@ -292,26 +323,26 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         )
             .pipe(
                 catchError(error => {
-                    console.error('Error loading products', error);
+                    console.error('Error loading clients', error);
                     return of({
-                        products: [],
-                        totalItems: 0,
+                        clients: [],
+                        totalClients: 0,
                         pagination: {},
                         currentPage: page,
                         totalPages: 1
                     });
                 }),
                 finalize(() => {
-                    this.updateProductsState({ loading: false });
+                    this.updateClientsState({ loading: false });
                 })
             )
             .subscribe({
                 next: (data) => {
-                    // Check if data and data.products exist to avoid TypeError
-                    if (!data || !data.products) {
-                        this.updateProductsState({
-                            products: [],
-                            totalProducts: 0,
+                    // Check if data and data.clients exist to avoid TypeError
+                    if (!data || !data.clients) {
+                        this.updateClientsState({
+                            clients: [],
+                            totalClients: 0,
                             totalPages: 1,
                             pagination: {},
                             currentPage: 1,
@@ -321,30 +352,30 @@ export class ProductsListComponent implements OnInit, OnDestroy {
                     }
 
                     // Using the spread operator to create new object instances for immutability
-                    const products = data.products.map(product => ({...product}));
+                    const clients = data.clients.map(client => ({...client}));
 
-                    this.updateProductsState({
-                        products,
-                        totalProducts: data.totalItems || 0,
+                    this.updateClientsState({
+                        clients,
+                        totalClients: data.totalClients || 0,
                         totalPages: data.totalPages || 1,
                         pagination: data.pagination || {},
                         currentPage: data.currentPage || 1,
-                        error: data.products.length > 0 ? null :
+                        error: data.clients.length > 0 ? null :
                             (this.searchState().term ?
-                                `No products found matching "${this.searchState().term}"` :
-                                'No products found')
+                                `No clients found matching "${this.searchState().term}"` :
+                                'No clients found')
                     });
                 },
                 error: (err) => {
-                    this.updateProductsState({
-                        error: 'Failed to load products. Please try again later.'
+                    this.updateClientsState({
+                        error: 'Failed to load clients. Please try again later.'
                     });
                 }
             });
     }
 
     /**
-     * Sort products by the specified field - with improved implementation
+     * Sort clients by the specified field
      */
     sortBy(field: string): void {
         const currentSort = this.sortState();
@@ -369,8 +400,9 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         };
 
         // Add search params if they exist
+        const searchType = this.searchState().searchType;
         if (this.searchState().term) {
-            queryParams.name = this.searchState().term;
+            queryParams[searchType] = this.searchState().term;
         }
 
         // Update URL completely replacing parameters
@@ -387,36 +419,32 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         const { field: sortField, direction } = this.sortState();
 
         if (sortField !== field) {
-            return 'product-list__sort-icon';
+            return 'clients-list__sort-icon';
         }
 
         return direction === 'asc'
-            ? 'product-list__sort-icon product-list__sort-icon--asc'
-            : 'product-list__sort-icon product-list__sort-icon--desc';
+            ? 'clients-list__sort-icon clients-list__sort-icon--asc'
+            : 'clients-list__sort-icon clients-list__sort-icon--desc';
     }
 
     /**
-     * Generate an array of page numbers - optimized implementation
+     * Generate an array of page numbers
      */
     generatePagesArray(): number[] {
-        const { currentPage, totalPages } = this.productsState();
+        const { currentPage, totalPages } = this.clientsState();
         const maxPagesToShow = 5;
 
         if (totalPages <= maxPagesToShow) {
-            // If we have 5 or fewer pages, show all of them
             return Array.from({ length: totalPages }, (_, i) => i + 1);
         } else {
-            // Calculate start and end page
             let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
             let endPage = startPage + maxPagesToShow - 1;
 
-            // Adjust if we're near the end
             if (endPage > totalPages) {
                 endPage = totalPages;
                 startPage = Math.max(1, endPage - maxPagesToShow + 1);
             }
 
-            // Create array of page numbers
             return Array.from(
                 { length: endPage - startPage + 1 },
                 (_, i) => startPage + i
@@ -424,33 +452,42 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         }
     }
 
-    toggleOptions(productId: string): void {
-        if (this.selectedProductId() === productId) {
+    /**
+     * Toggle options menu for a client
+     */
+    toggleOptions(clientId: string): void {
+        if (this.selectedClientId() === clientId) {
             this.showOptions.update(value => !value);
         } else {
-            this.selectedProductId.set(productId);
+            this.selectedClientId.set(clientId);
             this.showOptions.set(true);
         }
     }
 
     /**
-     * Check if a product is currently selected
+     * Toggle export menu
      */
-    isProductSelected(productId: string): boolean {
-        return this.selectionState().selectedIds.has(productId);
+    toggleExportMenu(): void {
+        this.showExportMenu.update(value => !value);
     }
 
     /**
-     * Toggle selection for all products - fixed implementation
+     * Check if a client is currently selected
+     */
+    isClientSelected(clientId: string): boolean {
+        return this.selectionState().selectedIds.has(clientId);
+    }
+
+    /**
+     * Toggle selection for all clients
      */
     toggleSelectAll(event: Event): void {
         const checked = (event.target as HTMLInputElement).checked;
         const newSelectedIds = new Set<string>();
 
         if (checked) {
-            // Select all products
-            this.productsState().products.forEach(product => {
-                newSelectedIds.add(product.id);
+            this.clientsState().clients.forEach(client => {
+                newSelectedIds.add(client.id);
             });
         }
 
@@ -461,20 +498,20 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Toggle selection for a single product - fixed implementation
+     * Toggle selection for a single client
      */
-    toggleSelectProduct(event: Event, productId: string): void {
+    toggleSelectClient(event: Event, clientId: string): void {
         const checked = (event.target as HTMLInputElement).checked;
         const currentSelectedIds = new Set(this.selectionState().selectedIds); // Create a new Set to ensure immutability
 
         if (checked) {
-            currentSelectedIds.add(productId);
+            currentSelectedIds.add(clientId);
         } else {
-            currentSelectedIds.delete(productId);
+            currentSelectedIds.delete(clientId);
         }
 
-        const allSelected = this.productsState().products.length > 0 &&
-            currentSelectedIds.size === this.productsState().products.length;
+        const allSelected = this.clientsState().clients.length > 0 &&
+            currentSelectedIds.size === this.clientsState().clients.length;
 
         this.updateSelectionState({
             selectedIds: currentSelectedIds,
@@ -482,86 +519,98 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         });
     }
 
-    addProduct(): void {
-        this.router.navigate(['/products/new']);
-    }
-
-    editProduct(productId: string): void {
-        this.router.navigate([`/products/`, productId, 'edit']);
+    /**
+     * Navigate to add new client
+     */
+    addClient(): void {
+        this.router.navigate(['/clients/new']);
     }
 
     /**
-     * Delete product with optimized implementation
+     * Navigate to view client details
      */
-    deleteProduct(productId: string): void {
-        if (confirm('Are you sure you want to delete this product?')) {
-            this.updateProductsState({ loading: true });
+    viewClient(clientId: string): void {
+        this.router.navigate(['/clients', clientId]);
+    }
 
-            this.productService.deleteProduct(productId).pipe(
-                finalize(() => this.updateProductsState({ loading: false }))
+    /**
+     * Navigate to edit client
+     */
+    editClient(clientId: string): void {
+        this.router.navigate(['/clients', clientId, 'edit']);
+    }
+
+    /**
+     * Delete a single client
+     */
+    deleteClient(clientId: string): void {
+        if (confirm('Are you sure you want to delete this client?')) {
+            this.updateClientsState({ loading: true });
+
+            this.clientService.deleteClient(clientId).pipe(
+                finalize(() => this.updateClientsState({ loading: false }))
             ).subscribe({
                 next: () => {
-                    // Update local product list
-                    const currentState = this.productsState();
-                    const updatedProducts = currentState.products.filter(p => p.id !== productId);
+                    // Update local client list
+                    const currentState = this.clientsState();
+                    const updatedClients = currentState.clients.filter(c => c.id !== clientId);
 
-                    // Remove from selected products if it was selected
+                    // Remove from selected clients if it was selected
                     const currentSelectedIds = this.selectionState().selectedIds;
-                    if (currentSelectedIds.has(productId)) {
+                    if (currentSelectedIds.has(clientId)) {
                         const newSelectedIds = new Set(currentSelectedIds);
-                        newSelectedIds.delete(productId);
+                        newSelectedIds.delete(clientId);
                         this.updateSelectionState({
                             selectedIds: newSelectedIds,
-                            allSelected: newSelectedIds.size === updatedProducts.length && newSelectedIds.size > 0
+                            allSelected: newSelectedIds.size === updatedClients.length && newSelectedIds.size > 0
                         });
                     }
 
-                    // Update product state
-                    this.updateProductsState({
-                        products: updatedProducts,
-                        totalProducts: currentState.totalProducts - 1
+                    // Update client state
+                    this.updateClientsState({
+                        clients: updatedClients,
+                        totalClients: currentState.totalClients - 1
                     });
 
                     // Refresh the current page if it's empty
-                    if (updatedProducts.length === 0 && currentState.currentPage > 1) {
+                    if (updatedClients.length === 0 && currentState.currentPage > 1) {
                         this.changePage(currentState.currentPage - 1);
                     }
                 },
                 error: (err) => {
-                    console.error('Error deleting product', err);
-                    alert('Failed to delete product. Please try again.');
+                    console.error('Error deleting client', err);
+                    alert('Failed to delete client. Please try again.');
                 }
             });
         }
     }
 
     /**
-     * Get all selected product IDs
+     * Get all selected client IDs
      */
-    getSelectedProductIds(): string[] {
+    getSelectedClientIds(): string[] {
         return Array.from(this.selectionState().selectedIds);
     }
 
     /**
-     * Delete all selected products with improved implementation
+     * Delete all selected clients
      */
-    deleteSelectedProducts(): void {
-        const selectedIds = this.getSelectedProductIds();
+    deleteSelectedClients(): void {
+        const selectedIds = this.getSelectedClientIds();
         const selectedCount = selectedIds.length;
 
         if (selectedCount === 0) {
             return;
         }
 
-        if (confirm(`Are you sure you want to delete ${selectedCount} selected product${selectedCount > 1 ? 's' : ''}?`)) {
-            this.updateProductsState({ loading: true });
+        if (confirm(`Are you sure you want to delete ${selectedCount} selected client${selectedCount > 1 ? 's' : ''}?`)) {
+            this.updateClientsState({ loading: true });
 
-            // Use the bulk delete method from the service
-            this.productService.deleteProducts(selectedIds).subscribe({
+            this.clientService.deleteClients(selectedIds).subscribe({
                 next: (result) => {
-                    // Reload products after bulk delete
-                    this.loadProducts(
-                        this.productsState().currentPage,
+                    // Reload clients after bulk delete
+                    this.loadClients(
+                        this.clientsState().currentPage,
                         this.sortState().field,
                         this.sortState().direction,
                         this.searchState().params
@@ -575,25 +624,34 @@ export class ProductsListComponent implements OnInit, OnDestroy {
 
                     // Show result message
                     if (result.failedCount > 0) {
-                        alert(`Successfully deleted ${result.deletedCount} products. Failed to delete ${result.failedCount} products.`);
+                        alert(`Successfully deleted ${result.deletedCount} clients. Failed to delete ${result.failedCount} clients.`);
                     } else {
-                        alert(`Successfully deleted ${result.deletedCount} products.`);
+                        alert(`Successfully deleted ${result.deletedCount} clients.`);
                     }
                 },
                 error: (err) => {
-                    console.error('Error deleting products', err);
-                    this.updateProductsState({ loading: false });
-                    alert('Failed to delete products. Please try again.');
+                    console.error('Error deleting clients', err);
+                    this.updateClientsState({ loading: false });
+                    alert('Failed to delete clients. Please try again.');
                 }
             });
         }
     }
 
     /**
-     * Navigation methods for pagination - with improved implementation
+     * Export clients to different formats
+     */
+    exportClients(format: 'csv' | 'excel' | 'pdf'): void {
+        // TODO: Implement export functionality
+        console.log(`Exporting clients as ${format}`);
+        this.showExportMenu.set(false);
+    }
+
+    /**
+     * Navigation methods for pagination
      */
     changePage(page: number): void {
-        const { currentPage, totalPages } = this.productsState();
+        const { currentPage, totalPages } = this.clientsState();
 
         if (page < 1 || page > totalPages || page === currentPage) {
             return;
@@ -610,8 +668,9 @@ export class ProductsListComponent implements OnInit, OnDestroy {
         }
 
         // Add search params if they exist
+        const searchType = this.searchState().searchType;
         if (this.searchState().term) {
-            queryParams.name = this.searchState().term;
+            queryParams[searchType] = this.searchState().term;
         }
 
         // Update URL, completely replacing parameters
@@ -629,31 +688,43 @@ export class ProductsListComponent implements OnInit, OnDestroy {
     }
 
     goToPreviousPage(): void {
-        const currentPage = this.productsState().currentPage;
+        const currentPage = this.clientsState().currentPage;
         if (currentPage > 1) {
             this.changePage(currentPage - 1);
         }
     }
 
     goToNextPage(): void {
-        const { currentPage, totalPages } = this.productsState();
+        const { currentPage, totalPages } = this.clientsState();
         if (currentPage < totalPages) {
             this.changePage(currentPage + 1);
         }
     }
 
     goToLastPage(): void {
-        this.changePage(this.productsState().totalPages);
+        this.changePage(this.clientsState().totalPages);
     }
 
     /**
      * Get text showing the current results range and total
      */
     getResultsText(): string {
-        const { currentPage, totalProducts } = this.productsState();
+        const { currentPage, totalClients } = this.clientsState();
         const itemsPerPage = 30; // Assuming 30 items per page
         const startItem = (currentPage - 1) * itemsPerPage + 1;
-        const endItem = Math.min(currentPage * itemsPerPage, totalProducts);
-        return `Showing ${startItem} to ${endItem} from ${totalProducts} results`;
+        const endItem = Math.min(currentPage * itemsPerPage, totalClients);
+        return `Showing ${startItem} to ${endItem} from ${totalClients} results`;
+    }
+
+    /**
+     * Format date for display
+     */
+    formatDate(dateString: string): string {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
     }
 }

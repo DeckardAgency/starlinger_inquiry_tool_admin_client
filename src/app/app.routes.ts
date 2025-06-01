@@ -15,9 +15,11 @@ import { MachinesNewComponent } from "@features/machines/new/machines-new.compon
 import { MachinesEditComponent } from "@features/machines/edit/machines-edit.component";
 import { OrderViewComponent } from "@features/orders/view/order-view.component";
 import { AuthGuard } from "@core/auth/auth.guard";
-import {AuthLayoutComponent} from "./layout/auth-layout.component";
-import {MainLayoutComponent} from "./layout/main-layout.component";
-import {RoleGuard} from "@core/auth/role.guard";
+import { AuthLayoutComponent } from "./layout/auth-layout.component";
+import { MainLayoutComponent } from "./layout/main-layout.component";
+import { RoleGuard } from "@core/auth/role.guard";
+import {ClientsListComponent} from "@features/clients/list/clients-list.component";
+import {UsersListComponent} from "@features/users/list/users-list.component";
 
 export const routes: Routes = [
   {
@@ -46,6 +48,11 @@ export const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent,
         title: 'Inquiry Tool | Dashboard'
+      },
+      {
+        path: 'clients/list',
+        component: ClientsListComponent,
+        title: 'Inquiry Tool | Clients List'
       },
       {
         path: 'accounts/list',
@@ -111,7 +118,12 @@ export const routes: Routes = [
         path: 'machines/:id/edit',
         component: MachinesEditComponent,
         title: 'Inquiry Tool | Machine New'
-      }
+      },
+      {
+        path: 'users/list',
+        component: UsersListComponent,
+        title: 'Inquiry Tool | Users List'
+      },
     ]
   }
 ];

@@ -1,0 +1,377 @@
+<div class="users-list">
+    <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
+
+    <div class="users-list__header">
+        <!-- Header content with title and actions -->
+        <div class="users-list__title-container">
+            <svg class="users-list__icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <h1 class="users-list__title">Users <span class="users-list__count">{{ usersState().totalUsers }}</span></h1>
+        </div>
+
+        <div class="users-list__actions">
+            <!-- Enhanced search with search type selector -->
+            <div class="users-list__search">
+                <select
+                        class="users-list__search-type"
+                        [ngModel]="searchState().searchType"
+                        (ngModelChange)="onSearchTypeChange($event)"
+                >
+                    <option value="email">Email</option>
+                    <option value="clientCode">Client Code</option>
+                </select>
+                <input
+                        type="text"
+                        [placeholder]="searchState().searchType === 'email' ? 'Search by email...' : 'Search by client code...'"
+                        class="users-list__search-input"
+                        [ngModel]="searchState().term"
+                        (input)="onSearchInput($event)"
+                        (keyup.enter)="executeSearch()"
+                        #searchInput
+                >
+                <button class="users-list__search-button" (click)="executeSearch()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M14.0001 14L11.1335 11.1333M12.6667 7.33333C12.6667 10.2789 10.2789 12.6667 7.33333 12.6667C4.38781 12.6667 2 10.2789 2 7.33333C2 4.38781 4.38781 2 7.33333 2C10.2789 2 12.6667 4.38781 12.6667 7.33333Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <!-- Clear search button -->
+                <button
+                        *ngIf="searchState().term"
+                        class="users-list__clear-search-button"
+                        (click)="clearSearch(); searchInput.focus()"
+                        title="Clear search"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M4 4L12 12M4 12L12 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="users-list__filters">
+                <!-- Client filter -->
+                <select
+                        class="users-list__filter-select"
+                        [ngModel]="filterState().hasClient"
+                        (ngModelChange)="updateHasClientFilter($event)"
+                >
+                    <option value="all">All Users</option>
+                    <option value="yes">With Client</option>
+                    <option value="no">No Client</option>
+                </select>
+
+                <!-- Role filter with dropdown -->
+                <div class="users-list__role-filter-container">
+                    <button
+                            class="users-list__role-filter-button"
+                            (click)="toggleRoleFilter()"
+                    >
+                        <span>{{ filterState().role === 'all' ? 'All Roles' : getRoleDisplayName(filterState().role) }}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div *ngIf="showRoleFilter()" class="users-list__role-filter-menu">
+                        <button
+                                *ngFor="let role of availableRoles"
+                                class="users-list__role-filter-option"
+                                [class.users-list__role-filter-option--active]="filterState().role === role.value"
+                                (click)="updateRoleFilter(role.value)"
+                        >
+                            {{ role.label }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button
+                    class="users-list__delete-button"
+                    (click)="deleteSelectedUsers()"
+                    [disabled]="!hasSelectedUsers()"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2 3.99967H14M12.6667 3.99967V13.333C12.6667 13.9997 12 14.6663 11.3333 14.6663H4.66667C4 14.6663 3.33333 13.9997 3.33333 13.333V3.99967M5.33333 3.99967V2.66634C5.33333 1.99967 6 1.33301 6.66667 1.33301H9.33333C10 1.33301 10.6667 1.99967 10.6667 2.66634V3.99967M6.66667 7.33301V11.333M9.33333 7.33301V11.333" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span *ngIf="selectedCount() > 0" class="users-list__delete-count">{{ selectedCount() }}</span>
+            </button>
+
+            <button class="users-list__add-button" (click)="addUser()">
+                Add user
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3.33203 7.99967H12.6654M7.9987 3.33301V12.6663" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="users-list__body">
+        <!-- Search info banner -->
+        <div *ngIf="searchState().term && !usersState().loading && !usersState().error" class="users-list__search-info">
+            <span>Search results for <strong>"{{ searchState().term }}"</strong> in {{ searchState().searchType === 'email' ? 'email' : 'client code' }}</span>
+            <button class="users-list__clear-search-link" (click)="clearSearch(); searchInput.focus()">Clear search</button>
+        </div>
+
+        <!-- Active filters banner -->
+        <div *ngIf="(filterState().hasClient !== 'all' || filterState().role !== 'all') && !usersState().loading" class="users-list__active-filters">
+            <span>Active filters:</span>
+            <span *ngIf="filterState().hasClient !== 'all'" class="users-list__filter-tag">
+        {{ filterState().hasClient === 'yes' ? 'With Client' : 'No Client' }}
+                <button (click)="updateHasClientFilter('all')">×</button>
+      </span>
+            <span *ngIf="filterState().role !== 'all'" class="users-list__filter-tag">
+        {{ getRoleDisplayName(filterState().role) }}
+                <button (click)="updateRoleFilter('all')">×</button>
+      </span>
+        </div>
+
+        <!-- Loading state -->
+        <div *ngIf="usersState().loading" class="users-list__loading">
+            <div class="users-list__spinner"></div>
+            <p>Loading users...</p>
+        </div>
+
+        <!-- Error state -->
+        <div *ngIf="usersState().error && !usersState().loading" class="users-list__error">
+            <p>{{ usersState().error }}</p>
+            <button
+                    class="users-list__retry-button"
+                    (click)="loadUsers(usersState().currentPage, sortState().field, sortState().direction, searchState().params)"
+            >
+                Retry
+            </button>
+        </div>
+
+        <!-- Table container -->
+        <div *ngIf="!usersState().loading && !usersState().error" class="users-list__table-container">
+            <table class="users-list__table">
+                <thead class="users-list__table-head">
+                <tr>
+                    <th class="users-list__table-header users-list__table-header--select">
+                        <div class="users-list__checkbox-container">
+                            <input
+                                    type="checkbox"
+                                    class="users-list__checkbox"
+                                    id="select-all"
+                                    [checked]="selectionState().allSelected"
+                                    (change)="toggleSelectAll($event)"
+                            >
+                            <label for="select-all" class="users-list__checkbox-label"></label>
+                        </div>
+                    </th>
+                    <th class="users-list__table-header users-list__table-header--sortable" (click)="sortBy('firstName')">
+                        Name
+                        <svg [ngClass]="getSortIconClass('firstName')" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="users-list__table-header users-list__table-header--sortable" (click)="sortBy('email')">
+                        Email
+                        <svg [ngClass]="getSortIconClass('email')" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="users-list__table-header">Roles</th>
+                    <th class="users-list__table-header">Client</th>
+                    <th class="users-list__table-header">Phone</th>
+                    <th class="users-list__table-header users-list__table-header--sortable" (click)="sortBy('createdAt')">
+                        Created
+                        <svg [ngClass]="getSortIconClass('createdAt')" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="users-list__table-header users-list__table-header--actions"></th>
+                </tr>
+                </thead>
+                <tbody class="users-list__table-body">
+                <tr *ngFor="let user of usersState().users"
+                    class="users-list__table-row"
+                    [class.users-list__table-row--selected]="isUserSelected(user.id)">
+                    <td class="users-list__table-cell users-list__table-cell--select">
+                        <div class="users-list__checkbox-container">
+                            <input
+                                    type="checkbox"
+                                    class="users-list__checkbox"
+                                    [id]="'select-' + user.id"
+                                    [checked]="isUserSelected(user.id)"
+                                    (change)="toggleSelectUser($event, user.id)"
+                            >
+                            <label [for]="'select-' + user.id" class="users-list__checkbox-label"></label>
+                        </div>
+                    </td>
+                    <td class="users-list__table-cell users-list__table-cell--name">
+                        <a [routerLink]="['/users', user.id]" class="users-list__name-link">
+                            {{ getUserFullName(user) }}
+                        </a>
+                    </td>
+                    <td class="users-list__table-cell">
+                        <a [href]="'mailto:' + user.email" class="users-list__email-link">
+                            {{ user.email }}
+                        </a>
+                    </td>
+                    <td class="users-list__table-cell">
+                        <div class="users-list__roles">
+                <span *ngFor="let role of user.roles; let last = last" class="users-list__role-badge">
+                  {{ getRoleDisplayName(role) }}
+                </span>
+                        </div>
+                    </td>
+                    <td class="users-list__table-cell">
+                        <a *ngIf="user.client" [routerLink]="['/clients', user.client.id]" class="users-list__client-link">
+                            <span class="users-list__client-name">{{ user.client.name }}</span>
+                            <span class="users-list__client-code">({{ user.client.code }})</span>
+                        </a>
+                        <span *ngIf="!user.client" class="users-list__empty">No client</span>
+                    </td>
+                    <td class="users-list__table-cell">
+                        <span *ngIf="user.phoneNumber">{{ user.phoneNumber }}</span>
+                        <span *ngIf="!user.phoneNumber" class="users-list__empty">-</span>
+                    </td>
+                    <td class="users-list__table-cell">
+                        <span class="users-list__date">{{ formatDate(user.createdAt!) }}</span>
+                    </td>
+                    <td class="users-list__table-cell users-list__table-cell--actions">
+                        <button class="users-list__action-button" (click)="toggleOptions(user.id)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                        <!-- Action menu -->
+                        <div *ngIf="showOptions() && selectedUserId() === user.id" class="users-list__options">
+                            <button class="users-list__option" (click)="viewUser(user.id)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                View
+                            </button>
+                            <button class="users-list__option" (click)="editUser(user.id)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="users-list__option" (click)="resetPassword(user.id)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                                Reset Password
+                            </button>
+                            <button class="users-list__option users-list__option--danger" (click)="deleteUser(user.id)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="!usersState().loading && !usersState().error && usersState().users.length === 0" class="users-list__empty">
+            <svg class="users-list__empty-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <p *ngIf="searchState().term" class="users-list__empty-text">
+                No users found matching "{{ searchState().term }}" in {{ searchState().searchType === 'email' ? 'email' : 'client code' }}.
+            </p>
+            <p *ngIf="!searchState().term && (filterState().hasClient !== 'all' || filterState().role !== 'all')" class="users-list__empty-text">
+                No users found with the selected filters.
+            </p>
+            <p *ngIf="!searchState().term && filterState().hasClient === 'all' && filterState().role === 'all'" class="users-list__empty-text">
+                No users found. Start by adding your first user.
+            </p>
+            <button *ngIf="searchState().term || filterState().hasClient !== 'all' || filterState().role !== 'all'"
+                    class="users-list__empty-button"
+                    (click)="clearSearch(); clearAllFilters()">
+                Clear filters
+            </button>
+            <button *ngIf="!searchState().term && filterState().hasClient === 'all' && filterState().role === 'all'"
+                    class="users-list__empty-button users-list__empty-button--primary"
+                    (click)="addUser()">
+                Add your first user
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer with pagination -->
+    <div *ngIf="!usersState().loading && !usersState().error && usersState().users.length > 0" class="users-list__footer">
+        <span class="users-list__results">{{ getResultsText() }}</span>
+
+        <div class="users-list__pagination">
+            <!-- First page button -->
+            <button
+                    class="users-list__page-button users-list__page-button--icon"
+                    [disabled]="usersState().currentPage === 1"
+                    (click)="goToFirstPage()"
+                    aria-label="Go to first page"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="11 17 6 12 11 7"></polyline>
+                    <polyline points="18 17 13 12 18 7"></polyline>
+                </svg>
+            </button>
+
+            <!-- Previous page button -->
+            <button
+                    class="users-list__page-button users-list__page-button--icon"
+                    [disabled]="usersState().currentPage === 1"
+                    (click)="goToPreviousPage()"
+                    aria-label="Go to previous page"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+
+            <!-- Numbered page buttons -->
+            <ng-container *ngFor="let page of pagesArray()">
+                <button
+                        class="users-list__page-button"
+                        [class.users-list__page-button--active]="usersState().currentPage === page"
+                        (click)="changePage(page)"
+                >
+                    {{ page }}
+                </button>
+            </ng-container>
+
+            <!-- Next page button -->
+            <button
+                    class="users-list__page-button users-list__page-button--icon"
+                    [disabled]="usersState().currentPage >= usersState().totalPages"
+                    (click)="goToNextPage()"
+                    aria-label="Go to next page"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+
+            <!-- Last page button -->
+            <button
+                    class="users-list__page-button users-list__page-button--icon"
+                    [disabled]="usersState().currentPage >= usersState().totalPages"
+                    (click)="goToLastPage()"
+                    aria-label="Go to last page"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="13 17 18 12 13 7"></polyline>
+                    <polyline points="6 17 11 12 6 7"></polyline>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>

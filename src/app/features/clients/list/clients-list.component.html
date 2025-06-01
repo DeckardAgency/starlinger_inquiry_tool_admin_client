@@ -1,0 +1,341 @@
+<div class="clients-list">
+    <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
+
+    <div class="clients-list__header">
+        <!-- Header content with title and actions -->
+        <div class="clients-list__title-container">
+            <svg class="clients-list__icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <h1 class="clients-list__title">Clients <span class="clients-list__count">{{ clientsState().totalClients }}</span></h1>
+        </div>
+
+        <div class="clients-list__actions">
+            <!-- Enhanced search with search type selector -->
+            <div class="clients-list__search">
+                <select
+                        class="clients-list__search-type"
+                        [ngModel]="searchState().searchType"
+                        (ngModelChange)="onSearchTypeChange($event)"
+                >
+                    <option value="name">Name</option>
+                    <option value="code">Code</option>
+                </select>
+                <input
+                        type="text"
+                        [placeholder]="searchState().searchType === 'name' ? 'Search by name...' : 'Search by code...'"
+                        class="clients-list__search-input"
+                        [ngModel]="searchState().term"
+                        (input)="onSearchInput($event)"
+                        (keyup.enter)="executeSearch()"
+                        #searchInput
+                >
+                <button class="clients-list__search-button" (click)="executeSearch()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M14.0001 14L11.1335 11.1333M12.6667 7.33333C12.6667 10.2789 10.2789 12.6667 7.33333 12.6667C4.38781 12.6667 2 10.2789 2 7.33333C2 4.38781 4.38781 2 7.33333 2C10.2789 2 12.6667 4.38781 12.6667 7.33333Z" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <!-- Clear search button -->
+                <button
+                        *ngIf="searchState().term"
+                        class="clients-list__clear-search-button"
+                        (click)="clearSearch(); searchInput.focus()"
+                        title="Clear search"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M4 4L12 12M4 12L12 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Export button with dropdown menu -->
+            <div class="clients-list__export-container">
+                <button
+                        class="clients-list__export-button"
+                        (click)="toggleExportMenu()"
+                        [disabled]="clientsState().clients.length === 0"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M4.66667 6.66667L8 10M8 10L11.3333 6.66667M8 10V2" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <!-- Export dropdown menu -->
+                <div *ngIf="showExportMenu()" class="clients-list__export-menu">
+                    <button class="clients-list__export-option" (click)="exportClients('csv')">
+                        Export as CSV
+                    </button>
+                    <button class="clients-list__export-option" (click)="exportClients('excel')">
+                        Export as Excel
+                    </button>
+                    <button class="clients-list__export-option" (click)="exportClients('pdf')">
+                        Export as PDF
+                    </button>
+                </div>
+            </div>
+
+            <button
+                    class="clients-list__delete-button"
+                    (click)="deleteSelectedClients()"
+                    [disabled]="!hasSelectedClients()"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2 3.99967H14M12.6667 3.99967V13.333C12.6667 13.9997 12 14.6663 11.3333 14.6663H4.66667C4 14.6663 3.33333 13.9997 3.33333 13.333V3.99967M5.33333 3.99967V2.66634C5.33333 1.99967 6 1.33301 6.66667 1.33301H9.33333C10 1.33301 10.6667 1.99967 10.6667 2.66634V3.99967M6.66667 7.33301V11.333M9.33333 7.33301V11.333" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span *ngIf="selectedCount() > 0" class="clients-list__delete-count">{{ selectedCount() }}</span>
+            </button>
+
+            <button class="clients-list__add-button" (click)="addClient()">
+                Add client
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3.33203 7.99967H12.6654M7.9987 3.33301V12.6663" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="clients-list__body">
+        <!-- Search info banner -->
+        <div *ngIf="searchState().term && !clientsState().loading && !clientsState().error" class="clients-list__search-info">
+            <span>Search results for <strong>"{{ searchState().term }}"</strong> in {{ searchState().searchType }}</span>
+            <button class="clients-list__clear-search-link" (click)="clearSearch(); searchInput.focus()">Clear search</button>
+        </div>
+
+        <!-- Loading state -->
+        <div *ngIf="clientsState().loading" class="clients-list__loading">
+            <div class="clients-list__spinner"></div>
+            <p>Loading clients...</p>
+        </div>
+
+        <!-- Error state -->
+        <div *ngIf="clientsState().error && !clientsState().loading" class="clients-list__error">
+            <p>{{ clientsState().error }}</p>
+            <button
+                    class="clients-list__retry-button"
+                    (click)="loadClients(clientsState().currentPage, sortState().field, sortState().direction, searchState().params)"
+            >
+                Retry
+            </button>
+        </div>
+
+        <!-- Table container -->
+        <div *ngIf="!clientsState().loading && !clientsState().error" class="clients-list__table-container">
+            <table class="clients-list__table">
+                <thead class="clients-list__table-head">
+                <tr>
+                    <th class="clients-list__table-header clients-list__table-header--select">
+                        <div class="clients-list__checkbox-container">
+                            <input
+                                    type="checkbox"
+                                    class="clients-list__checkbox"
+                                    id="select-all"
+                                    [checked]="selectionState().allSelected"
+                                    (change)="toggleSelectAll($event)"
+                            >
+                            <label for="select-all" class="clients-list__checkbox-label"></label>
+                        </div>
+                    </th>
+                    <th class="clients-list__table-header clients-list__table-header--sortable" (click)="sortBy('name')">
+                        Name
+                        <svg [ngClass]="getSortIconClass('name')" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="clients-list__table-header clients-list__table-header--sortable" (click)="sortBy('code')">
+                        Code
+                        <svg [ngClass]="getSortIconClass('code')" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="clients-list__table-header">Email</th>
+                    <th class="clients-list__table-header">Phone</th>
+                    <th class="clients-list__table-header">Address</th>
+                    <th class="clients-list__table-header">VAT Number</th>
+                    <th class="clients-list__table-header clients-list__table-header--sortable" (click)="sortBy('createdAt')">
+                        Created
+                        <svg [ngClass]="getSortIconClass('createdAt')" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 15l5 5 5-5"></path>
+                            <path d="M7 9l5-5 5 5"></path>
+                        </svg>
+                    </th>
+                    <th class="clients-list__table-header clients-list__table-header--actions"></th>
+                </tr>
+                </thead>
+                <tbody class="clients-list__table-body">
+                <tr *ngFor="let client of clientsState().clients"
+                    class="clients-list__table-row"
+                    [class.clients-list__table-row--selected]="isClientSelected(client.id)">
+                    <td class="clients-list__table-cell clients-list__table-cell--select">
+                        <div class="clients-list__checkbox-container">
+                            <input
+                                    type="checkbox"
+                                    class="clients-list__checkbox"
+                                    [id]="'select-' + client.id"
+                                    [checked]="isClientSelected(client.id)"
+                                    (change)="toggleSelectClient($event, client.id)"
+                            >
+                            <label [for]="'select-' + client.id" class="clients-list__checkbox-label"></label>
+                        </div>
+                    </td>
+                    <td class="clients-list__table-cell clients-list__table-cell--name">
+                        <a [routerLink]="['/clients', client.id]" class="clients-list__name-link">
+                            {{ client.name }}
+                        </a>
+                    </td>
+                    <td class="clients-list__table-cell">
+                        <span class="clients-list__code">{{ client.code }}</span>
+                    </td>
+                    <td class="clients-list__table-cell">
+                        <a *ngIf="client.email" [href]="'mailto:' + client.email" class="clients-list__email-link">
+                            {{ client.email }}
+                        </a>
+                        <span *ngIf="!client.email" class="clients-list__empty">-</span>
+                    </td>
+                    <td class="clients-list__table-cell">
+                        <span *ngIf="client.phoneNumber">{{ client.phoneNumber }}</span>
+                        <span *ngIf="!client.phoneNumber" class="clients-list__empty">-</span>
+                    </td>
+                    <td class="clients-list__table-cell">
+                        <span *ngIf="client.address" class="clients-list__address">{{ client.address }}</span>
+                        <span *ngIf="!client.address" class="clients-list__empty">-</span>
+                    </td>
+                    <td class="clients-list__table-cell">
+                        <span *ngIf="client.vatNumber">{{ client.vatNumber }}</span>
+                        <span *ngIf="!client.vatNumber" class="clients-list__empty">-</span>
+                    </td>
+                    <td class="clients-list__table-cell">
+                        <span class="clients-list__date">{{ formatDate(client.createdAt) }}</span>
+                    </td>
+                    <td class="clients-list__table-cell clients-list__table-cell--actions">
+                        <button class="clients-list__action-button" (click)="toggleOptions(client.id)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </button>
+                        <!-- Action menu -->
+                        <div *ngIf="showOptions() && selectedClientId() === client.id" class="clients-list__options">
+                            <button class="clients-list__option" (click)="viewClient(client.id)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                View
+                            </button>
+                            <button class="clients-list__option" (click)="editClient(client.id)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Edit
+                            </button>
+                            <button class="clients-list__option clients-list__option--danger" (click)="deleteClient(client.id)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="!clientsState().loading && !clientsState().error && clientsState().clients.length === 0" class="clients-list__empty">
+            <svg class="clients-list__empty-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <p *ngIf="searchState().term" class="clients-list__empty-text">
+                No clients found matching "{{ searchState().term }}" in {{ searchState().searchType }}.
+            </p>
+            <p *ngIf="!searchState().term" class="clients-list__empty-text">
+                No clients found. Start by adding your first client.
+            </p>
+            <button *ngIf="searchState().term" class="clients-list__empty-button" (click)="clearSearch(); searchInput.focus()">
+                Clear search
+            </button>
+            <button *ngIf="!searchState().term" class="clients-list__empty-button clients-list__empty-button--primary" (click)="addClient()">
+                Add your first client
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer with pagination -->
+    <div *ngIf="!clientsState().loading && !clientsState().error && clientsState().clients.length > 0" class="clients-list__footer">
+        <span class="clients-list__results">{{ getResultsText() }}</span>
+
+        <div class="clients-list__pagination">
+            <!-- First page button -->
+            <button
+                    class="clients-list__page-button clients-list__page-button--icon"
+                    [disabled]="clientsState().currentPage === 1"
+                    (click)="goToFirstPage()"
+                    aria-label="Go to first page"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="11 17 6 12 11 7"></polyline>
+                    <polyline points="18 17 13 12 18 7"></polyline>
+                </svg>
+            </button>
+
+            <!-- Previous page button -->
+            <button
+                    class="clients-list__page-button clients-list__page-button--icon"
+                    [disabled]="clientsState().currentPage === 1"
+                    (click)="goToPreviousPage()"
+                    aria-label="Go to previous page"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+
+            <!-- Numbered page buttons -->
+            <ng-container *ngFor="let page of pagesArray()">
+                <button
+                        class="clients-list__page-button"
+                        [class.clients-list__page-button--active]="clientsState().currentPage === page"
+                        (click)="changePage(page)"
+                >
+                    {{ page }}
+                </button>
+            </ng-container>
+
+            <!-- Next page button -->
+            <button
+                    class="clients-list__page-button clients-list__page-button--icon"
+                    [disabled]="clientsState().currentPage >= clientsState().totalPages"
+                    (click)="goToNextPage()"
+                    aria-label="Go to next page"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+
+            <!-- Last page button -->
+            <button
+                    class="clients-list__page-button clients-list__page-button--icon"
+                    [disabled]="clientsState().currentPage >= clientsState().totalPages"
+                    (click)="goToLastPage()"
+                    aria-label="Go to last page"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="13 17 18 12 13 7"></polyline>
+                    <polyline points="6 17 11 12 6 7"></polyline>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>

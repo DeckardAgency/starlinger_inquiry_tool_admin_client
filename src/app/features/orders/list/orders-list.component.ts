@@ -160,7 +160,7 @@ export class OrdersListComponent implements OnInit, OnDestroy {
                 this.sortState().field,
                 this.sortState().direction,
                 this.searchState().params,
-                { status: this.filterState().statusFilters[this.filterState().activeTab] }
+                { status: this.filterState().statusFilters[this.filterState().activeTab], isDraft: false }
             );
         });
     }
@@ -238,7 +238,7 @@ export class OrdersListComponent implements OnInit, OnDestroy {
             field,
             direction,
             searchParams,
-            { status: this.filterState().statusFilters[this.filterState().activeTab] }
+            { status: this.filterState().statusFilters[this.filterState().activeTab], isDraft: false }
         );
     }
 
@@ -281,7 +281,7 @@ export class OrdersListComponent implements OnInit, OnDestroy {
             this.sortState().field,
             this.sortState().direction,
             {},
-            { status: this.filterState().statusFilters[this.filterState().activeTab] }
+            { status: this.filterState().statusFilters[this.filterState().activeTab], isDraft: false }
         );
     }
 
@@ -293,7 +293,7 @@ export class OrdersListComponent implements OnInit, OnDestroy {
         sortField: string | null = 'createdAt',
         sortDirection: 'asc' | 'desc' | null = 'desc',
         searchParams: Record<string, string> = {},
-        filters: { status?: string[] } = {}
+        filters: { status?: string[], isDraft?: boolean } = {}
     ): void {
         // Store loading state outside effect
         this.ordersState.update(state => ({
@@ -302,12 +302,18 @@ export class OrdersListComponent implements OnInit, OnDestroy {
             error: null
         }));
 
+        // Add isDraft=false to filters
+        const filtersWithDraft = {
+            ...filters,
+            isDraft: false
+        };
+
         this.orderService.getOrders(
             page,
             sortField || undefined,
             sortDirection || undefined,
             searchParams,
-            filters
+            filtersWithDraft
         )
             .subscribe({
                 next: (data) => {
@@ -395,7 +401,10 @@ export class OrdersListComponent implements OnInit, OnDestroy {
             field,
             direction,
             this.searchState().params,
-            { status: this.filterState().statusFilters[tab] }
+            {
+                status: this.filterState().statusFilters[tab],
+                isDraft: false
+            }
         );
     }
 
@@ -443,7 +452,7 @@ export class OrdersListComponent implements OnInit, OnDestroy {
             field,
             newDirection,
             this.searchState().params,
-            { status: this.filterState().statusFilters[this.filterState().activeTab] }
+            { status: this.filterState().statusFilters[this.filterState().activeTab], isDraft: false }
         );
     }
 
@@ -550,7 +559,7 @@ export class OrdersListComponent implements OnInit, OnDestroy {
             this.sortState().field,
             this.sortState().direction,
             this.searchState().params,
-            { status: this.filterState().statusFilters[this.filterState().activeTab] }
+            { status: this.filterState().statusFilters[this.filterState().activeTab], isDraft: false }
         );
     }
 

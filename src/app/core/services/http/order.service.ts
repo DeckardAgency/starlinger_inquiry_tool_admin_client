@@ -27,7 +27,7 @@ export class OrderService {
         sortField?: string,
         sortDirection?: 'asc' | 'desc',
         searchParams: Record<string, string> = {},
-        filters: { status?: string[] } = {}
+        filters: { status?: string[], isDraft?: boolean } = {}
     ): Observable<TransformedOrdersResponse> {
         let params = new HttpParams().set('page', page.toString());
 
@@ -41,6 +41,11 @@ export class OrderService {
         if (searchParams['query']) {
             // If general search query is provided, search in orderNumber
             params = params.set('orderNumber', searchParams['query']);
+        }
+
+        // Add isDraft filter if provided
+        if (filters.isDraft !== undefined) {
+            params = params.set('isDraft', filters.isDraft.toString());
         }
 
         // Add status filters if provided
