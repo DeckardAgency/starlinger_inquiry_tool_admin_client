@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { MediaItem } from '@models/media.model';
+import {environment} from "@env/environment";
 
 @Injectable({
     providedIn: 'root'
 })
 export class MediaService {
-    private apiUrl = 'https://127.0.0.1:8002/api/v1/media_items';
+    private apiUrl = `${environment.apiBaseUrl}/api/v1/media_items`;
     private httpOptions = {
         headers: new HttpHeaders({
             'Accept': 'application/ld+json'

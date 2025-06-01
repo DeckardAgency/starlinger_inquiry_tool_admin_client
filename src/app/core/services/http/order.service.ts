@@ -3,12 +3,13 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of, catchError, tap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Order, OrdersResponse, TransformedOrdersResponse } from '@models/order.model';
+import {environment} from "@env/environment";
 
 @Injectable({
     providedIn: 'root'
 })
 export class OrderService {
-    private apiUrl = 'https://127.0.0.1:8002/api/v1/orders';
+    private apiUrl = `${environment.apiBaseUrl}/api/v1/orders`;
     private httpOptions = {
         headers: new HttpHeaders({
             'Content-Type': 'application/ld+json',

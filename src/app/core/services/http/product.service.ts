@@ -3,6 +3,7 @@ import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { Observable, forkJoin, map, of, catchError, tap } from 'rxjs';
 import { Product, ProductsResponse } from '@models/product.model';
 import { PaginatedResponse } from '@models/pagination.model';
+import {environment} from "@env/environment";
 
 // Result interface for bulk operations
 export interface DeleteResult {
@@ -16,7 +17,7 @@ export interface DeleteResult {
     providedIn: 'root'
 })
 export class ProductService {
-    private apiUrl = 'https://127.0.0.1:8002/api/v1/products';
+    private apiUrl = `${environment.apiBaseUrl}/api/v1/products`;
     private httpOptions = {
         headers: new HttpHeaders({
             'Content-Type': 'application/ld+json',

@@ -5,6 +5,7 @@ import { MediaService } from '@services/http/media.service';
 import { HttpEventType } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {environment} from "@env/environment";
 
 type FileType = 'PDF' | 'DOC' | 'DOCX' | 'XLS' | 'XLSX' | 'PPT' | 'PPTX' | 'ZIP' | 'IMG' | 'TXT';
 type SortField = 'type' | 'name' | 'size';
@@ -279,7 +280,7 @@ export class ProductDocumentComponent implements OnInit, OnChanges {
     downloadDocument(doc: DocumentFile): void {
         console.log('Downloading:', doc.name);
         if (doc.url) {
-            window.open(`https://127.0.0.1:8002${doc.url}`, '_blank');
+            window.open(`${environment.apiBaseUrl}${doc.url}`, '_blank');
         }
         this.closeDropdown();
     }
@@ -307,7 +308,7 @@ export class ProductDocumentComponent implements OnInit, OnChanges {
         selectedDocs.forEach(doc => {
             if (doc.url) {
                 // Add a small delay between downloads to avoid browser blocking
-                setTimeout(() => window.open(`https://127.0.0.1:8002${doc.url}`, '_blank'), 100);
+                setTimeout(() => window.open(`${environment.apiBaseUrl}${doc.url}`, '_blank'), 100);
             }
         });
     }

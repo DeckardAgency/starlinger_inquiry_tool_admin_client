@@ -3,12 +3,13 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of, catchError, tap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Inquiry, InquiriesResponse, TransformedInquiriesResponse } from '@models/manual-entry.model';
+import {environment} from "@env/environment";
 
 @Injectable({
     providedIn: 'root'
 })
 export class ManualEntryService {
-    private apiUrl = 'https://127.0.0.1:8002/api/v1/inquiries';
+    private apiUrl = `${environment.apiBaseUrl}/api/v1/inquiries`;
     private httpOptions = {
         headers: new HttpHeaders({
             'Content-Type': 'application/ld+json',

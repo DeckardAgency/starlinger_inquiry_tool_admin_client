@@ -6,6 +6,7 @@ import { HttpEventType } from '@angular/common/http';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
+import {environment} from "@env/environment";
 
 @Component({
     selector: 'app-product-featured-image',
@@ -55,7 +56,7 @@ export class ProductFeaturedImageComponent implements OnInit, OnDestroy {
             this.imageUrl = null;
         } else if (this.featuredImage.filePath) {
             // Sanitize the URL to prevent XSS attacks
-            const baseUrl = 'https://127.0.0.1:8002';
+            const baseUrl = `${environment.apiBaseUrl}`;
             const fullUrl = baseUrl + this.featuredImage.filePath;
             this.imageUrl = this.sanitizer.bypassSecurityTrustUrl(fullUrl);
         } else {

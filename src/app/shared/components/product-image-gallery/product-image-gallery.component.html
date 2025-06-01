@@ -111,7 +111,7 @@
 
                 <div class="image-gallery__image-container">
                     <img
-                            [src]="'https://127.0.0.1:8002' + image.url"
+                            [src]="environment.apiBaseUrl + image.url"
                             [alt]="image.name"
                             class="image-gallery__image"
                             loading="lazy">

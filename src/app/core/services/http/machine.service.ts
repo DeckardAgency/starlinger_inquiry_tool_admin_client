@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, forkJoin, map, of, catchError, tap } from 'rxjs';
 import { Machine, MachineCollection, MachineRequest, ErrorResponse, ValidationErrorResponse } from '@models/machine.model';
+import { environment } from "@env/environment";
 
 // Response interface for component compatibility
 export interface MachinesResponse {
@@ -29,7 +30,7 @@ export interface DeleteResult {
     providedIn: 'root'
 })
 export class MachineService {
-    private apiUrl = 'https://127.0.0.1:8002/api/v1/machines';
+    private apiUrl = `${environment.apiBaseUrl}/api/v1/machines`;
     private httpOptions = {
         headers: new HttpHeaders({
             'Content-Type': 'application/ld+json',

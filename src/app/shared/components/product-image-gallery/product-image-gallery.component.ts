@@ -20,6 +20,7 @@ import { MediaItem } from '@models/media.model';
 import { MediaService } from '@services/http/media.service';
 import { HttpEventType } from '@angular/common/http';
 import { finalize, forkJoin, Observable, of, Subject, debounceTime } from 'rxjs';
+import {environment} from "@env/environment";
 
 interface GalleryImage {
     id: string;
@@ -290,7 +291,7 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
         if (!image) return;
 
         // Use a more robust download approach
-        fetch(`https://127.0.0.1:8002${image.url}`)
+        fetch(`${environment.apiBaseUrl}${image.url}`)
             .then(response => response.blob())
             .then(blob => {
                 const url = window.URL.createObjectURL(blob);
@@ -306,7 +307,7 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
                 console.error('Download failed:', err);
                 // Fallback to direct link
                 const link = document.createElement('a');
-                link.href = `https://127.0.0.1:8002${image.url}`;
+                link.href = `${environment.apiBaseUrl}${image.url}`;
                 link.download = image.name;
                 link.click();
             });
@@ -484,4 +485,6 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
     get hasUploadErrors(): boolean {
         return this.uploadProgress.errors.length > 0;
     }
+
+    protected readonly environment = environment;
 }
