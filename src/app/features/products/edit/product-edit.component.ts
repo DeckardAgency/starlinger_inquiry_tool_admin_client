@@ -20,6 +20,9 @@ import {
 } from '@angular/animations';
 import {NotificationService} from "@services/notification.service";
 import {ProductDocumentComponent} from "@shared/components/product-document/product-document.component";
+import {SelectComponent} from "@shared/components/select/select.component";
+import { Machine } from "@models/machine.model";
+import {MachineService} from "@services/http/machine.service";
 
 @Component({
     selector: 'app-product-edit',
@@ -31,7 +34,8 @@ import {ProductDocumentComponent} from "@shared/components/product-document/prod
         ProductImageGalleryComponent,
         ProductFeaturedImageComponent,
         TextEditorComponent,
-        ProductDocumentComponent
+        ProductDocumentComponent,
+        SelectComponent
     ],
     templateUrl: './product-edit.component.html',
     styleUrls: ['./product-edit.component.scss'],
@@ -92,10 +96,13 @@ export class ProductEditComponent implements OnInit {
     dataLoaded = false;
     isLoading = false;
 
+    machines: Machine[] = [];
+
     constructor(
         private fb: FormBuilder,
         private router: Router,
         private productService: ProductService,
+        private machineService: MachineService,
         protected route: ActivatedRoute,
         private notificationService: NotificationService
     ) {
@@ -142,6 +149,22 @@ export class ProductEditComponent implements OnInit {
                 this.notificationService.error('Failed to load product data. Please try again later.');
             }
         });
+
+
+        this.machineService.getMachines(1)
+            .pipe(
+                finalize(() => {
+
+                })
+            )
+            .subscribe({
+                next: (data) => {
+                    this.machines = data.machines.map(machine => ({...machine}));
+                },
+                error: (err) => {
+                    console.error('Error loading machines', err);
+                }
+            });
     }
 
     initForm(): void {

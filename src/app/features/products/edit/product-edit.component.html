@@ -66,6 +66,22 @@
                             </ng-template>
                         </div>
                     </div>
+
+                    <div class="product-new__field-row">
+                        <div class="product-new__field">
+                            <label class="product-new__label">Machine</label>
+
+                            <app-select
+                                formControlName="country"
+                                [options]="machines"
+                                [clearable]="false"
+                                displayField="ibSerialNumber"
+                                valueField="id"
+                                placeholder="Select a Machine">
+                            </app-select>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Prices Section -->
