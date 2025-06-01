@@ -1,8 +1,0 @@
-{
-  "routes": [
-    "/dashboard",
-    "/inquiry-tool",
-    "/manual-entry",
-    "/shop"
-  ]
-}
