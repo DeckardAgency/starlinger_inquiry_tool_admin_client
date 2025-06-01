@@ -1,166 +1,250 @@
-<div class="product-new">
+<div class="machine-edit">
 
     <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
 
-    <header class="product-new__header">
-        <div class="product-new__header-left">
-            <button class="product-new__back-button" (click)="goBack()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
+    <header class="machine-edit__header">
+        <div class="machine-edit__header-left">
+            <button class="machine-edit__back-button" (click)="goBack()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M7.99998 12.6668L3.33331 8.00016M3.33331 8.00016L7.99998 3.3335M3.33331 8.00016H12.6666" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
-            <div class="product-new__title-container">
-                <span class="product-new__product-code">AIVS-01197</span>
-                <h1 class="product-new__title">Analog input module</h1>
+            <div class="machine-edit__title-container">
+                <!-- Shimmer for machine code when loading -->
+                <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedMachineCode">
+                    <span class="machine-edit__skeleton-machine-code"></span>
+                </ng-container>
+                <ng-template #loadedMachineCode>
+                    <span class="machine-edit__machine-code">{{ machineForm.get('articleNumber')?.value || '' }}</span>
+                </ng-template>
+
+                <!-- Shimmer for title when loading -->
+                <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedTitle">
+                    <h1 class="machine-edit__skeleton-title"></h1>
+                </ng-container>
+                <ng-template #loadedTitle>
+                    <h1 class="machine-edit__title">{{ machineForm.get('articleDescription')?.value || 'New Machine' }}</h1>
+                </ng-template>
             </div>
         </div>
-        <div class="product-new__header-right">
-            <button class="product-new__save-continue-button" (click)="saveAndContinue()">
+        <div class="machine-edit__header-right">
+            <button class="machine-edit__save-continue-button" (click)="saveAndContinue()" [disabled]="!dataLoaded && route.snapshot.paramMap.get('id')">
                 Save and continue
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 12L10 8L6 4" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
-            <button class="product-new__save-button" (click)="saveProduct()">
+            <button class="machine-edit__save-button" (click)="saveMachine()" [disabled]="!dataLoaded && route.snapshot.paramMap.get('id')">
                 Save
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2.66657 9.93284C2.17126 9.42679 1.79761 8.81465 1.57392 8.1428C1.35023 7.47095 1.28237 6.75701 1.37547 6.05504C1.46858 5.35308 1.7202 4.68151 2.1113 4.0912C2.50239 3.50089 3.02269 3.00732 3.63279 2.64788C4.24289 2.28843 4.92678 2.07255 5.63268 2.01656C6.33857 1.96058 7.04795 2.06597 7.70708 2.32475C8.36621 2.58353 8.9578 2.98892 9.43706 3.5102C9.91631 4.03149 10.2706 4.655 10.4732 5.33351H11.6666C12.3102 5.33344 12.9369 5.54039 13.4539 5.9238C13.9709 6.30722 14.3509 6.84675 14.5377 7.46271C14.7246 8.07868 14.7084 8.7384 14.4915 9.34443C14.2746 9.95045 13.8685 10.4707 13.3332 10.8282M8 8.00016V14.0002M8 8.00016L10.6667 10.6668M8 8.00016L5.33333 10.6668" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
         </div>
     </header>
 
-    <div class="product-new__content">
-        <form [formGroup]="productForm" class="product-new__form">
-            <div class="product-new__form-top">
-                <!-- Basic Details Section -->
-                <div class="product-new__section">
+    <div class="machine-edit__content">
+        <form [formGroup]="machineForm" class="machine-edit__form">
+            <div class="machine-edit__form-top">
+                <!-- Basic Machine Info Section -->
+                <div class="machine-edit__section">
+                    <h2 class="machine-edit__section-title">Basic Machine Information</h2>
 
-                    <h2 class="product-new__section-title">Basic details</h2>
-
-                    <div class="product-new__field-row">
-                        <div class="product-new__field">
-                            <label class="product-new__label">Name</label>
-                            <input type="text" class="product-new__input" formControlName="name">
+                    <!-- IB Station Info -->
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">IB Station Number</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedIBStation">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedIBStation>
+                                <input type="number" class="machine-edit__input" formControlName="ibStationNumber">
+                            </ng-template>
                         </div>
                     </div>
 
-                    <div class="product-new__field-row">
-                        <div class="product-new__field">
-                            <label class="product-new__label">Slug</label>
-                            <input type="text" class="product-new__input" formControlName="slug">
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">IB Serial Number</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedIBSerial">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedIBSerial>
+                                <input type="number" class="machine-edit__input" formControlName="ibSerialNumber">
+                            </ng-template>
                         </div>
                     </div>
 
-                    <div class="product-new__field-row">
-                        <div class="product-new__field">
-                            <label class="product-new__label">partNo</label>
-                            <input type="text" class="product-new__input" formControlName="partNo">
+                    <!-- Article Info -->
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">Article Number</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedArticleNumber">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedArticleNumber>
+                                <input type="text" class="machine-edit__input" formControlName="articleNumber">
+                            </ng-template>
                         </div>
                     </div>
 
-                    <div class="product-new__field-row">
-                        <div class="product-new__field">
-                            <label class="product-new__label">Unit</label>
-                            <input type="text" class="product-new__input" formControlName="unit">
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">Article Description</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedArticleDesc">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedArticleDesc>
+                                <input type="text" class="machine-edit__input" formControlName="articleDescription">
+                            </ng-template>
                         </div>
                     </div>
 
-                    <div class="product-new__field-row">
-                        <div class="product-new__field">
-                            <label class="product-new__label">Weight</label>
-                            <input type="text" class="product-new__input" formControlName="weight">
+                    <!-- Order and Delivery -->
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">Order Number</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedOrderNumber">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedOrderNumber>
+                                <input type="text" class="machine-edit__input" formControlName="orderNumber">
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">Delivery Date</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedDeliveryDate">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedDeliveryDate>
+                                <input type="date" class="machine-edit__input" formControlName="deliveryDate">
+                            </ng-template>
                         </div>
                     </div>
                 </div>
 
-                <!-- Prices Section -->
-                <div class="product-new__section">
-                    <h2 class="product-new__section-title">Prices</h2>
+                <!-- KMS & MC Info Section -->
+                <div class="machine-edit__section">
+                    <h2 class="machine-edit__section-title">KMS & MC Information</h2>
 
-                    <div class="product-new__field-row">
-                        <div class="product-new__field">
-                            <label class="product-new__label">Price</label>
-                            <input type="text" class="product-new__input" formControlName="price">
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">KMS Identification Number</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedKMSIdent">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedKMSIdent>
+                                <input type="text" class="machine-edit__input" formControlName="kmsIdentificationNumber">
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">KMS ID Number</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedKMSId">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedKMSId>
+                                <input type="text" class="machine-edit__input" formControlName="kmsIdNumber">
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">MC Number</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedMCNumber">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedMCNumber>
+                                <input type="text" class="machine-edit__input" formControlName="mcNumber">
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <!-- FI Info -->
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">FI Station Number</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedFIStation">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedFIStation>
+                                <input type="number" class="machine-edit__input" formControlName="fiStationNumber">
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <div class="machine-edit__field-row">
+                        <div class="machine-edit__field">
+                            <label class="machine-edit__label">FI Serial Number</label>
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedFISerial">
+                                <div class="machine-edit__skeleton-field"></div>
+                            </ng-container>
+                            <ng-template #loadedFISerial>
+                                <input type="number" class="machine-edit__input" formControlName="fiSerialNumber">
+                            </ng-template>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="product-new__form-body">
+            <div class="machine-edit__form-body">
                 <!-- Tabs Section -->
-                <div class="product-new__tabs">
+                <div class="machine-edit__tabs">
                     <button
-                        class="product-new__tab"
-                        [class.product-new__tab--active]="activeTab === 'shortDescription'"
-                        (click)="setActiveTab('shortDescription')">
-                        <svg *ngIf="activeTab === 'shortDescription'" class="product-new__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
+                        class="machine-edit__tab"
+                        [class.machine-edit__tab--active]="activeTab === 'featuredImage'"
+                        (click)="setActiveTab('featuredImage')">
+                        Featured Image
                     </button>
 
                     <button
-                            class="product-new__tab"
-                            [class.product-new__tab--active]="activeTab === 'technicalDescription'"
-                            (click)="setActiveTab('technicalDescription')">
-                        <svg *ngIf="activeTab === 'technicalDescription'" class="product-new__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        technicalDescription
-                    </button>
-
-                    <button
-                            class="product-new__tab"
-                            [class.product-new__tab--active]="activeTab === 'featuredImage'"
-                            (click)="setActiveTab('featuredImage')">
-                        <svg *ngIf="activeTab === 'featuredImage'" class="product-new__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        featuredImage
-                    </button>
-
-                    <button
-                            class="product-new__tab"
-                            [class.product-new__tab--active]="activeTab === 'imageGallery'"
-                            (click)="setActiveTab('imageGallery')">
-                        <svg *ngIf="activeTab === 'imageGallery'" class="product-new__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        imageGallery
+                        class="machine-edit__tab"
+                        [class.machine-edit__tab--active]="activeTab === 'imageGallery'"
+                        (click)="setActiveTab('imageGallery')">
+                        Image Gallery
                     </button>
                 </div>
 
-                <!-- shortDescription Section -->
-                <div class="product-new__editor-container" *ngIf="activeTab === 'shortDescription'">
-                    <div class="product-new__field-row">
-                        <div class="product-new__field">
-                            <label class="product-new__label">ShortDescription</label>
-                            <input type="text" class="product-new__input" formControlName="shortDescription">
-                        </div>
+                <!-- Tab Indicator Animation -->
+                <div class="machine-edit__tab-indicator" [@tabIndicator]="activeTab"></div>
+
+                <!-- Tab Content with Animations -->
+                <div class="machine-edit__tab-content">
+                    <!-- featuredImage Section -->
+                    <div class="machine-edit__editor-container machine-edit__featured-image-container"
+                         *ngIf="activeTab === 'featuredImage'"
+                         [@tabAnimation]>
+                        <!-- Show shimmer when loading -->
+                        <div *ngIf="!dataLoaded && route.snapshot.paramMap.get('id')" class="machine-edit__skeleton-image"></div>
+                        <!-- Show featured image selector when data is loaded -->
+                        <app-product-featured-image
+                            *ngIf="dataLoaded || !route.snapshot.paramMap.get('id')"
+                            [featuredImage]="machineForm.get('featuredImage')?.value"
+                            (featuredImageChange)="onFeaturedImageChange($event)">
+                        </app-product-featured-image>
                     </div>
-                </div>
 
-                <!-- technicalDescription Section -->
-                <div class="product-new__editor-container" *ngIf="activeTab === 'technicalDescription'">
-                    <div class="product-new__field-row">
-                        <div class="product-new__field">
-                            <label class="product-new__label">Technical Description</label>
-                            <input type="text" class="product-new__input" formControlName="technicalDescription">
+                    <!-- imageGallery Section -->
+                    <div class="machine-edit__editor-container machine-edit__image-gallery-container"
+                         *ngIf="activeTab === 'imageGallery'"
+                         [@tabAnimation]>
+                        <!-- Show shimmer when loading -->
+                        <div *ngIf="!dataLoaded && route.snapshot.paramMap.get('id')" class="machine-edit__loading-overlay">
+                            <div class="machine-edit__loading-text">Loading gallery...</div>
                         </div>
+                        <!-- Show image gallery when data is loaded -->
+                        <app-product-image-gallery
+                            *ngIf="dataLoaded || !route.snapshot.paramMap.get('id')"
+                            [mediaItems]="machineForm.get('imageGallery')?.value || []"
+                            (mediaItemsChange)="onImageGalleryChange($event)">
+                        </app-product-image-gallery>
                     </div>
-                </div>
-
-                <!-- featuredImage Section -->
-                <div class="product-new__editor-container" *ngIf="activeTab === 'featuredImage'">
-                    featuredImage
-                </div>
-
-                <!-- imageGallery Section -->
-                <div class="product-new__editor-container" *ngIf="activeTab === 'imageGallery'">
-                    imageGallery
                 </div>
             </div>
         </form>
