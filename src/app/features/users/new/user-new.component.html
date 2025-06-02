@@ -1,0 +1,357 @@
+<div class="user-new">
+
+    <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
+
+    <header class="user-new__header">
+        <div class="user-new__header-left">
+            <button class="user-new__back-button" (click)="goBack()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M7.99998 12.6668L3.33331 8.00016M3.33331 8.00016L7.99998 3.3335M3.33331 8.00016H12.6666" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="user-new__title-container">
+                <h1 class="user-new__title">New User</h1>
+            </div>
+        </div>
+        <div class="user-new__header-right">
+            <button class="user-new__save-continue-button" (click)="saveAndContinue()" [disabled]="isLoading">
+                Save and continue
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 12L10 8L6 4" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button class="user-new__save-button" (click)="saveUser()" [disabled]="isLoading">
+                Save
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2.66657 9.93284C2.17126 9.42679 1.79761 8.81465 1.57392 8.1428C1.35023 7.47095 1.28237 6.75701 1.37547 6.05504C1.46858 5.35308 1.7202 4.68151 2.1113 4.0912C2.50239 3.50089 3.02269 3.00732 3.63279 2.64788C4.24289 2.28843 4.92678 2.07255 5.63268 2.01656C6.33857 1.96058 7.04795 2.06597 7.70708 2.32475C8.36621 2.58353 8.9578 2.98892 9.43706 3.5102C9.91631 4.03149 10.2706 4.655 10.4732 5.33351H11.6666C12.3102 5.33344 12.9369 5.54039 13.4539 5.9238C13.9709 6.30722 14.3509 6.84675 14.5377 7.46271C14.7246 8.07868 14.7084 8.7384 14.4915 9.34443C14.2746 9.95045 13.8685 10.4707 13.3332 10.8282M8 8.00016V14.0002M8 8.00016L10.6667 10.6668M8 8.00016L5.33333 10.6668" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="user-new__content">
+        <form [formGroup]="userForm" class="user-new__form">
+
+            <div class="user-new__form-sections">
+                <!-- User Details Section -->
+                <div class="user-new__section">
+                    <h2 class="user-new__section-title">User details</h2>
+
+                    <div class="user-new__field-row">
+                        <label class="user-new__label" for="firstName">
+                            First name
+                        </label>
+                        <div class="user-new__input-wrapper">
+                            <input
+                                    type="text"
+                                    id="firstName"
+                                    class="user-new__input"
+                                    formControlName="firstName"
+                                    [class.user-new__input--error]="hasError('firstName')"
+                                    placeholder="Enter first name">
+                            <span *ngIf="hasError('firstName')" class="user-new__error-message">
+                                {{ getErrorMessage('firstName') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="user-new__field-row">
+                        <label class="user-new__label" for="lastName">
+                            Last name
+                        </label>
+                        <div class="user-new__input-wrapper">
+                            <input
+                                    type="text"
+                                    id="lastName"
+                                    class="user-new__input"
+                                    formControlName="lastName"
+                                    [class.user-new__input--error]="hasError('lastName')"
+                                    placeholder="Enter last name">
+                            <span *ngIf="hasError('lastName')" class="user-new__error-message">
+                                {{ getErrorMessage('lastName') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="user-new__field-row">
+                        <label class="user-new__label" for="username">
+                            Username
+                        </label>
+                        <div class="user-new__input-wrapper">
+                            <input
+                                    type="text"
+                                    id="username"
+                                    class="user-new__input user-new__input--readonly"
+                                    [value]="computedUsername"
+                                    readonly
+                                    placeholder="username.example">
+                        </div>
+                    </div>
+
+                    <div class="user-new__field-row">
+                        <label class="user-new__label" for="email">
+                            Email
+                        </label>
+                        <div class="user-new__input-wrapper">
+                            <input
+                                    type="email"
+                                    id="email"
+                                    class="user-new__input"
+                                    formControlName="email"
+                                    [class.user-new__input--error]="hasError('email')"
+                                    placeholder="user@example.com">
+                            <span *ngIf="hasError('email')" class="user-new__error-message">
+                                {{ getErrorMessage('email') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="user-new__divider"></div>
+
+                    <h3 class="user-new__subsection-title">Password</h3>
+
+                    <div class="user-new__field-row">
+                        <label class="user-new__label" for="plainPassword">
+                            Password
+                        </label>
+                        <div class="user-new__input-wrapper">
+                            <div class="user-new__password-input-container">
+                                <input
+                                        [type]="showPassword ? 'text' : 'password'"
+                                        id="plainPassword"
+                                        class="user-new__input"
+                                        formControlName="plainPassword"
+                                        [class.user-new__input--error]="hasError('plainPassword')"
+                                        placeholder="••••••••••">
+                                <button
+                                        type="button"
+                                        class="user-new__password-toggle"
+                                        (click)="togglePasswordVisibility()">
+                                    <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M2.00391 10.002C2.00391 10.002 4.99691 3.334 9.99491 3.334C14.9939 3.334 17.9859 10.002 17.9859 10.002C17.9859 10.002 14.9939 16.669 9.99491 16.669C4.99691 16.669 2.00391 10.002 2.00391 10.002Z" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M9.99219 12.5013C11.3729 12.5013 12.4922 11.382 12.4922 10.0013C12.4922 8.62064 11.3729 7.50134 9.99219 7.50134C8.61147 7.50134 7.49219 8.62064 7.49219 10.0013C7.49219 11.382 8.61147 12.5013 9.99219 12.5013Z" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M8.33073 8.3335C8.1199 8.77175 7.99988 9.26405 7.99988 9.7835C7.99988 11.5404 9.42305 12.9635 11.18 12.9635C11.6994 12.9635 12.1917 12.8435 12.63 12.6327M14.36 11.8802C13.6103 13.2052 12.1802 14.1176 10.5361 14.1176C8.05251 14.1176 6.03706 12.1022 6.03706 9.61865C6.03706 7.97456 6.94949 6.54446 8.27448 5.79472M17.0752 4.22168L3.51562 17.7813M7.15985 15.4268C5.09985 14.5594 3.30804 12.4419 2.00195 9.88966C4.14395 5.78766 6.96895 3.66968 10.002 3.66968C11.7889 3.66968 13.4479 4.36168 14.9009 5.42968M17.5 7.00168C18.39 8.09368 19.124 9.37068 19.664 10.7787C17.894 14.8917 15.085 17.0017 12.045 17.0017C11.387 17.0017 10.751 16.9017 10.145 16.7137" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <span *ngIf="hasError('plainPassword')" class="user-new__error-message">
+                                {{ getErrorMessage('plainPassword') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="user-new__field-row">
+                        <label class="user-new__label" for="repeatPassword">
+                            Repeat password
+                        </label>
+                        <div class="user-new__input-wrapper">
+                            <div class="user-new__password-input-container">
+                                <input
+                                        [type]="showRepeatPassword ? 'text' : 'password'"
+                                        id="repeatPassword"
+                                        class="user-new__input"
+                                        formControlName="repeatPassword"
+                                        [class.user-new__input--error]="hasPasswordMismatchError()"
+                                        placeholder="••••••••••">
+                                <button
+                                        type="button"
+                                        class="user-new__password-toggle"
+                                        (click)="toggleRepeatPasswordVisibility()">
+                                    <svg *ngIf="!showRepeatPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M2.00391 10.002C2.00391 10.002 4.99691 3.334 9.99491 3.334C14.9939 3.334 17.9859 10.002 17.9859 10.002C17.9859 10.002 14.9939 16.669 9.99491 16.669C4.99691 16.669 2.00391 10.002 2.00391 10.002Z" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M9.99219 12.5013C11.3729 12.5013 12.4922 11.382 12.4922 10.0013C12.4922 8.62064 11.3729 7.50134 9.99219 7.50134C8.61147 7.50134 7.49219 8.62064 7.49219 10.0013C7.49219 11.382 8.61147 12.5013 9.99219 12.5013Z" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg *ngIf="showRepeatPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M8.33073 8.3335C8.1199 8.77175 7.99988 9.26405 7.99988 9.7835C7.99988 11.5404 9.42305 12.9635 11.18 12.9635C11.6994 12.9635 12.1917 12.8435 12.63 12.6327M14.36 11.8802C13.6103 13.2052 12.1802 14.1176 10.5361 14.1176C8.05251 14.1176 6.03706 12.1022 6.03706 9.61865C6.03706 7.97456 6.94949 6.54446 8.27448 5.79472M17.0752 4.22168L3.51562 17.7813M7.15985 15.4268C5.09985 14.5594 3.30804 12.4419 2.00195 9.88966C4.14395 5.78766 6.96895 3.66968 10.002 3.66968C11.7889 3.66968 13.4479 4.36168 14.9009 5.42968M17.5 7.00168C18.39 8.09368 19.124 9.37068 19.664 10.7787C17.894 14.8917 15.085 17.0017 12.045 17.0017C11.387 17.0017 10.751 16.9017 10.145 16.7137" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <span *ngIf="hasPasswordMismatchError()" class="user-new__error-message">
+                                Passwords do not match
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="user-new__divider"></div>
+
+                    <h3 class="user-new__subsection-title">Additional Information</h3>
+
+                    <div class="user-new__field-row">
+                        <label class="user-new__label" for="phoneNumber">
+                            Phone Number
+                        </label>
+                        <div class="user-new__input-wrapper">
+                            <input
+                                    type="tel"
+                                    id="phoneNumber"
+                                    class="user-new__input"
+                                    formControlName="phoneNumber"
+                                    placeholder="+1 234 567 8900">
+                        </div>
+                    </div>
+
+                    <div class="user-new__field-row">
+                        <label class="user-new__label" for="address">
+                            Address
+                        </label>
+                        <div class="user-new__input-wrapper">
+                            <textarea
+                                    id="address"
+                                    class="user-new__textarea"
+                                    formControlName="address"
+                                    rows="3"
+                                    placeholder="Enter address"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="user-new__divider"></div>
+
+                    <h3 class="user-new__subsection-title">Client Assignment</h3>
+
+                    <div class="user-new__field-row">
+                        <label class="user-new__label">
+                            Client
+                        </label>
+                        <div class="user-new__client-selector">
+                            <div *ngIf="!selectedClient" class="user-new__client-placeholder" (click)="openClientModal()">
+                                <span>Select a client...</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M4 6L8 10L12 6" stroke="#666" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div *ngIf="selectedClient" class="user-new__selected-client">
+                                <div class="user-new__client-info">
+                                    <span class="user-new__client-code">{{ selectedClient.code }}</span>
+                                    <span class="user-new__client-name">{{ selectedClient.name }}</span>
+                                </div>
+                                <button type="button" class="user-new__remove-client" (click)="removeClient()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Role Section -->
+                <div class="user-new__section">
+                    <h2 class="user-new__section-title">Core user Role</h2>
+
+                    <div class="user-new__roles">
+                        <div
+                                class="user-new__role-option"
+                                *ngFor="let role of roleOptions"
+                                [class.user-new__role-option--selected]="isRoleSelected(role.value)"
+                                (click)="selectRole(role.value)">
+
+                            <div class="user-new__role-checkbox">
+                                <div class="user-new__role-checkbox-inner" *ngIf="isRoleSelected(role.value)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <path d="M13.3334 4L6.00008 11.3333L2.66675 8" stroke="#232323" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="user-new__role-content">
+                                <div class="user-new__role-header">
+                                    <span class="user-new__role-label">Role → {{ role.label }}</span>
+                                </div>
+                                <p class="user-new__role-description">{{ role.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Client Selection Modal -->
+    <div
+            class="user-new__modal-overlay"
+            *ngIf="showClientModal"
+            [@modalOverlay]
+            (click)="closeClientModal()">
+        <div
+                class="user-new__modal"
+                [@modalContent]
+                (click)="$event.stopPropagation()">
+            <div class="user-new__modal-header">
+                <h3 class="user-new__modal-title">Select Client</h3>
+                <button class="user-new__modal-close" (click)="closeClientModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="user-new__modal-search">
+                <input
+                        type="text"
+                        class="user-new__modal-search-input"
+                        placeholder="Search by name..."
+                        [(ngModel)]="modalSearchTerm"
+                        (keyup.enter)="searchModalClients()">
+                <button class="user-new__modal-search-btn" (click)="searchModalClients()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M14 14L11.1 11.1M12.6667 7.33333C12.6667 10.2789 10.2789 12.6667 7.33333 12.6667C4.38781 12.6667 2 10.2789 2 7.33333C2 4.38781 4.38781 2 7.33333 2C10.2789 2 12.6667 4.38781 12.6667 7.33333Z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="user-new__modal-body">
+                <!-- Loading state -->
+                <div *ngIf="modalClientsLoading" class="user-new__modal-loading">
+                    <div class="user-new__skeleton-list">
+                        <div class="user-new__skeleton-list-item" *ngFor="let i of [1,2,3,4,5]"></div>
+                    </div>
+                </div>
+
+                <!-- Client list -->
+                <div *ngIf="!modalClientsLoading && modalClients.length > 0" class="user-new__modal-clients">
+                    <div
+                            class="user-new__modal-client-item"
+                            *ngFor="let client of modalClients"
+                            (click)="selectClientFromModal(client)">
+                        <div class="user-new__modal-client-info">
+                            <div class="user-new__modal-client-header">
+                                <span class="user-new__modal-client-code">{{ client.code }}</span>
+                                <span class="user-new__modal-client-name">{{ client.name }}</span>
+                            </div>
+                            <div class="user-new__modal-client-details" *ngIf="client.email">
+                                {{ client.email }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No clients found -->
+                <div *ngIf="!modalClientsLoading && modalClients.length === 0" class="user-new__modal-empty">
+                    <p>No clients found</p>
+                </div>
+            </div>
+
+            <div class="user-new__modal-footer" *ngIf="modalTotalPages > 1">
+                <button
+                        class="user-new__modal-page-btn"
+                        (click)="previousModalPage()"
+                        [disabled]="modalCurrentPage === 1">
+                    Previous
+                </button>
+                <span class="user-new__modal-page-info">
+                    Page {{ modalCurrentPage }} of {{ modalTotalPages }}
+                </span>
+                <button
+                        class="user-new__modal-page-btn"
+                        (click)="nextModalPage()"
+                        [disabled]="modalCurrentPage === modalTotalPages">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

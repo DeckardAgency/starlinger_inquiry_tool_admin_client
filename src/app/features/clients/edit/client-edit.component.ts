@@ -4,9 +4,11 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder, Validators } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcrumbs.component";
 import { ClientService } from "@services/http/client.service";
+import { UserService } from "@services/http/user.service";
 import { switchMap, finalize, delay } from "rxjs/operators";
-import { of } from "rxjs";
-import { ClientDetail } from "@models/client.model";
+import { of, Observable, forkJoin } from "rxjs";
+import { ClientDetail, ClientUser, CreateClientDto, UpdateClientDto } from "@models/client.model";
+import { User } from "@models/auth.model";
 import {
     trigger,
     state,
@@ -15,9 +17,12 @@ import {
     transition
 } from '@angular/animations';
 import { NotificationService } from "@services/notification.service";
+import { HttpClient } from '@angular/common/http';
+import { environment } from '@env/environment';
 
 @Component({
     selector: 'app-client-edit',
+    standalone: true,
     imports: [
         CommonModule,
         FormsModule,
@@ -66,6 +71,34 @@ import { NotificationService } from "@services/notification.service";
             transition(':leave', [
                 animate('300ms ease-out', style({ opacity: 0 }))
             ])
+        ]),
+        // Modal animations
+        trigger('modalOverlay', [
+            transition(':enter', [
+                style({ opacity: 0 }),
+                animate('200ms ease-out', style({ opacity: 1 }))
+            ]),
+            transition(':leave', [
+                animate('200ms ease-in', style({ opacity: 0 }))
+            ])
+        ]),
+        trigger('modalContent', [
+            transition(':enter', [
+                style({
+                    opacity: 0,
+                    transform: 'scale(0.9) translateY(20px)'
+                }),
+                animate('300ms cubic-bezier(0.34, 1.56, 0.64, 1)', style({
+                    opacity: 1,
+                    transform: 'scale(1) translateY(0)'
+                }))
+            ]),
+            transition(':leave', [
+                animate('200ms ease-in', style({
+                    opacity: 0,
+                    transform: 'scale(0.95) translateY(10px)'
+                }))
+            ])
         ])
     ]
 })
@@ -79,12 +112,32 @@ export class ClientEditComponent implements OnInit {
     dataLoaded = false;
     isLoading = false;
 
+    // User table data
+    clientUsers: User[] = [];
+    usersLoading = false;
+    usersLoaded = false;
+    selectedUsers: Set<string> = new Set();
+    allUsersSelected = false;
+
+    // User selection modal
+    showUserModal = false;
+    modalUsers: User[] = [];
+    modalUsersLoading = false;
+    modalSearchTerm = '';
+    modalCurrentPage = 1;
+    modalTotalPages = 1;
+
+    // Store the current client data
+    currentClientData: ClientDetail | null = null;
+
     constructor(
         private fb: FormBuilder,
         private router: Router,
         private clientService: ClientService,
+        private userService: UserService,
         protected route: ActivatedRoute,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private http: HttpClient
     ) {
         this.initForm();
     }
@@ -116,8 +169,21 @@ export class ClientEditComponent implements OnInit {
             next: (data: ClientDetail | null) => {
                 if (data) {
                     console.log('client data', data);
+                    this.currentClientData = data;
                     this.updateFormWithClientData(data);
                     this.dataLoaded = true;
+
+                    // Load users if we have user references
+                    if (data.users && data.users.length > 0) {
+                        // Check if users are strings (IRIs) or objects
+                        if (typeof data.users[0] === 'string') {
+                            // Users are IRIs, fetch full details
+                            this.loadUsersFromIris(data.users as any as string[]);
+                        } else {
+                            // Users are ClientUser objects
+                            this.loadClientUsers(data.users);
+                        }
+                    }
                 } else if (!this.route.snapshot.paramMap.get('id')) {
                     // If no ID is provided, we're in create mode, so mark as loaded
                     this.dataLoaded = true;
@@ -131,6 +197,275 @@ export class ClientEditComponent implements OnInit {
         });
     }
 
+    /**
+     * Load users from IRI strings
+     */
+    loadUsersFromIris(userIris: string[]): void {
+        this.usersLoading = true;
+
+        // Create observables for each user IRI
+        const userRequests: Observable<User>[] = userIris.map(iri => {
+            const fullUrl = iri.startsWith('http') ? iri : `${environment.apiBaseUrl}${iri}`;
+            console.log('Fetching user from IRI:', fullUrl);
+            return this.http.get<User>(fullUrl);
+        });
+
+        // Fetch all users in parallel
+        if (userRequests.length > 0) {
+            forkJoin(userRequests).pipe(
+                finalize(() => {
+                    this.usersLoading = false;
+                    this.usersLoaded = true;
+                })
+            ).subscribe({
+                next: (users) => {
+                    this.clientUsers = users;
+                    console.log('Loaded users from IRIs:', users);
+                },
+                error: (err) => {
+                    console.error('Error loading users:', err);
+                    this.notificationService.error('Failed to load user data.');
+                }
+            });
+        } else {
+            this.usersLoading = false;
+            this.usersLoaded = true;
+        }
+    }
+
+    /**
+     * Load full user details from ClientUser objects
+     */
+    loadClientUsers(clientUsers: ClientUser[]): void {
+        this.usersLoading = true;
+
+        // Check if we already have enough information to display
+        // ClientUser already contains id, email, firstName, lastName
+        // We might not need to fetch additional details
+
+        // Convert ClientUser to User format
+        this.clientUsers = clientUsers.map(clientUser => ({
+            id: clientUser.id,
+            email: clientUser.email,
+            firstName: clientUser.firstName,
+            lastName: clientUser.lastName,
+            roles: ['ROLE_USER'], // Default role since ClientUser doesn't include roles
+            '@id': clientUser['@id'],
+            '@type': clientUser['@type']
+        } as User));
+
+        this.usersLoading = false;
+        this.usersLoaded = true;
+        console.log('Loaded client users from embedded data:', this.clientUsers);
+
+        // Optionally, if you need to fetch full user details including roles:
+        // Uncomment the following code
+        /*
+        const userRequests: Observable<User>[] = clientUsers.map(clientUser => {
+            const userEndpoint = `${environment.apiBaseUrl}/api/v1/users/${clientUser.id}`;
+            console.log('Fetching full user details from:', userEndpoint);
+            return this.http.get<User>(userEndpoint);
+        });
+
+        if (userRequests.length > 0) {
+            forkJoin(userRequests).pipe(
+                finalize(() => {
+                    this.usersLoading = false;
+                    this.usersLoaded = true;
+                })
+            ).subscribe({
+                next: (users) => {
+                    this.clientUsers = users;
+                    console.log('Loaded full user details:', users);
+                },
+                error: (err) => {
+                    console.error('Error loading full user details:', err);
+                    // Keep the basic data we already have
+                    this.notificationService.warning('Could not load full user details. Showing basic information.');
+                }
+            });
+        }
+        */
+    }
+
+    /**
+     * Toggle selection of all users
+     */
+    toggleAllUsers(): void {
+        if (this.allUsersSelected) {
+            this.selectedUsers.clear();
+        } else {
+            this.clientUsers.forEach(user => {
+                this.selectedUsers.add(user.id);
+            });
+        }
+        this.allUsersSelected = !this.allUsersSelected;
+    }
+
+    /**
+     * Toggle selection of a single user
+     */
+    toggleUserSelection(userId: string): void {
+        if (this.selectedUsers.has(userId)) {
+            this.selectedUsers.delete(userId);
+        } else {
+            this.selectedUsers.add(userId);
+        }
+
+        // Update all users selected state
+        this.allUsersSelected = this.selectedUsers.size === this.clientUsers.length && this.clientUsers.length > 0;
+    }
+
+    /**
+     * Check if a user is selected
+     */
+    isUserSelected(userId: string): boolean {
+        return this.selectedUsers.has(userId);
+    }
+
+    /**
+     * Get role display badges
+     */
+    getRoleBadges(roles: string[]): string[] {
+        const roleMap: Record<string, string> = {
+            'ROLE_USER': 'User',
+            'ROLE_ADMIN': 'Admin',
+            'ROLE_MANAGER': 'Manager',
+            'ROLE_SALES': 'Sales'
+        };
+
+        return roles.map(role => roleMap[role] || role);
+    }
+
+
+    /**
+     * Remove user from a client (only from form, not from database)
+     */
+    removeUser(userId: string): void {
+        if (confirm('Are you sure you want to remove this user from the client?')) {
+            // Remove from the displayed users array
+            this.clientUsers = this.clientUsers.filter(user => user.id !== userId);
+
+            // Remove from the form's users array (IRI format)
+            const currentUsers = this.clientForm.get('users')?.value || [];
+            const userIri = `/api/v1/users/${userId}`;
+            const updatedUsers = currentUsers.filter((iri: string) => iri !== userIri);
+            this.clientForm.patchValue({ users: updatedUsers });
+
+            // Remove from selected users if it was selected
+            this.selectedUsers.delete(userId);
+
+            // Update the all users selected state
+            this.allUsersSelected = this.selectedUsers.size === this.clientUsers.length && this.clientUsers.length > 0;
+
+            this.notificationService.success('User removed from client.');
+        }
+    }
+
+    /**
+     * Add new user to client - opens user selection modal
+     */
+    addUser(): void {
+        this.showUserModal = true;
+        this.loadModalUsers();
+    }
+
+    /**
+     * Load users for the selection modal
+     */
+    loadModalUsers(page: number = 1): void {
+        this.modalUsersLoading = true;
+        this.modalCurrentPage = page;
+
+        // Build search parameters including hasClient filter
+        const searchParams: Record<string, string> = {
+            hasClient: 'false' // Only get users that can be assigned to clients
+        };
+
+        if (this.modalSearchTerm) {
+            searchParams['email'] = this.modalSearchTerm;
+        }
+
+        this.userService.getUsers(page, 'email', 'asc', searchParams).pipe(
+            finalize(() => {
+                this.modalUsersLoading = false;
+            })
+        ).subscribe({
+            next: (response) => {
+                // Filter out users that are already assigned to this client
+                const currentUserIds = this.clientUsers.map(u => u.id);
+                this.modalUsers = response.users.filter(user =>
+                    !currentUserIds.includes(user.id)
+                );
+                this.modalTotalPages = response.totalPages;
+            },
+            error: (err) => {
+                console.error('Error loading users:', err);
+                this.notificationService.error('Failed to load users.');
+            }
+        });
+    }
+
+    /**
+     * Search users in the modal
+     */
+    searchModalUsers(): void {
+        this.loadModalUsers(1);
+    }
+
+    /**
+     * Select a user from the modal to add to client
+     */
+    selectUserFromModal(user: User): void {
+        const userIri = `/api/v1/users/${user.id}`;
+        const currentUsers = this.clientForm.get('users')?.value || [];
+
+        // Check if user is already added
+        if (currentUsers.includes(userIri)) {
+            this.notificationService.warning('User is already assigned to this client.');
+            return;
+        }
+
+        // Add the user IRI to the form
+        const updatedUsers = [...currentUsers, userIri];
+        this.clientForm.patchValue({ users: updatedUsers });
+
+        // Add to the display array
+        this.clientUsers = [...this.clientUsers, user];
+
+        // Close modal
+        this.showUserModal = false;
+        this.modalSearchTerm = '';
+
+        this.notificationService.success(`User "${user.firstName} ${user.lastName}" added to client.`);
+    }
+
+    /**
+     * Close user selection modal
+     */
+    closeUserModal(): void {
+        this.showUserModal = false;
+        this.modalSearchTerm = '';
+    }
+
+    /**
+     * Navigate to next page in modal
+     */
+    nextModalPage(): void {
+        if (this.modalCurrentPage < this.modalTotalPages) {
+            this.loadModalUsers(this.modalCurrentPage + 1);
+        }
+    }
+
+    /**
+     * Navigate to previous page in modal
+     */
+    previousModalPage(): void {
+        if (this.modalCurrentPage > 1) {
+            this.loadModalUsers(this.modalCurrentPage - 1);
+        }
+    }
+
     initForm(): void {
         this.clientForm = this.fb.group({
             name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(255)]],
@@ -139,7 +474,8 @@ export class ClientEditComponent implements OnInit {
             address: ['', [Validators.maxLength(500)]],
             phoneNumber: ['', [Validators.maxLength(50)]],
             email: ['', [Validators.email, Validators.maxLength(180)]],
-            vatNumber: ['', [Validators.maxLength(50)]]
+            vatNumber: ['', [Validators.maxLength(50)]],
+            users: [[]] // Array of user IRIs
         });
     }
 
@@ -153,7 +489,7 @@ export class ClientEditComponent implements OnInit {
 
             // Get the client ID from the route parameters
             const clientId = this.route.snapshot.paramMap.get('id');
-            const clientData = this.clientForm.value;
+            const clientData = this.prepareClientData();
 
             // Determine if we're updating an existing client or creating a new one
             if (clientId) {
@@ -218,7 +554,7 @@ export class ClientEditComponent implements OnInit {
 
             // Get the client ID from the route parameters
             const clientId = this.route.snapshot.paramMap.get('id');
-            const clientData = this.clientForm.value;
+            const clientData = this.prepareClientData();
 
             // Determine if we're updating an existing client or creating a new one
             if (clientId) {
@@ -276,6 +612,28 @@ export class ClientEditComponent implements OnInit {
             // Show warning notification for invalid form
             this.notificationService.warning('Please fix the form errors before saving.');
         }
+    }
+
+    /**
+     * Prepare client data for API submission
+     * Ensures users array is properly formatted
+     */
+    private prepareClientData(): any {
+        const formValue = this.clientForm.value;
+
+        // Create the client data object
+        const clientData: any = {
+            name: formValue.name,
+            code: formValue.code,
+            description: formValue.description,
+            address: formValue.address,
+            phoneNumber: formValue.phoneNumber,
+            email: formValue.email,
+            vatNumber: formValue.vatNumber,
+            users: formValue.users || [] // Always include users array, even if empty
+        };
+
+        return clientData;
     }
 
     /**
@@ -378,6 +736,18 @@ export class ClientEditComponent implements OnInit {
             { label: clientData.name },
         ];
 
+        // Extract user IRIs from the clientData
+        let userIris: string[] = [];
+        if (clientData.users && clientData.users.length > 0) {
+            // Check if users are strings (IRIs) or objects
+            if (typeof clientData.users[0] === 'string') {
+                userIris = clientData.users as any as string[];
+            } else {
+                // If they're objects, extract the IRI from each user
+                userIris = clientData.users.map(user => `/api/v1/users/${user.id}`);
+            }
+        }
+
         // Map the client data to the form fields
         this.clientForm.patchValue({
             name: clientData.name,
@@ -386,7 +756,8 @@ export class ClientEditComponent implements OnInit {
             address: clientData.address || '',
             phoneNumber: clientData.phoneNumber || '',
             email: clientData.email || '',
-            vatNumber: clientData.vatNumber || ''
+            vatNumber: clientData.vatNumber || '',
+            users: userIris
         });
 
         console.log('clientForm', this.clientForm);

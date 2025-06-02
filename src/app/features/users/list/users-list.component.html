@@ -204,7 +204,7 @@
                         </div>
                     </td>
                     <td class="users-list__table-cell users-list__table-cell--name">
-                        <a [routerLink]="['/users', user.id]" class="users-list__name-link">
+                        <a [routerLink]="['/users', user.id, 'edit']" class="users-list__name-link">
                             {{ getUserFullName(user) }}
                         </a>
                     </td>
@@ -221,7 +221,7 @@
                         </div>
                     </td>
                     <td class="users-list__table-cell">
-                        <a *ngIf="user.client" [routerLink]="['/clients', user.client.id]" class="users-list__client-link">
+                        <a *ngIf="user.client" [routerLink]="['/clients', user.client.id, 'edit']" class="users-list__client-link">
                             <span class="users-list__client-name">{{ user.client.name }}</span>
                             <span class="users-list__client-code">({{ user.client.code }})</span>
                         </a>

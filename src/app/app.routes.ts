@@ -22,6 +22,8 @@ import {ClientsListComponent} from "@features/clients/list/clients-list.componen
 import {UsersListComponent} from "@features/users/list/users-list.component";
 import {ClientEditComponent} from "@features/clients/edit/client-edit.component";
 import {ClientNewComponent} from "@features/clients/new/client-new.component";
+import {UserEditComponent} from "@features/users/edit/user-edit.component";
+import {UserNewComponent} from "@features/users/new/user-new.component";
 
 export const routes: Routes = [
   {
@@ -135,6 +137,16 @@ export const routes: Routes = [
         path: 'users/list',
         component: UsersListComponent,
         title: 'Inquiry Tool | Users List'
+      },
+      {
+        path: 'users/new',
+        component: UserNewComponent,
+        title: 'Inquiry Tool | User New'
+      },
+      {
+        path: 'users/:id/edit',
+        component: UserEditComponent,
+        title: 'Inquiry Tool | User Edit'
       },
     ]
   }

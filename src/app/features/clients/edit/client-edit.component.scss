@@ -144,7 +144,7 @@
 
   &__form-body {
     margin-top: 1rem;
-    border: 1px solid #ddd;
+    border: 0.0625rem solid #ddd;
     border-radius: 0.375rem;
   }
 
@@ -257,7 +257,7 @@
 
   &__tabs {
     display: flex;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 0.0625rem solid #ddd;
   }
 
   &__tab {
@@ -270,7 +270,7 @@
     position: relative;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
 
     &--active {
       color: #333;
@@ -279,10 +279,10 @@
       &::after {
         content: '';
         position: absolute;
-        bottom: -1px;
+        bottom: -0.0625rem;
         left: 0;
         width: 100%;
-        height: 2px;
+        height: 0.125rem;
         background-color: #DC2626;
       }
     }
@@ -297,14 +297,13 @@
   }
 
   &__tab-icon {
-    width: 16px;
-    height: 16px;
+    width: 1rem;
+    height: 1rem;
     color: #4CAF50;
   }
 
   &__editor-container {
-    //border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     overflow: hidden;
   }
 
@@ -315,20 +314,20 @@
   &__editor-toolbar {
     display: flex;
     align-items: center;
-    padding: 8px;
+    padding: 0.5rem;
     background-color: #f5f5f5;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 0.0625rem solid #ddd;
   }
 
   &__editor-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 2rem;
+    height: 2rem;
     background: none;
     border: none;
-    border-radius: 4px;
+    border-radius: 0.25rem;
     cursor: pointer;
     color: #666;
 
@@ -340,38 +339,320 @@
   &__editor-dropdown {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
     background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 0.0625rem solid #ddd;
+    border-radius: 0.25rem;
     font-size: 0.875rem;
     cursor: pointer;
     color: #333;
-    margin-left: 8px;
+    margin-left: 0.5rem;
 
     svg {
-      width: 12px;
-      height: 12px;
+      width: 0.75rem;
+      height: 0.75rem;
     }
   }
 
   &__editor-separator {
-    width: 1px;
-    height: 24px;
+    width: 0.0625rem;
+    height: 1.5rem;
     background-color: #ddd;
-    margin: 0 8px;
+    margin: 0 0.5rem;
   }
 
   &__editor {
-    min-height: 200px;
-    padding: 16px;
+    min-height: 12.5rem;
+    padding: 1rem;
     background-color: #fff;
   }
 
   &__editor-placeholder {
     color: #999;
     margin: 0;
+  }
+
+  // User table styles
+  &__users-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  &__users-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #232323;
+    margin: 0;
+  }
+
+  &__add-user-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #DC2626;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #c0392b;
+    }
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  &__users-loading {
+    padding: 2rem 0;
+  }
+
+  &__skeleton-table {
+    width: 100%;
+  }
+
+  &__skeleton-row {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr 1.5fr 1fr 6rem;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 0.0625rem solid #e0e0e0;
+
+    &:first-child {
+      border-top: 0.0625rem solid #e0e0e0;
+    }
+  }
+
+  &__skeleton-cell {
+    height: 1.25rem;
+    border-radius: 0.25rem;
+    @extend .shimmer-effect;
+
+    &--checkbox {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    &--name {
+      max-width: 12rem;
+    }
+
+    &--email {
+      max-width: 15rem;
+    }
+
+    &--role {
+      max-width: 8rem;
+    }
+
+    &--actions {
+      max-width: 4rem;
+    }
+  }
+
+  &__no-users {
+    text-align: center;
+    padding: 3rem 0;
+    color: #666;
+
+    svg {
+      margin-bottom: 1rem;
+      color: #9CA3AF;
+    }
+
+    p {
+      margin: 0 0 1.5rem 0;
+      font-size: 1rem;
+    }
+  }
+
+  &__add-first-user-btn {
+    padding: 0.5rem 1.5rem;
+    background-color: #DC2626;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #c0392b;
+    }
+  }
+
+  &__users-table-container {
+    overflow-x: auto;
+  }
+
+  &__users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+
+    thead {
+      background-color: #f9f9f9;
+      border-top: 0.0625rem solid #e0e0e0;
+      border-bottom: 0.0625rem solid #e0e0e0;
+    }
+
+    th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #232323;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 0.0625rem solid #e0e0e0;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #f9f9f9;
+      }
+    }
+
+    td {
+      padding: 1rem;
+    }
+  }
+
+  &__table-checkbox {
+    width: 2.5rem;
+  }
+
+  &__table-actions {
+    width: 6rem;
+    text-align: right;
+  }
+
+  &__checkbox {
+    width: 1.125rem;
+    height: 1.125rem;
+    cursor: pointer;
+    accent-color: #DC2626;
+  }
+
+  &__user-name {
+    font-weight: 500;
+    color: #232323;
+  }
+
+  &__user-email {
+    color: #666;
+  }
+
+  &__user-roles {
+    display: flex;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+  }
+
+  &__role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+    background-color: #e0e0e0;
+    color: #666;
+
+    &--admin {
+      background-color: #fee2e2;
+      color: #dc2626;
+    }
+
+    &--manager {
+      background-color: #dbeafe;
+      color: #2563eb;
+    }
+
+    &--sales {
+      background-color: #d1fae5;
+      color: #059669;
+    }
+  }
+
+  &__action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: none;
+    border: 0.0625rem solid #e0e0e0;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.2s;
+    margin-left: 0.375rem;
+
+    &:hover {
+      border-color: #999;
+      color: #333;
+    }
+
+    &--edit {
+      &:hover {
+        border-color: #2563eb;
+        color: #2563eb;
+        background-color: #eff6ff;
+      }
+    }
+
+    &--delete {
+      &:hover {
+        border-color: #dc2626;
+        color: #dc2626;
+        background-color: #fee2e2;
+      }
+    }
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  &__bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border: 0.0625rem solid #e0e0e0;
+    border-top: none;
+    border-radius: 0 0 0.375rem 0.375rem;
+  }
+
+  &__selected-count {
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  &__bulk-action-btn {
+    padding: 0.375rem 0.75rem;
+    background-color: white;
+    border: 0.0625rem solid #e0e0e0;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: #999;
+      color: #333;
+    }
   }
 
   // Skeleton loading states
@@ -438,6 +719,238 @@
     border-radius: 0.25rem;
   }
 
+  // Modal styles
+  &__modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+  }
+
+  &__modal {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1.25rem 1.5625rem -0.625rem rgba(0, 0, 0, 0.1), 0 0.625rem 0.625rem -0.625rem rgba(0, 0, 0, 0.04);
+    max-width: 37.5rem;
+    width: 100%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 0.0625rem solid #e0e0e0;
+  }
+
+  &__modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #232323;
+    margin: 0;
+  }
+
+  &__modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: none;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    color: #666;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #f5f5f5;
+      color: #333;
+    }
+
+    svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+  }
+
+  &__modal-search {
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 0.0625rem solid #e0e0e0;
+  }
+
+  &__modal-search-input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 0.0625rem solid #ddd;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #0074d9;
+      box-shadow: 0 0 0 0.1875rem rgba(0, 116, 217, 0.1);
+    }
+
+    &::placeholder {
+      color: #999;
+    }
+  }
+
+  &__modal-search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    background-color: #DC2626;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #c0392b;
+    }
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  &__modal-body {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 20rem;
+  }
+
+  &__modal-loading {
+    padding: 2rem;
+  }
+
+  &__skeleton-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__skeleton-list-item {
+    height: 4rem;
+    border-radius: 0.375rem;
+    @extend .shimmer-effect;
+  }
+
+  &__modal-users {
+    padding: 0.5rem;
+  }
+
+  &__modal-user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 0.0625rem solid #e0e0e0;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #f9f9f9;
+      border-color: #DC2626;
+      transform: translateY(-0.0625rem);
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__modal-user-info {
+    flex: 1;
+  }
+
+  &__modal-user-name {
+    font-weight: 500;
+    color: #232323;
+    margin-bottom: 0.25rem;
+  }
+
+  &__modal-user-email {
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  &__modal-user-roles {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
+
+  &__modal-empty {
+    padding: 3rem;
+    text-align: center;
+    color: #666;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-top: 0.0625rem solid #e0e0e0;
+  }
+
+  &__modal-page-btn {
+    padding: 0.5rem 1rem;
+    background-color: white;
+    border: 0.0625rem solid #ddd;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      border-color: #999;
+      color: #333;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__modal-page-info {
+    font-size: 0.875rem;
+    color: #666;
+  }
+
+  &__role-badge--small {
+    font-size: 0.625rem;
+    padding: 0.125rem 0.375rem;
+  }
+
   // Responsive design
   @media (max-width: 48rem) {
     &__header {
@@ -468,6 +981,29 @@
       min-width: auto;
       padding-top: 0;
     }
+
+    &__users-table {
+      font-size: 0.75rem;
+
+      th, td {
+        padding: 0.5rem;
+      }
+    }
+
+    &__role-badge {
+      font-size: 0.625rem;
+      padding: 0.125rem 0.375rem;
+    }
+
+    &__action-btn {
+      width: 1.75rem;
+      height: 1.75rem;
+
+      svg {
+        width: 0.875rem;
+        height: 0.875rem;
+      }
+    }
   }
 
   @media (max-width: 30rem) {
@@ -488,6 +1024,21 @@
         font-size: 0.875rem;
         margin-left: 0.25rem;
       }
+    }
+
+    &__users-header {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    &__add-user-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    &__users-table-container {
+      margin: 0 -0.5rem;
     }
   }
 }
