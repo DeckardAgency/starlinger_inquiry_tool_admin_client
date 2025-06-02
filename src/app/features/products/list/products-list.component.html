@@ -253,7 +253,7 @@
         </div>
     </div>
 
-    <div class="product-list__mobile-bottom-wrapper">
+    <div class="product-list__mobile-bottom-wrapper" *ngIf="!productsState().loading && !productsState().error">
         <button class="product-list__add-button-mobile" (click)="addProduct()">
             Add product
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">

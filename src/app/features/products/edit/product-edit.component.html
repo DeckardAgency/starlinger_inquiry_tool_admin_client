@@ -228,7 +228,7 @@
         </form>
     </div>
 
-    <div class="product-new__mobile-bottom-wrapper">
+    <div class="product-new__mobile-bottom-wrapper" *ngIf="dataLoaded">
         <button class="product-new__save-continue-button-mobile" (click)="saveAndContinue()" [disabled]="!dataLoaded && route.snapshot.paramMap.get('id')">
             Save and continue
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
