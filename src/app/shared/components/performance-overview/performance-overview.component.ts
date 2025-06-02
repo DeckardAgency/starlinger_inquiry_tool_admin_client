@@ -4,6 +4,7 @@ import { DatePickerComponent } from "@shared/components/date-picker/date-picker.
 import { ReactiveFormsModule, FormGroup, FormBuilder } from "@angular/forms";
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
+import {environment} from "@env/environment";
 
 interface PerformanceMetric {
     label: string;
@@ -50,7 +51,7 @@ export class PerformanceOverviewComponent implements OnInit, AfterViewInit, OnDe
     @ViewChild(DatePickerComponent) rangePicker!: DatePickerComponent;
 
     private destroy$ = new Subject<void>();
-    private apiUrl = 'https://127.0.0.1:8002/api/v1/dashboard/performance';
+    private apiUrl = `${environment.apiBaseUrl}/api/v1/dashboard/performance`;
 
     // Form for the date range
     dateRangeForm: FormGroup;
