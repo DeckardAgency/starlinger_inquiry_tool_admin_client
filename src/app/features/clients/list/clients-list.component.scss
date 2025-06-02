@@ -523,12 +523,12 @@
 
   // Table content elements
   &__name-link {
-    color: #0074d9;
+    color: unset;
     text-decoration: none;
     transition: color 0.2s;
 
     &:hover {
-      color: #0056b3;
+      //color: #0056b3;
       text-decoration: underline;
     }
   }

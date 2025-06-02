@@ -527,13 +527,6 @@ export class ClientsListComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Navigate to view client details
-     */
-    viewClient(clientId: string): void {
-        this.router.navigate(['/clients', clientId]);
-    }
-
-    /**
      * Navigate to edit client
      */
     editClient(clientId: string): void {

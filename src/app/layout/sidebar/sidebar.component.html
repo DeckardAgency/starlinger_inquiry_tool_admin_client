@@ -20,7 +20,7 @@
           <h2 class="sidebar__section-title">Customer hub</h2>
           <ul class="sidebar__sub-list">
               <li class="sidebar__item">
-                  <a routerLink="/clients/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                  <a routerLink="/clients/list" [class.sidebar__link--active]="isRouteActive('clients')" class="sidebar__link">
                 <span class="icon-shop sidebar__icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path d="M12.6668 14V12.6667C12.6668 11.9594 12.3859 11.2811 11.8858 10.781C11.3857 10.281 10.7074 10 10.0002 10H6.00016C5.29292 10 4.61464 10.281 4.11454 10.781C3.61445 11.2811 3.3335 11.9594 3.3335 12.6667V14M10.6668 4.66667C10.6668 6.13943 9.47292 7.33333 8.00016 7.33333C6.5274 7.33333 5.3335 6.13943 5.3335 4.66667C5.3335 3.19391 6.5274 2 8.00016 2C9.47292 2 10.6668 3.19391 10.6668 4.66667Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -29,26 +29,26 @@
                       <span class="sidebar__link-text">Clients</span>
                   </a>
               </li>
-            <li class="sidebar__item">
-              <a routerLink="/accounts/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
-                <span class="icon-shop sidebar__icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M12.6668 14V12.6667C12.6668 11.9594 12.3859 11.2811 11.8858 10.781C11.3857 10.281 10.7074 10 10.0002 10H6.00016C5.29292 10 4.61464 10.281 4.11454 10.781C3.61445 11.2811 3.3335 11.9594 3.3335 12.6667V14M10.6668 4.66667C10.6668 6.13943 9.47292 7.33333 8.00016 7.33333C6.5274 7.33333 5.3335 6.13943 5.3335 4.66667C5.3335 3.19391 6.5274 2 8.00016 2C9.47292 2 10.6668 3.19391 10.6668 4.66667Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </span>
-                <span class="sidebar__link-text">Accounts</span>
-              </a>
-            </li>
-            <li class="sidebar__item">
-              <a routerLink="/contacts/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
-                <span class="icon-manual-entry sidebar__icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M10.6667 12.0002C10.6667 11.2929 10.3857 10.6146 9.88562 10.1145C9.38552 9.61445 8.70724 9.3335 8 9.3335M8 9.3335C7.29276 9.3335 6.61448 9.61445 6.11438 10.1145C5.61428 10.6146 5.33333 11.2929 5.33333 12.0002M8 9.3335C9.10457 9.3335 10 8.43807 10 7.3335C10 6.22893 9.10457 5.3335 8 5.3335C6.89543 5.3335 6 6.22893 6 7.3335C6 8.43807 6.89543 9.3335 8 9.3335ZM5.33333 1.3335V2.66683M10.6667 1.3335V2.66683M3.33333 2.66683H12.6667C13.403 2.66683 14 3.26378 14 4.00016V13.3335C14 14.0699 13.403 14.6668 12.6667 14.6668H3.33333C2.59695 14.6668 2 14.0699 2 13.3335V4.00016C2 3.26378 2.59695 2.66683 3.33333 2.66683Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </span>
-                <span class="sidebar__link-text">Contacts</span>
-              </a>
-            </li>
+<!--            <li class="sidebar__item">-->
+<!--              <a routerLink="/accounts/list" routerLinkActive="sidebar__link&#45;&#45;active" class="sidebar__link">-->
+<!--                <span class="icon-shop sidebar__icon">-->
+<!--                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">-->
+<!--                      <path d="M12.6668 14V12.6667C12.6668 11.9594 12.3859 11.2811 11.8858 10.781C11.3857 10.281 10.7074 10 10.0002 10H6.00016C5.29292 10 4.61464 10.281 4.11454 10.781C3.61445 11.2811 3.3335 11.9594 3.3335 12.6667V14M10.6668 4.66667C10.6668 6.13943 9.47292 7.33333 8.00016 7.33333C6.5274 7.33333 5.3335 6.13943 5.3335 4.66667C5.3335 3.19391 6.5274 2 8.00016 2C9.47292 2 10.6668 3.19391 10.6668 4.66667Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                    </svg>-->
+<!--                </span>-->
+<!--                <span class="sidebar__link-text">Accounts</span>-->
+<!--              </a>-->
+<!--            </li>-->
+<!--            <li class="sidebar__item">-->
+<!--              <a routerLink="/contacts/list" routerLinkActive="sidebar__link&#45;&#45;active" class="sidebar__link">-->
+<!--                <span class="icon-manual-entry sidebar__icon">-->
+<!--                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">-->
+<!--                      <path d="M10.6667 12.0002C10.6667 11.2929 10.3857 10.6146 9.88562 10.1145C9.38552 9.61445 8.70724 9.3335 8 9.3335M8 9.3335C7.29276 9.3335 6.61448 9.61445 6.11438 10.1145C5.61428 10.6146 5.33333 11.2929 5.33333 12.0002M8 9.3335C9.10457 9.3335 10 8.43807 10 7.3335C10 6.22893 9.10457 5.3335 8 5.3335C6.89543 5.3335 6 6.22893 6 7.3335C6 8.43807 6.89543 9.3335 8 9.3335ZM5.33333 1.3335V2.66683M10.6667 1.3335V2.66683M3.33333 2.66683H12.6667C13.403 2.66683 14 3.26378 14 4.00016V13.3335C14 14.0699 13.403 14.6668 12.6667 14.6668H3.33333C2.59695 14.6668 2 14.0699 2 13.3335V4.00016C2 3.26378 2.59695 2.66683 3.33333 2.66683Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                    </svg>-->
+<!--                </span>-->
+<!--                <span class="sidebar__link-text">Contacts</span>-->
+<!--              </a>-->
+<!--            </li>-->
           </ul>
         </li>
 
@@ -108,16 +108,16 @@
                         <span class="sidebar__link-text">Products</span>
                     </a>
                 </li>
-                <li class="sidebar__item">
-                    <a routerLink="/discounts/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
-                        <span class="icon-manual-entry sidebar__icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                              <path d="M10 6L6 10M6 6H6.00667M10 10H10.0067M3.33333 2H12.6667C13.403 2 14 2.59695 14 3.33333V12.6667C14 13.403 13.403 14 12.6667 14H3.33333C2.59695 14 2 13.403 2 12.6667V3.33333C2 2.59695 2.59695 2 3.33333 2Z" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                        <span class="sidebar__link-text">Discounts</span>
-                    </a>
-                </li>
+<!--                <li class="sidebar__item">-->
+<!--                    <a routerLink="/discounts/list" routerLinkActive="sidebar__link&#45;&#45;active" class="sidebar__link">-->
+<!--                        <span class="icon-manual-entry sidebar__icon">-->
+<!--                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">-->
+<!--                              <path d="M10 6L6 10M6 6H6.00667M10 10H10.0067M3.33333 2H12.6667C13.403 2 14 2.59695 14 3.33333V12.6667C14 13.403 13.403 14 12.6667 14H3.33333C2.59695 14 2 13.403 2 12.6667V3.33333C2 2.59695 2.59695 2 3.33333 2Z" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                            </svg>-->
+<!--                        </span>-->
+<!--                        <span class="sidebar__link-text">Discounts</span>-->
+<!--                    </a>-->
+<!--                </li>-->
             </ul>
         </li>
 
@@ -125,7 +125,7 @@
             <h2 class="sidebar__section-title">User hub</h2>
             <ul class="sidebar__sub-list">
                 <li class="sidebar__item">
-                    <a routerLink="/users/list" routerLinkActive="sidebar__link--active" class="sidebar__link">
+                    <a routerLink="/users/list" [class.sidebar__link--active]="isRouteActive('users')" class="sidebar__link">
                         <span class="icon-shop sidebar__icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                               <path d="M10.6668 14V12.6667C10.6668 11.9594 10.3859 11.2811 9.88578 10.781C9.38568 10.281 8.70741 10 8.00016 10H4.00016C3.29292 10 2.61464 10.281 2.11454 10.781C1.61445 11.2811 1.3335 11.9594 1.3335 12.6667V14M14.6668 13.9999V12.6666C14.6664 12.0757 14.4697 11.5018 14.1077 11.0348C13.7457 10.5678 13.2389 10.2343 12.6668 10.0866M10.6668 2.08659C11.2404 2.23346 11.7489 2.56706 12.1119 3.0348C12.475 3.50254 12.6721 4.07781 12.6721 4.66992C12.6721 5.26204 12.475 5.83731 12.1119 6.30505C11.7489 6.77279 11.2404 7.10639 10.6668 7.25326M8.66683 4.66667C8.66683 6.13943 7.47292 7.33333 6.00016 7.33333C4.5274 7.33333 3.3335 6.13943 3.3335 4.66667C3.3335 3.19391 4.5274 2 6.00016 2C7.47292 2 8.66683 3.19391 8.66683 4.66667Z" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -134,16 +134,16 @@
                         <span class="sidebar__link-text">Users</span>
                     </a>
                 </li>
-                <li class="sidebar__item">
-                  <a routerLink="/manual-entry/input-form" routerLinkActive="sidebar__link--active" class="sidebar__link">
-                    <span class="icon-manual-entry sidebar__icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M9.33317 1.33325V3.99992C9.33317 4.35354 9.47365 4.69268 9.72369 4.94273C9.97374 5.19278 10.3129 5.33325 10.6665 5.33325H13.3332M5.99984 9.99992L7.33317 11.3333L9.99984 8.66659M9.99984 1.33325H3.99984C3.64622 1.33325 3.30708 1.47373 3.05703 1.72378C2.80698 1.97382 2.6665 2.31296 2.6665 2.66659V13.3333C2.6665 13.6869 2.80698 14.026 3.05703 14.2761C3.30708 14.5261 3.64622 14.6666 3.99984 14.6666H11.9998C12.3535 14.6666 12.6926 14.5261 12.9426 14.2761C13.1927 14.026 13.3332 13.6869 13.3332 13.3333V4.66659L9.99984 1.33325Z" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </span>
-                    <span class="sidebar__link-text">Roles</span>
-                    </a>
-                </li>
+<!--                <li class="sidebar__item">-->
+<!--                  <a routerLink="/manual-entry/input-form" routerLinkActive="sidebar__link&#45;&#45;active" class="sidebar__link">-->
+<!--                    <span class="icon-manual-entry sidebar__icon">-->
+<!--                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">-->
+<!--                          <path d="M9.33317 1.33325V3.99992C9.33317 4.35354 9.47365 4.69268 9.72369 4.94273C9.97374 5.19278 10.3129 5.33325 10.6665 5.33325H13.3332M5.99984 9.99992L7.33317 11.3333L9.99984 8.66659M9.99984 1.33325H3.99984C3.64622 1.33325 3.30708 1.47373 3.05703 1.72378C2.80698 1.97382 2.6665 2.31296 2.6665 2.66659V13.3333C2.6665 13.6869 2.80698 14.026 3.05703 14.2761C3.30708 14.5261 3.64622 14.6666 3.99984 14.6666H11.9998C12.3535 14.6666 12.6926 14.5261 12.9426 14.2761C13.1927 14.026 13.3332 13.6869 13.3332 13.3333V4.66659L9.99984 1.33325Z" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>-->
+<!--                        </svg>-->
+<!--                    </span>-->
+<!--                    <span class="sidebar__link-text">Roles</span>-->
+<!--                    </a>-->
+<!--                </li>-->
             </ul>
         </li>
       </ul>

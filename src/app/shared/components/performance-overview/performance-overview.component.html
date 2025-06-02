@@ -11,17 +11,29 @@
         <div class="performance-overview__date-range">
             <form [formGroup]="dateRangeForm">
                 <app-date-picker
-                        formControlName="dateRange"
-                        [isRange]="true"
-                        [dateFormat]="'MMM d, y'"
-                        [rangePlaceholder]="'Select date range'"
-                        [storageKey]="'performance-overview-dates'">
+                    formControlName="dateRange"
+                    [isRange]="true"
+                    [dateFormat]="'MMM d, y'"
+                    [rangePlaceholder]="'Select date range'"
+                    [storageKey]="'performance-overview-dates'">
                 </app-date-picker>
             </form>
         </div>
     </div>
 
-    <div class="performance-overview__grid">
+    <!-- Loading state -->
+    <div class="performance-overview__loading" *ngIf="isLoading">
+        <div class="performance-overview__spinner">Loading...</div>
+    </div>
+
+    <!-- Error state -->
+    <div class="performance-overview__error" *ngIf="error && !isLoading">
+        <p>{{ error }}</p>
+        <button class="performance-overview__retry-button" (click)="loadPerformanceData()">Retry</button>
+    </div>
+
+    <!-- Metrics grid -->
+    <div class="performance-overview__grid" *ngIf="!isLoading && !error">
         <div class="performance-overview__card" *ngFor="let metric of metrics">
             <div class="performance-overview__card-header">
                 <span class="performance-overview__card-label">{{ metric.label }}</span>

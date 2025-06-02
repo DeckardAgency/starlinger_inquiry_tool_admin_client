@@ -17,13 +17,13 @@
             <!-- Enhanced search with two-way binding and button actions -->
             <div class="product-list__search">
                 <input
-                        type="text"
-                        placeholder="Search by name..."
-                        class="product-list__search-input"
-                        [ngModel]="searchState().term"
-                        (input)="onSearchInput($event)"
-                        (keyup.enter)="executeSearch()"
-                        #searchInput
+                    type="text"
+                    placeholder="Search by name..."
+                    class="product-list__search-input"
+                    [ngModel]="searchState().term"
+                    (input)="onSearchInput($event)"
+                    (keyup.enter)="executeSearch()"
+                    #searchInput
                 >
                 <button class="product-list__search-button" (click)="executeSearch()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -32,10 +32,10 @@
                 </button>
                 <!-- Clear search button - only visible when there's a search term -->
                 <button
-                        *ngIf="searchState().term"
-                        class="product-list__clear-search-button"
-                        (click)="clearSearch(); searchInput.focus()"
-                        title="Clear search"
+                    *ngIf="searchState().term"
+                    class="product-list__clear-search-button"
+                    (click)="clearSearch(); searchInput.focus()"
+                    title="Clear search"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M4 4L12 12M4 12L12 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
@@ -50,9 +50,9 @@
             </button>
 
             <button
-                    class="product-list__delete-button"
-                    (click)="deleteSelectedProducts()"
-                    [disabled]="selectionState().selectedIds.size === 0"
+                class="product-list__delete-button"
+                (click)="deleteSelectedProducts()"
+                [disabled]="selectionState().selectedIds.size === 0"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M2 3.99967H14M12.6667 3.99967V13.333C12.6667 13.9997 12 14.6663 11.3333 14.6663H4.66667C4 14.6663 3.33333 13.9997 3.33333 13.333V3.99967M5.33333 3.99967V2.66634C5.33333 1.99967 6 1.33301 6.66667 1.33301H9.33333C10 1.33301 10.6667 1.99967 10.6667 2.66634V3.99967M6.66667 7.33301V11.333M9.33333 7.33301V11.333" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>

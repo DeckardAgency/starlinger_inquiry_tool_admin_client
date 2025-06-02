@@ -20,6 +20,8 @@ import { MainLayoutComponent } from "./layout/main-layout.component";
 import { RoleGuard } from "@core/auth/role.guard";
 import {ClientsListComponent} from "@features/clients/list/clients-list.component";
 import {UsersListComponent} from "@features/users/list/users-list.component";
+import {ClientEditComponent} from "@features/clients/edit/client-edit.component";
+import {ClientNewComponent} from "@features/clients/new/client-new.component";
 
 export const routes: Routes = [
   {
@@ -53,6 +55,16 @@ export const routes: Routes = [
         path: 'clients/list',
         component: ClientsListComponent,
         title: 'Inquiry Tool | Clients List'
+      },
+      {
+        path: 'clients/new',
+        component: ClientNewComponent,
+        title: 'Inquiry Tool | Clients New'
+      },
+      {
+        path: 'clients/:id/edit',
+        component: ClientEditComponent,
+        title: 'Inquiry Tool | Clients Edit'
       },
       {
         path: 'accounts/list',

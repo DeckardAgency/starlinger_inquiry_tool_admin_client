@@ -1,7 +1,9 @@
-import { Component, Input, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DatePickerComponent } from "@shared/components/date-picker/date-picker.component";
 import { ReactiveFormsModule, FormGroup, FormBuilder } from "@angular/forms";
+import { HttpClient } from '@angular/common/http';
+import { Subject, takeUntil } from 'rxjs';
 
 interface PerformanceMetric {
     label: string;
@@ -11,80 +13,58 @@ interface PerformanceMetric {
     infoTooltip?: string;
 }
 
+interface MetricData {
+    value: number;
+    formatted?: string;
+    percentageChange: number;
+    trend: 'up' | 'down' | 'neutral';
+}
+
+interface DashboardResponse {
+    '@context': string;
+    '@id': string;
+    '@type': string;
+    period: {
+        start: string;
+        end: string;
+    };
+    shopOrders: MetricData;
+    manualInquiries: MetricData;
+    activeInquiries: MetricData;
+    cancelledInquiries: MetricData;
+    activeCarts: MetricData;
+    completedCarts: MetricData;
+    totalShopRevenue: MetricData & { formatted: string };
+    cancelledOrdersRevenue: MetricData & { formatted: string };
+}
+
 @Component({
     selector: 'app-performance-overview',
     imports: [CommonModule, DatePickerComponent, ReactiveFormsModule],
     templateUrl: './performance-overview.component.html',
     styleUrls: ['./performance-overview.component.scss']
 })
-export class PerformanceOverviewComponent implements OnInit, AfterViewInit {
+export class PerformanceOverviewComponent implements OnInit, AfterViewInit, OnDestroy {
     @Input() startDate: string = '';
     @Input() endDate: string = '';
     @ViewChild(DatePickerComponent) rangePicker!: DatePickerComponent;
 
+    private destroy$ = new Subject<void>();
+    private apiUrl = 'https://127.0.0.1:8002/api/v1/dashboard/performance';
+
     // Form for the date range
     dateRangeForm: FormGroup;
 
-    metrics: PerformanceMetric[] = [
-        {
-            label: 'Shop orders',
-            value: 20,
-            percentage: 123.00,
-            isIncreasing: true,
-            infoTooltip: 'Total number of orders placed in your shop'
-        },
-        {
-            label: 'Manual inquiries',
-            value: 33,
-            percentage: 97.00,
-            isIncreasing: true,
-            infoTooltip: 'Inquiries created manually by shop administrators'
-        },
-        {
-            label: 'Active inquiries',
-            value: 7,
-            percentage: 30.00,
-            isIncreasing: false,
-            infoTooltip: 'Inquiries that are currently in process'
-        },
-        {
-            label: 'Cancelled inquiries',
-            value: 3,
-            percentage: 15.00,
-            isIncreasing: false,
-            infoTooltip: 'Inquiries that were cancelled'
-        },
-        {
-            label: 'Active carts',
-            value: 5,
-            percentage: 10.00,
-            isIncreasing: false,
-            infoTooltip: 'Shopping carts that are currently active'
-        },
-        {
-            label: 'Completed carts',
-            value: 20,
-            percentage: 20.00,
-            isIncreasing: true,
-            infoTooltip: 'Shopping carts that were completed'
-        },
-        {
-            label: 'Total shop revenue',
-            value: '20.504,30 €',
-            percentage: 93.00,
-            isIncreasing: true,
-            infoTooltip: 'Total revenue generated from completed orders'
-        },
-        {
-            label: 'Cancelled orders revenue',
-            value: '8.304,29 €',
-            percentage: 15.00,
-            isIncreasing: false,
-            infoTooltip: 'Revenue lost from cancelled orders'
-        }
-    ];
+    metrics: PerformanceMetric[] = [];
 
-    constructor(private fb: FormBuilder) {
+    // Loading state
+    isLoading = false;
+    error: string | null = null;
+
+    constructor(
+        private fb: FormBuilder,
+        private http: HttpClient
+    ) {
         // Initialize a form group
         this.dateRangeForm = this.fb.group({
             dateRange: [null]
@@ -93,16 +73,20 @@ export class PerformanceOverviewComponent implements OnInit, AfterViewInit {
 
     ngOnInit() {
         // Set up form value change subscription
-        this.dateRangeForm.get('dateRange')?.valueChanges.subscribe(range => {
-            if (range) {
-                this.onDateRangeChanged(range);
-            }
-        });
+        this.dateRangeForm.get('dateRange')?.valueChanges
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(range => {
+                if (range) {
+                    this.onDateRangeChanged(range);
+                }
+            });
+
+        // Load initial data
+        this.loadPerformanceData();
     }
 
     ngAfterViewInit() {
-        // Set initial date range if provided via inputs
-        // Apply restrictions if needed
+        // Set up date picker restrictions
         this.rangePicker.setMinDate('2022-01-01');
         this.rangePicker.setDisableFutureDates(true);
 
@@ -118,23 +102,176 @@ export class PerformanceOverviewComponent implements OnInit, AfterViewInit {
         });
     }
 
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
     onDateRangeChanged(range: { start: Date, end: Date }) {
         if (range && range.start && range.end) {
-            console.log('Date range changed:', range);
+            // Update the input properties
+            this.startDate = range.start.toISOString().split('T')[0];
+            this.endDate = range.end.toISOString().split('T')[0];
 
-            // Update your component state or fetch new data based on the range
-            // For example:
-            // this.fetchMetricsByDateRange(range.start, range.end);
-
-            // You can also update the input properties if needed
-            this.startDate = range.start.toISOString();
-            this.endDate = range.end.toISOString();
+            // Fetch new data based on the range
+            this.loadPerformanceData();
         }
     }
 
-    // Method to fetch metrics based on date range (example)
-    fetchMetricsByDateRange(start: Date, end: Date) {
-        // Implement your API call or data update logic here
-        console.log(`Fetching metrics from ${start.toDateString()} to ${end.toDateString()}`);
+    loadPerformanceData() {
+        this.isLoading = true;
+        this.error = null;
+
+        // Build URL with query parameters if dates are available
+        let url = this.apiUrl;
+        if (this.startDate && this.endDate) {
+            url += `?startDate=${this.startDate}&endDate=${this.endDate}`;
+        }
+
+        this.http.get<DashboardResponse>(url)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (data) => {
+                    this.updateMetrics(data);
+                    this.isLoading = false;
+                },
+                error: (error) => {
+                    console.error('Error loading performance data:', error);
+                    this.error = 'Failed to load performance data. Please try again.';
+                    this.isLoading = false;
+                    // Keep the existing metrics or show empty state
+                    this.setDefaultMetrics();
+                }
+            });
+    }
+
+    private updateMetrics(data: DashboardResponse) {
+        // Update the date range from the API response
+        if (data.period) {
+            const start = new Date(data.period.start);
+            const end = new Date(data.period.end);
+            this.dateRangeForm.get('dateRange')?.setValue({ start, end }, { emitEvent: false });
+        }
+
+        this.metrics = [
+            {
+                label: 'Shop orders',
+                value: data.shopOrders.value,
+                percentage: data.shopOrders.percentageChange,
+                isIncreasing: data.shopOrders.trend === 'up',
+                infoTooltip: 'Total number of orders placed in your shop'
+            },
+            {
+                label: 'Manual inquiries',
+                value: data.manualInquiries.value,
+                percentage: data.manualInquiries.percentageChange,
+                isIncreasing: data.manualInquiries.trend === 'up',
+                infoTooltip: 'Inquiries created manually by shop administrators'
+            },
+            {
+                label: 'Active inquiries',
+                value: data.activeInquiries.value,
+                percentage: data.activeInquiries.percentageChange,
+                isIncreasing: data.activeInquiries.trend === 'up',
+                infoTooltip: 'Inquiries that are currently in process'
+            },
+            {
+                label: 'Cancelled inquiries',
+                value: data.cancelledInquiries.value,
+                percentage: data.cancelledInquiries.percentageChange,
+                isIncreasing: data.cancelledInquiries.trend === 'up',
+                infoTooltip: 'Inquiries that were cancelled'
+            },
+            {
+                label: 'Active carts',
+                value: data.activeCarts.value,
+                percentage: data.activeCarts.percentageChange,
+                isIncreasing: data.activeCarts.trend === 'up',
+                infoTooltip: 'Shopping carts that are currently active'
+            },
+            {
+                label: 'Completed carts',
+                value: data.completedCarts.value,
+                percentage: data.completedCarts.percentageChange,
+                isIncreasing: data.completedCarts.trend === 'up',
+                infoTooltip: 'Shopping carts that were completed'
+            },
+            {
+                label: 'Total shop revenue',
+                value: data.totalShopRevenue.formatted,
+                percentage: data.totalShopRevenue.percentageChange,
+                isIncreasing: data.totalShopRevenue.trend === 'up',
+                infoTooltip: 'Total revenue generated from completed orders'
+            },
+            {
+                label: 'Cancelled orders revenue',
+                value: data.cancelledOrdersRevenue.formatted,
+                percentage: data.cancelledOrdersRevenue.percentageChange,
+                isIncreasing: data.cancelledOrdersRevenue.trend === 'up',
+                infoTooltip: 'Revenue lost from cancelled orders'
+            }
+        ];
+    }
+
+    private setDefaultMetrics() {
+        // Set empty/default metrics when API fails
+        this.metrics = [
+            {
+                label: 'Shop orders',
+                value: 0,
+                percentage: 0,
+                isIncreasing: false,
+                infoTooltip: 'Total number of orders placed in your shop'
+            },
+            {
+                label: 'Manual inquiries',
+                value: 0,
+                percentage: 0,
+                isIncreasing: false,
+                infoTooltip: 'Inquiries created manually by shop administrators'
+            },
+            {
+                label: 'Active inquiries',
+                value: 0,
+                percentage: 0,
+                isIncreasing: false,
+                infoTooltip: 'Inquiries that are currently in process'
+            },
+            {
+                label: 'Cancelled inquiries',
+                value: 0,
+                percentage: 0,
+                isIncreasing: false,
+                infoTooltip: 'Inquiries that were cancelled'
+            },
+            {
+                label: 'Active carts',
+                value: 0,
+                percentage: 0,
+                isIncreasing: false,
+                infoTooltip: 'Shopping carts that are currently active'
+            },
+            {
+                label: 'Completed carts',
+                value: 0,
+                percentage: 0,
+                isIncreasing: false,
+                infoTooltip: 'Shopping carts that were completed'
+            },
+            {
+                label: 'Total shop revenue',
+                value: '0,00 €',
+                percentage: 0,
+                isIncreasing: false,
+                infoTooltip: 'Total revenue generated from completed orders'
+            },
+            {
+                label: 'Cancelled orders revenue',
+                value: '0,00 €',
+                percentage: 0,
+                isIncreasing: false,
+                infoTooltip: 'Revenue lost from cancelled orders'
+            }
+        ];
     }
 }

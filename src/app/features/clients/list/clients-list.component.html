@@ -128,11 +128,11 @@
                     <th class="clients-list__table-header clients-list__table-header--select">
                         <div class="clients-list__checkbox-container">
                             <input
-                                    type="checkbox"
-                                    class="clients-list__checkbox"
-                                    id="select-all"
-                                    [checked]="selectionState().allSelected"
-                                    (change)="toggleSelectAll($event)"
+                                type="checkbox"
+                                class="clients-list__checkbox"
+                                id="select-all"
+                                [checked]="selectionState().allSelected"
+                                (change)="toggleSelectAll($event)"
                             >
                             <label for="select-all" class="clients-list__checkbox-label"></label>
                         </div>
@@ -172,19 +172,17 @@
                     <td class="clients-list__table-cell clients-list__table-cell--select">
                         <div class="clients-list__checkbox-container">
                             <input
-                                    type="checkbox"
-                                    class="clients-list__checkbox"
-                                    [id]="'select-' + client.id"
-                                    [checked]="isClientSelected(client.id)"
-                                    (change)="toggleSelectClient($event, client.id)"
+                                type="checkbox"
+                                class="clients-list__checkbox"
+                                [id]="'select-' + client.id"
+                                [checked]="isClientSelected(client.id)"
+                                (change)="toggleSelectClient($event, client.id)"
                             >
                             <label [for]="'select-' + client.id" class="clients-list__checkbox-label"></label>
                         </div>
                     </td>
                     <td class="clients-list__table-cell clients-list__table-cell--name">
-                        <a [routerLink]="['/clients', client.id]" class="clients-list__name-link">
-                            {{ client.name }}
-                        </a>
+                        <a [routerLink]="['/clients', client.id, 'edit']" class="clients-list__name-link">{{ client.name }}</a>
                     </td>
                     <td class="clients-list__table-cell">
                         <span class="clients-list__code">{{ client.code }}</span>
@@ -220,13 +218,6 @@
                         </button>
                         <!-- Action menu -->
                         <div *ngIf="showOptions() && selectedClientId() === client.id" class="clients-list__options">
-                            <button class="clients-list__option" (click)="viewClient(client.id)">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                                View
-                            </button>
                             <button class="clients-list__option" (click)="editClient(client.id)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>

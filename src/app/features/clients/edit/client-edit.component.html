@@ -1,0 +1,281 @@
+<div class="client-edit">
+
+    <app-breadcrumbs [items]="breadcrumbs"></app-breadcrumbs>
+
+    <header class="client-edit__header">
+        <div class="client-edit__header-left">
+            <button class="client-edit__back-button" (click)="goBack()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M7.99998 12.6668L3.33331 8.00016M3.33331 8.00016L7.99998 3.3335M3.33331 8.00016H12.6666" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="client-edit__title-container">
+                <!-- Shimmer for client code when loading -->
+                <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedClientCode">
+                    <span class="client-edit__skeleton-client-code"></span>
+                </ng-container>
+                <ng-template #loadedClientCode>
+                    <span class="client-edit__client-code">{{ clientForm.get('code')?.value || '' }}</span>
+                </ng-template>
+
+                <!-- Shimmer for title when loading -->
+                <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedTitle">
+                    <h1 class="client-edit__skeleton-title"></h1>
+                </ng-container>
+                <ng-template #loadedTitle>
+                    <h1 class="client-edit__title">{{ clientForm.get('name')?.value || 'New Client' }}</h1>
+                </ng-template>
+            </div>
+        </div>
+        <div class="client-edit__header-right">
+            <button class="client-edit__save-continue-button" (click)="saveAndContinue()" [disabled]="!dataLoaded && route.snapshot.paramMap.get('id')">
+                Save and continue
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 12L10 8L6 4" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <button class="client-edit__save-button" (click)="saveClient()" [disabled]="!dataLoaded && route.snapshot.paramMap.get('id')">
+                Save
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2.66657 9.93284C2.17126 9.42679 1.79761 8.81465 1.57392 8.1428C1.35023 7.47095 1.28237 6.75701 1.37547 6.05504C1.46858 5.35308 1.7202 4.68151 2.1113 4.0912C2.50239 3.50089 3.02269 3.00732 3.63279 2.64788C4.24289 2.28843 4.92678 2.07255 5.63268 2.01656C6.33857 1.96058 7.04795 2.06597 7.70708 2.32475C8.36621 2.58353 8.9578 2.98892 9.43706 3.5102C9.91631 4.03149 10.2706 4.655 10.4732 5.33351H11.6666C12.3102 5.33344 12.9369 5.54039 13.4539 5.9238C13.9709 6.30722 14.3509 6.84675 14.5377 7.46271C14.7246 8.07868 14.7084 8.7384 14.4915 9.34443C14.2746 9.95045 13.8685 10.4707 13.3332 10.8282M8 8.00016V14.0002M8 8.00016L10.6667 10.6668M8 8.00016L5.33333 10.6668" stroke="white" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="client-edit__content">
+        <form [formGroup]="clientForm" class="client-edit__form">
+
+            <div class="client-edit__form-sections">
+                <!-- Basic Information Section -->
+                <div class="client-edit__section">
+                    <h2 class="client-edit__section-title">Basic Information</h2>
+
+                    <div class="client-edit__field-row">
+                        <div class="client-edit__field">
+                            <label class="client-edit__label" for="name">
+                                Name <span class="client-edit__required">*</span>
+                            </label>
+
+                            <!-- Shimmer skeleton when loading -->
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedNameField">
+                                <div class="client-edit__skeleton-field"></div>
+                            </ng-container>
+
+                            <!-- Actual input field when loaded -->
+                            <ng-template #loadedNameField>
+                                <input
+                                        type="text"
+                                        id="name"
+                                        class="client-edit__input"
+                                        formControlName="name"
+                                        [class.client-edit__input--error]="hasError('name')"
+                                        placeholder="Enter client name">
+                                <span *ngIf="hasError('name')" class="client-edit__error-message">
+                                    {{ getErrorMessage('name') }}
+                                </span>
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <div class="client-edit__field-row">
+                        <div class="client-edit__field">
+                            <label class="client-edit__label" for="code">
+                                Code <span class="client-edit__required">*</span>
+                            </label>
+
+                            <!-- Shimmer skeleton when loading -->
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedCodeField">
+                                <div class="client-edit__skeleton-field"></div>
+                            </ng-container>
+
+                            <!-- Actual input field when loaded -->
+                            <ng-template #loadedCodeField>
+                                <input
+                                        type="text"
+                                        id="code"
+                                        class="client-edit__input"
+                                        formControlName="code"
+                                        [class.client-edit__input--error]="hasError('code')"
+                                        placeholder="Enter unique client code">
+                                <span *ngIf="hasError('code')" class="client-edit__error-message">
+                                    {{ getErrorMessage('code') }}
+                                </span>
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <div class="client-edit__field-row">
+                        <div class="client-edit__field">
+                            <label class="client-edit__label" for="description">Description</label>
+
+                            <!-- Shimmer skeleton when loading -->
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedDescriptionField">
+                                <div class="client-edit__skeleton-field client-edit__skeleton-field--textarea"></div>
+                            </ng-container>
+
+                            <!-- Actual textarea field when loaded -->
+                            <ng-template #loadedDescriptionField>
+                                <textarea
+                                        id="description"
+                                        class="client-edit__textarea"
+                                        formControlName="description"
+                                        rows="4"
+                                        placeholder="Enter client description (optional)"></textarea>
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <div class="client-edit__field-row">
+                        <div class="client-edit__field">
+                            <label class="client-edit__label" for="vatNumber">VAT Number</label>
+
+                            <!-- Shimmer skeleton when loading -->
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedVatField">
+                                <div class="client-edit__skeleton-field"></div>
+                            </ng-container>
+
+                            <!-- Actual input field when loaded -->
+                            <ng-template #loadedVatField>
+                                <input
+                                        type="text"
+                                        id="vatNumber"
+                                        class="client-edit__input"
+                                        formControlName="vatNumber"
+                                        placeholder="Enter VAT number">
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information Section -->
+                <div class="client-edit__section">
+                    <h2 class="client-edit__section-title">Contact Information</h2>
+
+                    <div class="client-edit__field-row">
+                        <div class="client-edit__field">
+                            <label class="client-edit__label" for="email">Email</label>
+
+                            <!-- Shimmer skeleton when loading -->
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedEmailField">
+                                <div class="client-edit__skeleton-field"></div>
+                            </ng-container>
+
+                            <!-- Actual input field when loaded -->
+                            <ng-template #loadedEmailField>
+                                <input
+                                        type="email"
+                                        id="email"
+                                        class="client-edit__input"
+                                        formControlName="email"
+                                        [class.client-edit__input--error]="hasError('email')"
+                                        placeholder="client@example.com">
+                                <span *ngIf="hasError('email')" class="client-edit__error-message">
+                                    {{ getErrorMessage('email') }}
+                                </span>
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <div class="client-edit__field-row">
+                        <div class="client-edit__field">
+                            <label class="client-edit__label" for="phoneNumber">Phone Number</label>
+
+                            <!-- Shimmer skeleton when loading -->
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedPhoneField">
+                                <div class="client-edit__skeleton-field"></div>
+                            </ng-container>
+
+                            <!-- Actual input field when loaded -->
+                            <ng-template #loadedPhoneField>
+                                <input
+                                        type="tel"
+                                        id="phoneNumber"
+                                        class="client-edit__input"
+                                        formControlName="phoneNumber"
+                                        placeholder="+1 234 567 8900">
+                            </ng-template>
+                        </div>
+                    </div>
+
+                    <div class="client-edit__field-row">
+                        <div class="client-edit__field">
+                            <label class="client-edit__label" for="address">Address</label>
+
+                            <!-- Shimmer skeleton when loading -->
+                            <ng-container *ngIf="!dataLoaded && route.snapshot.paramMap.get('id'); else loadedAddressField">
+                                <div class="client-edit__skeleton-field client-edit__skeleton-field--textarea"></div>
+                            </ng-container>
+
+                            <!-- Actual textarea field when loaded -->
+                            <ng-template #loadedAddressField>
+                                <textarea
+                                        id="address"
+                                        class="client-edit__textarea"
+                                        formControlName="address"
+                                        rows="3"
+                                        placeholder="Enter client address"></textarea>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="client-edit__form-body">
+                <!-- Tabs Section -->
+                <div class="client-edit__tabs">
+                    <button
+                        class="client-edit__tab"
+                        [class.client-edit__tab--active]="activeTab === 'userAccounts'"
+                        (click)="setActiveTab('userAccounts')">
+                        User Accounts
+                    </button>
+
+                    <button
+                            class="client-edit__tab"
+                            [class.client-edit__tab--active]="activeTab === 'installedBase'"
+                            (click)="setActiveTab('installedBase')">
+                        Installed Base
+                    </button>
+
+                    <button
+                            class="client-edit__tab"
+                            [class.client-edit__tab--active]="activeTab === 'areaManagers'"
+                            (click)="setActiveTab('areaManagers')">
+                        Area Managers
+                    </button>
+                </div>
+
+                <!-- Tab Indicator Animation -->
+                <div class="client-edit__tab-indicator" [@tabIndicator]="activeTab"></div>
+
+                <!-- Tab Content with Animations -->
+                <div class="client-edit__tab-content">
+
+                    <!-- userAccounts Section -->
+                    <div class="client-edit__tab-section"
+                         *ngIf="activeTab === 'userAccounts'"
+                         [@tabAnimation]>
+                        userAccounts
+                    </div>
+
+                    <!-- installedBase Section -->
+                    <div class="client-edit__tab-section"
+                         *ngIf="activeTab === 'installedBase'"
+                         [@tabAnimation]>
+                        installedBase
+                    </div>
+
+                    <!-- areaManagers Section -->
+                    <div class="client-edit__tab-section"
+                         *ngIf="activeTab === 'areaManagers'"
+                         [@tabAnimation]>
+                        Area Managers
+                    </div>
+
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
