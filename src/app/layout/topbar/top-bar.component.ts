@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SearchComponent } from '@shared/components/ui/search/search.component';
+import { MobileMenuService } from '@services/mobile-menu.service';
 
 @Component({
     selector: 'app-top-bar',
@@ -8,7 +9,11 @@ import { SearchComponent } from '@shared/components/ui/search/search.component';
     styleUrls: ['./top-bar.component.scss']
 })
 export class TopBarComponent implements OnInit {
-  constructor() {}
+    constructor(private mobileMenuService: MobileMenuService) {}
 
-  ngOnInit(): void {}
+    ngOnInit(): void {}
+
+    toggleMobileMenu(): void {
+        this.mobileMenuService.toggle();
+    }
 }

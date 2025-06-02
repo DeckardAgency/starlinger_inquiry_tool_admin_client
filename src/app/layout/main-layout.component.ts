@@ -4,6 +4,7 @@ import { SidebarService } from '@services/sidebar.service';
 import { NotificationComponent } from "@shared/components/notification/notification.component";
 import { TopBarComponent } from "./topbar/top-bar.component";
 import { SidebarComponent } from "./sidebar/sidebar.component";
+import {MobileMenuComponent} from "./mobile-menu/mobile-menu.component";
 
 @Component({
     selector: 'app-main-layout',
@@ -13,16 +14,18 @@ import { SidebarComponent } from "./sidebar/sidebar.component";
         TopBarComponent,
         NotificationComponent,
         TopBarComponent,
-        SidebarComponent
+        SidebarComponent,
+        MobileMenuComponent
     ],
     template: `
     <div class="app">
-      <app-top-bar></app-top-bar>
-      <app-sidebar></app-sidebar>
-      <main class="app__main" [class.app__main--collapsed]="sidebarService.isCollapsed()">
+        <app-top-bar></app-top-bar>
+        <app-sidebar></app-sidebar>
+        <app-mobile-menu></app-mobile-menu>
+        <main class="app__main" [class.app__main--collapsed]="sidebarService.isCollapsed()">
         <router-outlet></router-outlet>
-      </main>
-      <app-notification></app-notification>
+        </main>
+        <app-notification></app-notification>
     </div>
   `,
     styleUrls: ['./main-layout.component.scss']

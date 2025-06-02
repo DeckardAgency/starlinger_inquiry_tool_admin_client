@@ -1,0 +1,160 @@
+<!-- Overlay backdrop -->
+@if (isOpen()) {
+    <div class="mobile-menu__overlay" @fadeIn (click)="closeMenu()"></div>
+}
+
+<!-- Mobile menu panel -->
+@if (isOpen()) {
+    <div class="mobile-menu" @slideIn>
+        <div class="mobile-menu__header">
+            <div class="mobile-menu__logo">
+                <svg width="62" height="52" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="a" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="62" height="52"><path d="M0 51.49h61.228V0H0v51.49Z" fill="#fff"/></mask><g mask="url(#a)"><path d="M15.691 22.366a.86.86 0 0 0-.982-.058.66.66 0 0 0-.174.124.89.89 0 0 0-.264.64c0 .174.056.339.166.492.119.145.405.375.576.509.92.706 1.878 1.294 1.887 1.3l.01.007.012.005c.026.013.085.049.162.094 3.716 2.187 8.522 3.476 13.53 3.476h.113c7.978-.059 16.23-3.45 16.23-9.025 0-1.867-1.15-3.803-3.52-5.922-1.974-1.642-4.297-3.173-6.512-4.584l-.581-.369c-3.601-2.29-7.003-4.453-7.003-6.08 0-.979 1.106-1.258 3.43-1.258 2.767 0 6.466.899 9.45 2.382l.133.067c.012.005.204.095.326.13.156.041.35.06.53-.007a.853.853 0 0 0 .505-1.046.846.846 0 0 0-.32-.437s-.103-.065-.27-.154a15.746 15.746 0 0 0-1.678-.733C38.012.61 34.57 0 30.614 0c-7.458 0-14.981 2.597-14.981 8.396 0 1.867 1.15 3.803 3.515 5.917 1.758 1.513 3.804 2.953 5.781 4.344 3.578 2.515 6.958 4.892 6.958 6.692 0 .843-.994 1.266-3.431 1.266-1.925 0-3.163-.22-3.163-.22-3.782-.638-6.797-1.89-9.495-3.949 0 0-.065-.05-.107-.079Z" fill="#DC1B30"/><path d="M2.951 48.286c-.97 0-1.953-.119-2.881-.43l.07-1.692c.815.445 1.715.593 2.629.593.871 0 1.799-.326 1.799-1.38 0-.757-.998-1.157-1.673-1.469l-.956-.445C.843 42.943 0 42.26 0 40.91c0-2.151 2.095-2.834 3.81-2.834.801 0 1.588.09 2.361.312L6.1 40.02c-.66-.297-1.448-.43-2.165-.43-.773 0-1.855.237-1.855 1.217 0 .682.815 1.053 1.434 1.305l1.012.416c1.237.505 2.15 1.202 2.15 2.745 0 2.167-1.883 3.013-3.725 3.013ZM10.415 48.286c-1.602 0-1.996-1.084-1.996-2.642v-3.62H7.154v-1.351h1.265v-1.514l1.94-.667v2.181h1.574v1.35H10.36v3.65c0 .624.155 1.129.843 1.129.267 0 .534-.06.773-.163l.057 1.365a5.012 5.012 0 0 1-1.617.282ZM17.528 44.576h-.253c-.984 0-2.516.119-2.516 1.41 0 .727.576 1.024 1.166 1.024 1.181 0 1.603-.965 1.603-2.063v-.371Zm.056 3.547-.042-1.158c-.478.801-1.35 1.32-2.25 1.32-1.293 0-2.389-.667-2.389-2.15 0-1.975 1.8-2.642 3.781-2.642.253 0 .577.014.844.03v-.253c0-1.039-.619-1.484-1.645-1.484-.717 0-1.476.178-2.136.594L13.662 41c.731-.267 1.701-.475 2.474-.475 1.898 0 3.261.712 3.261 2.893v2.953c0 .757.014 1.247.07 1.752h-1.883ZM25.104 42.424a1.726 1.726 0 0 0-.605-.104c-1.307 0-1.742 1.321-1.742 2.479v3.324h-1.94v-5.788c0-.549-.014-1.098-.07-1.647h1.827l.042 1.44c.323-.817 1.026-1.618 1.982-1.618.197 0 .38.015.562.074l-.056 1.84ZM26.228 37.424h1.94v10.7h-1.94v-10.7ZM29.925 40.673h1.94v7.45h-1.94v-7.45Zm0-3.027h1.94v1.648h-1.94v-1.648ZM38.148 48.123v-4.348c0-.891-.14-1.781-1.18-1.781-1.097 0-1.406 1.038-1.406 2.018v4.11h-1.94v-5.787c0-.549-.014-1.113-.07-1.662h1.827l.028 1.246c.464-.934 1.307-1.394 2.291-1.394 1.701 0 2.39 1.068 2.39 2.775v4.823h-1.94ZM44.74 41.964c-1.265 0-1.504 1.35-1.504 2.42 0 1.008.253 2.314 1.504 2.314 1.21 0 1.533-1.306 1.533-2.315 0-1.039-.31-2.419-1.533-2.419Zm-.351 9.527c-.9 0-1.8-.118-2.657-.4l.085-1.558a4.474 4.474 0 0 0 2.15.549c1.547 0 2.263-.935 2.263-2.434v-.801a2.564 2.564 0 0 1-2.206 1.276c-2.053 0-2.868-1.87-2.868-3.755 0-1.988.815-3.843 2.896-3.843.97 0 1.799.445 2.235 1.38v-1.232h1.883v6.975c0 2.552-1.406 3.843-3.781 3.843ZM52.696 41.756c-1.082 0-1.532 1.188-1.532 2.063h2.91c0-.935-.31-2.063-1.378-2.063Zm-1.532 3.161c.014 1.291.913 2.093 2.108 2.093.675 0 1.532-.164 2.123-.505l.084 1.38c-.787.297-1.757.4-2.6.4-2.362 0-3.64-1.453-3.64-3.917 0-2.211 1.405-3.843 3.443-3.843 2.263 0 3.163 1.677 3.163 3.932v.46h-4.681ZM61.172 42.424a1.726 1.726 0 0 0-.604-.104c-1.307 0-1.743 1.321-1.743 2.479v3.324h-1.94v-5.788c0-.549-.014-1.098-.07-1.647h1.827l.042 1.44c.324-.817 1.026-1.618 1.982-1.618.197 0 .38.015.562.074l-.056 1.84Z" fill="#18181B"/></g></svg>
+            </div>
+            <button class="mobile-menu__close" (click)="closeMenu()">
+                <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <nav class="mobile-menu__nav">
+            <ul class="mobile-menu__list">
+                <li class="mobile-menu__item">
+                    <a routerLink="/dashboard" routerLinkActive="mobile-menu__link--active" class="mobile-menu__link" (click)="closeMenu()">
+            <span class="mobile-menu__icon">
+              <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 14.667V8h4v6.667M2 6l6-4.667L14 6v7.333a1.334 1.334 0 0 1-1.333 1.334H3.333A1.334 1.334 0 0 1 2 13.333V6Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+                        <span class="mobile-menu__link-text">Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="mobile-menu__section">
+                    <h2 class="mobile-menu__section-title">Customer hub</h2>
+                    <ul class="mobile-menu__sub-list">
+                        <li class="mobile-menu__item">
+                            <a routerLink="/clients/list" [class.mobile-menu__link--active]="isRouteActive('clients')" class="mobile-menu__link" (click)="closeMenu()">
+                <span class="mobile-menu__icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M12.6668 14V12.6667C12.6668 11.9594 12.3859 11.2811 11.8858 10.781C11.3857 10.281 10.7074 10 10.0002 10H6.00016C5.29292 10 4.61464 10.281 4.11454 10.781C3.61445 11.2811 3.3335 11.9594 3.3335 12.6667V14M10.6668 4.66667C10.6668 6.13943 9.47292 7.33333 8.00016 7.33333C6.5274 7.33333 5.3335 6.13943 5.3335 4.66667C5.3335 3.19391 6.5274 2 8.00016 2C9.47292 2 10.6668 3.19391 10.6668 4.66667Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                                <span class="mobile-menu__link-text">Clients</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="mobile-menu__section">
+                    <h2 class="mobile-menu__section-title">Inquiry hub</h2>
+                    <ul class="mobile-menu__sub-list">
+                        <li class="mobile-menu__item">
+                            <a routerLink="/orders/list" [class.mobile-menu__link--active]="isRouteActive('orders')" class="mobile-menu__link" (click)="closeMenu()">
+                <span class="mobile-menu__icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <g clip-path="url(#clip0_866_12494)">
+                      <path d="M1.3335 4.66683L4.2735 1.72683C4.39753 1.60205 4.54504 1.50305 4.70752 1.43555C4.86999 1.36804 5.04422 1.33336 5.22016 1.3335H10.7802C10.9561 1.33336 11.1303 1.36804 11.2928 1.43555C11.4553 1.50305 11.6028 1.60205 11.7268 1.72683L14.6668 4.66683M1.3335 4.66683H14.6668M1.3335 4.66683V6.66683C1.3335 7.02045 1.47397 7.35959 1.72402 7.60964C1.97407 7.85969 2.31321 8.00016 2.66683 8.00016M14.6668 4.66683V6.66683C14.6668 7.02045 14.5264 7.35959 14.2763 7.60964C14.0263 7.85969 13.6871 8.00016 13.3335 8.00016M2.66683 8.00016V13.3335C2.66683 13.6871 2.80731 14.0263 3.05735 14.2763C3.3074 14.5264 3.64654 14.6668 4.00016 14.6668H12.0002C12.3538 14.6668 12.6929 14.5264 12.943 14.2763C13.193 14.0263 13.3335 13.6871 13.3335 13.3335V8.00016M2.66683 8.00016C3.05634 7.97872 3.42834 7.83133 3.72683 7.58016C3.80638 7.52268 3.90202 7.49174 4.00016 7.49174C4.09831 7.49174 4.19395 7.52268 4.2735 7.58016C4.57198 7.83133 4.94399 7.97872 5.3335 8.00016C5.72301 7.97872 6.09501 7.83133 6.3935 7.58016C6.47304 7.52268 6.56869 7.49174 6.66683 7.49174C6.76497 7.49174 6.86062 7.52268 6.94016 7.58016C7.23865 7.83133 7.61065 7.97872 8.00016 8.00016C8.38967 7.97872 8.76168 7.83133 9.06016 7.58016C9.13971 7.52268 9.23535 7.49174 9.3335 7.49174C9.43164 7.49174 9.52728 7.52268 9.60683 7.58016C9.90532 7.83133 10.2773 7.97872 10.6668 8.00016C11.0563 7.97872 11.4283 7.83133 11.7268 7.58016C11.8064 7.52268 11.902 7.49174 12.0002 7.49174C12.0983 7.49174 12.194 7.52268 12.2735 7.58016C12.572 7.83133 12.944 7.97872 13.3335 8.00016M10.0002 14.6668V12.0002C10.0002 11.6465 9.85969 11.3074 9.60964 11.0574C9.35959 10.8073 9.02045 10.6668 8.66683 10.6668H7.3335C6.97987 10.6668 6.64074 10.8073 6.39069 11.0574C6.14064 11.3074 6.00016 11.6465 6.00016 12.0002V14.6668" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_866_12494">
+                        <rect width="16" height="16" fill="white"/>
+                      </clipPath>
+                    </defs>
+                  </svg>
+                </span>
+                                <span class="mobile-menu__link-text">Shop orders</span>
+                            </a>
+                        </li>
+                        <li class="mobile-menu__item">
+                            <a routerLink="/manual-entry/list" routerLinkActive="mobile-menu__link--active" class="mobile-menu__link" (click)="closeMenu()">
+                <span class="mobile-menu__icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M11.3333 5.33333L8 2M8 2L4.66667 5.33333M8 2V10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                                <span class="mobile-menu__link-text">Manual entry</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="mobile-menu__section">
+                    <h2 class="mobile-menu__section-title">Product hub</h2>
+                    <ul class="mobile-menu__sub-list">
+                        <li class="mobile-menu__item">
+                            <a routerLink="/machines/list" [class.mobile-menu__link--active]="isRouteActive('machines')" class="mobile-menu__link" (click)="closeMenu()">
+                <span class="mobile-menu__icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8.00016 5.33317V2.6665H5.3335M1.3335 9.33317H2.66683M13.3335 9.33317H14.6668M10.0002 8.6665V9.99984M6.00016 8.6665V9.99984M4.00016 5.33317H12.0002C12.7365 5.33317 13.3335 5.93012 13.3335 6.6665V11.9998C13.3335 12.7362 12.7365 13.3332 12.0002 13.3332H4.00016C3.26378 13.3332 2.66683 12.7362 2.66683 11.9998V6.6665C2.66683 5.93012 3.26378 5.33317 4.00016 5.33317Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                                <span class="mobile-menu__link-text">Machines</span>
+                            </a>
+                        </li>
+                        <li class="mobile-menu__item">
+                            <a routerLink="/products/list" [class.mobile-menu__link--active]="isRouteActive('products')" class="mobile-menu__link" (click)="closeMenu()">
+                <span class="mobile-menu__icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M5 2.84652L11 6.27985M2.20003 4.6665L8.00003 7.99984M8.00003 7.99984L13.8 4.6665M8.00003 7.99984L8 14.6665M14 5.33311C13.9998 5.09929 13.938 4.86965 13.821 4.66721C13.704 4.46478 13.5358 4.29668 13.3333 4.17977L8.66667 1.51311C8.46397 1.39608 8.23405 1.33447 8 1.33447C7.76595 1.33447 7.53603 1.39608 7.33333 1.51311L2.66667 4.17977C2.46418 4.29668 2.29599 4.46478 2.17897 4.66721C2.06196 4.86965 2.00024 5.09929 2 5.33311V10.6664C2.00024 10.9003 2.06196 11.1299 2.17897 11.3323C2.29599 11.5348 2.46418 11.7029 2.66667 11.8198L7.33333 14.4864C7.53603 14.6035 7.76595 14.6651 8 14.6651C8.23405 14.6651 8.46397 14.6035 8.66667 14.4864L13.3333 11.8198C13.5358 11.7029 13.704 11.5348 13.821 11.3323C13.938 11.1299 13.9998 10.9003 14 10.6664V5.33311Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                                <span class="mobile-menu__link-text">Products</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="mobile-menu__section">
+                    <h2 class="mobile-menu__section-title">User hub</h2>
+                    <ul class="mobile-menu__sub-list">
+                        <li class="mobile-menu__item">
+                            <a routerLink="/users/list" [class.mobile-menu__link--active]="isRouteActive('users')" class="mobile-menu__link" (click)="closeMenu()">
+                <span class="mobile-menu__icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M10.6668 14V12.6667C10.6668 11.9594 10.3859 11.2811 9.88578 10.781C9.38568 10.281 8.70741 10 8.00016 10H4.00016C3.29292 10 2.61464 10.281 2.11454 10.781C1.61445 11.2811 1.3335 11.9594 1.3335 12.6667V14M14.6668 13.9999V12.6666C14.6664 12.0757 14.4697 11.5018 14.1077 11.0348C13.7457 10.5678 13.2389 10.2343 12.6668 10.0866M10.6668 2.08659C11.2404 2.23346 11.7489 2.56706 12.1119 3.0348C12.475 3.50254 12.6721 4.07781 12.6721 4.66992C12.6721 5.26204 12.475 5.83731 12.1119 6.30505C11.7489 6.77279 11.2404 7.10639 10.6668 7.25326M8.66683 4.66667C8.66683 6.13943 7.47292 7.33333 6.00016 7.33333C4.5274 7.33333 3.3335 6.13943 3.3335 4.66667C3.3335 3.19391 4.5274 2 6.00016 2C7.47292 2 8.66683 3.19391 8.66683 4.66667Z" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                                <span class="mobile-menu__link-text">Users</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="mobile-menu__footer">
+            @if (authService.isAuthenticated()) {
+                <div class="mobile-menu__user">
+                    <div class="mobile-menu__user-row" (click)="toggleUserDropdown($event)" role="button">
+            <span class="mobile-menu__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M12.6667 14V12.6667C12.6667 11.9594 12.3857 11.2811 11.8856 10.781C11.3855 10.281 10.7072 10 10 10H6C5.29275 10 4.61448 10.281 4.11438 10.781C3.61428 11.2811 3.33333 11.9594 3.33333 12.6667V14M10.6667 4.66667C10.6667 6.13943 9.47276 7.33333 8 7.33333C6.52724 7.33333 5.33333 6.13943 5.33333 4.66667C5.33333 3.19391 6.52724 2 8 2C9.47276 2 10.6667 3.19391 10.6667 4.66667Z" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+                        <div class="mobile-menu__user-info">
+                            <span class="mobile-menu__user-name">{{ userFullName }}</span>
+                            <span class="mobile-menu__user-role">{{ userRole }}</span>
+                        </div>
+                        <span class="mobile-menu__user-icon-arrow" [class.mobile-menu__user-icon-arrow--rotated]="isUserDropdownOpen()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="#3F3F46" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+                    </div>
+
+                    @if (isUserDropdownOpen()) {
+                        <div class="mobile-menu__user-dropdown" @expandCollapse>
+                            <div class="mobile-menu__user-logout" (click)="logout()" role="button">
+                <span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6M10.6667 11.3333L14 8M14 8L10.6667 4.66667M14 8H6" stroke="#09090B" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                                Logout
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
