@@ -1,4 +1,4 @@
-// Updated product-list.component.scss with search styles
+// Updated product-list.component.scss with search styles and sticky Name column
 .product-list {
   width: 100%;
 
@@ -332,6 +332,7 @@
     border: 1px solid #ddd;
     border-radius: 6px;
     margin-bottom: 1rem;
+    position: relative; // Add this for desktop too
 
     @media (max-width: 30rem) {
       margin-bottom: 0;
@@ -341,6 +342,11 @@
   &__table {
     width: 100%;
     border-collapse: collapse;
+
+    @media (max-width: 30rem) {
+      // Ensure table doesn't collapse below a minimum width
+      min-width: 1200px; // Increased to accommodate full-width columns
+    }
   }
 
   &__table-head {
@@ -358,13 +364,57 @@
     white-space: nowrap;
     position: relative;
 
+    @media (max-width: 30rem) {
+      // Set minimum widths for all columns on mobile
+      min-width: 150px;
+
+      // Code column
+      &:nth-child(3) {
+        min-width: 120px;
+      }
+
+      // Product ID column
+      &:nth-child(4) {
+        min-width: 180px;
+      }
+
+      // Short description column
+      &:nth-child(5) {
+        min-width: 250px;
+      }
+
+      // Qty column
+      &:nth-child(6) {
+        min-width: 80px;
+      }
+
+      // Weight column
+      &:nth-child(7) {
+        min-width: 100px;
+      }
+    }
+
     &--select {
       width: 40px;
       padding: 1rem;
+
+      @media (max-width: 30rem) {
+        // Make checkbox column sticky too
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background-color: #ffffff;
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+        min-width: 40px !important; // Override general min-width
+      }
     }
 
     &--actions {
       width: 50px;
+
+      @media (max-width: 30rem) {
+        min-width: 50px !important; // Override general min-width
+      }
     }
 
     // New styles for sortable headers
@@ -375,6 +425,19 @@
 
       &:hover {
         background-color: #f0f0f0;
+      }
+
+      @media (max-width: 30rem) {
+        // Make Name column sticky on mobile
+        &:nth-child(2) {
+          position: sticky;
+          left: 40px; // Position after checkbox column
+          z-index: 2;
+          background-color: #ffffff;
+          box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+          min-width: 120px !important; // Override general min-width for name column
+          max-width: 120px; // Prevent it from growing too much
+        }
       }
     }
   }
@@ -409,10 +472,18 @@
 
     // Add this new style for selected rows
     &--selected {
-      background-color: #E4E4E7; // Light green background
+      background-color: #E4E4E7;
 
       &:hover {
-        background-color: #E4E4E7; // Slightly darker on hover
+        background-color: #E4E4E7;
+      }
+
+      @media (max-width: 30rem) {
+        // Ensure sticky cells maintain selected background
+        .product-list__table-cell--select,
+        .product-list__table-cell:nth-child(2) {
+          background-color: #E4E4E7;
+        }
       }
     }
   }
@@ -421,15 +492,84 @@
     padding: 16px;
     font-size: 0.875rem;
 
+    @media (max-width: 30rem) {
+      // Prevent text wrapping on mobile
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      // Set minimum widths matching headers
+      min-width: 150px;
+
+      // Code column
+      &:nth-child(3) {
+        min-width: 120px;
+      }
+
+      // Product ID column
+      &:nth-child(4) {
+        min-width: 180px;
+      }
+
+      // Short description column - allow wrapping for this one
+      &:nth-child(5) {
+        min-width: 250px;
+        white-space: normal; // Allow wrapping for descriptions
+        line-height: 1.4;
+      }
+
+      // Qty column
+      &:nth-child(6) {
+        min-width: 80px;
+      }
+
+      // Weight column
+      &:nth-child(7) {
+        min-width: 100px;
+      }
+    }
+
     &--select {
       padding: 1rem;
       width: 40px;
+
+      @media (max-width: 30rem) {
+        // Make checkbox cells sticky
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: #fafafa;
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+        min-width: 40px !important; // Override general min-width
+      }
     }
 
     &--actions {
       text-align: right;
       width: 50px;
       position: relative;
+
+      @media (max-width: 30rem) {
+        min-width: 50px !important; // Override general min-width
+      }
+    }
+
+    @media (max-width: 30rem) {
+      // Make Name column cells sticky
+      &:nth-child(2) {
+        position: sticky;
+        left: 40px; // Position after checkbox column
+        z-index: 1;
+        background-color: #fafafa;
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.5), -2px 0 4px rgba(0, 0, 0, 0.5);
+        min-width: 120px; // Increased width for name column
+        max-width: 120px; // Prevent it from growing too much
+
+        // Maintain hover state
+        .product-list__table-row:hover & {
+          background-color: #f9f9f9;
+        }
+      }
     }
   }
 
@@ -496,8 +636,24 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 10;
+    z-index: 100; // Increased z-index
     width: 150px;
+
+    @media (max-width: 30rem) {
+      // On mobile, use fixed positioning relative to viewport
+      position: fixed;
+      right: 30px;
+      top: auto;
+      bottom: auto;
+      // Calculate position dynamically - you might need to adjust this in your component
+      //margin-top: 30px;
+      z-index: 1000; // High z-index to appear above everything
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+      // Ensure it doesn't go off-screen
+      max-height: 200px;
+      overflow-y: auto;
+    }
   }
 
   &__option {
@@ -609,6 +765,7 @@
       position: sticky;
       bottom: 0;
       background-color: #232323;
+      z-index: 40;
     }
 
   }

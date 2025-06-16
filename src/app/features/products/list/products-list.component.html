@@ -99,11 +99,11 @@
                     <th class="product-list__table-header product-list__table-header--select">
                         <div class="product-list__checkbox-container">
                             <input
-                                    type="checkbox"
-                                    class="product-list__checkbox"
-                                    id="select-all"
-                                    [checked]="selectionState().allSelected"
-                                    (change)="toggleSelectAll($event)"
+                                type="checkbox"
+                                class="product-list__checkbox"
+                                id="select-all"
+                                [checked]="selectionState().allSelected"
+                                (change)="toggleSelectAll($event)"
                             >
                             <label for="select-all" class="product-list__checkbox-label"></label>
                         </div>
@@ -130,11 +130,11 @@
                     <td class="product-list__table-cell product-list__table-cell--select">
                         <div class="product-list__checkbox-container">
                             <input
-                                    type="checkbox"
-                                    class="product-list__checkbox"
-                                    [id]="'select-' + product.id"
-                                    [checked]="isProductSelected(product.id)"
-                                    (change)="toggleSelectProduct($event, product.id)"
+                                type="checkbox"
+                                class="product-list__checkbox"
+                                [id]="'select-' + product.id"
+                                [checked]="isProductSelected(product.id)"
+                                (change)="toggleSelectProduct($event, product.id)"
                             >
                             <label [for]="'select-' + product.id" class="product-list__checkbox-label"></label>
                         </div>
