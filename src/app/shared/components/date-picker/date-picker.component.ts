@@ -32,38 +32,38 @@ interface StoredSelection {
 }
 
 @Component({
-    selector: 'app-date-picker',
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarComponent],
-    templateUrl: './date-picker.component.html',
-    styleUrls: ['./date-picker.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => DatePickerComponent),
-            multi: true
-        }
-    ],
-    animations: [
-        trigger('calendarAnimation', [
-            transition('void => visible', [
-                style({
-                    opacity: 0,
-                    transform: 'translateY(-20px) scale(0.95)'
-                }),
-                animate('200ms ease-out', style({
-                    opacity: 1,
-                    transform: 'translateY(0) scale(1)'
-                }))
-            ]),
-            transition('visible => hidden', [
-                animate('150ms ease-in', style({
-                    opacity: 0,
-                    transform: 'translateY(-20px) scale(0.95)'
-                }))
-            ])
-        ])
-    ]
+  selector: 'app-date-picker',
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, CalendarComponent],
+  templateUrl: './date-picker.component.html',
+  styleUrls: ['./date-picker.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => DatePickerComponent),
+      multi: true
+    }
+  ],
+  animations: [
+    trigger('calendarAnimation', [
+      transition('void => visible', [
+        style({
+          opacity: 0,
+          transform: 'translateY(-20px) scale(0.95)'
+        }),
+        animate('200ms ease-out', style({
+          opacity: 1,
+          transform: 'translateY(0) scale(1)'
+        }))
+      ]),
+      transition('visible => hidden', [
+        animate('150ms ease-in', style({
+          opacity: 0,
+          transform: 'translateY(-20px) scale(0.95)'
+        }))
+      ])
+    ])
+  ]
 })
 export class DatePickerComponent implements OnInit, ControlValueAccessor {
   private readonly destroyRef = inject(DestroyRef);
@@ -191,10 +191,11 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     }
 
     if (this.isRange && this.isRangeValue(value)) {
-      this.startDate.set(new Date(value.start));
-      this.endDate.set(new Date(value.end));
+      // Ensure dates are normalized to avoid timezone issues
+      this.startDate.set(this.normalizeDate(value.start));
+      this.endDate.set(this.normalizeDate(value.end));
     } else if (!this.isRange && value instanceof Date) {
-      this.selectedDate.set(new Date(value));
+      this.selectedDate.set(this.normalizeDate(value));
     }
   }
 
@@ -224,16 +225,21 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
   }
 
   onDateSelected(date: Date): void {
-    this.selectedDate.set(date);
+    const normalizedDate = this.normalizeDate(date);
+    this.selectedDate.set(normalizedDate);
     this.showCalendar.set(false);
-    this.onChange(date);
+    this.onChange(normalizedDate);
     this.markAsTouched();
   }
 
   onRangeSelected(range: { start: Date, end: Date }): void {
-    this.startDate.set(range.start);
-    this.endDate.set(range.end);
-    this.onChange(range);
+    const normalizedRange = {
+      start: this.normalizeDate(range.start),
+      end: this.normalizeDate(range.end)
+    };
+    this.startDate.set(normalizedRange.start);
+    this.endDate.set(normalizedRange.end);
+    this.onChange(normalizedRange);
     this.markAsTouched();
   }
 
@@ -244,7 +250,10 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
 
   // Programmatic control methods
   setDateRange(start: Date, end: Date): void {
-    const range = { start: new Date(start), end: new Date(end) };
+    const range = {
+      start: this.normalizeDate(start),
+      end: this.normalizeDate(end)
+    };
     this.startDate.set(range.start);
     this.endDate.set(range.end);
     this.onChange(range);
@@ -252,9 +261,9 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
   }
 
   setDate(date: Date): void {
-    const newDate = new Date(date);
-    this.selectedDate.set(newDate);
-    this.onChange(newDate);
+    const normalizedDate = this.normalizeDate(date);
+    this.selectedDate.set(normalizedDate);
+    this.onChange(normalizedDate);
     this.markAsTouched();
   }
 
@@ -267,11 +276,11 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
 
   // Date restriction helpers
   setMinDate(date: Date | string): void {
-    this.minDate = typeof date === 'string' ? new Date(date) : date;
+    this.minDate = typeof date === 'string' ? this.parseDate(date) : this.normalizeDate(date);
   }
 
   setMaxDate(date: Date | string): void {
-    this.maxDate = typeof date === 'string' ? new Date(date) : date;
+    this.maxDate = typeof date === 'string' ? this.parseDate(date) : this.normalizeDate(date);
   }
 
   setDisableFutureDates(disable: boolean): void {
@@ -308,15 +317,56 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     return value && typeof value === 'object' && 'start' in value && 'end' in value;
   }
 
+  /**
+   * Normalizes a date to ensure consistent behavior across timezones
+   * Sets time to noon (12:00) in local timezone to avoid DST issues
+   */
+  private normalizeDate(date: Date): Date {
+    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+      throw new Error('Invalid date provided to normalizeDate');
+    }
+
+    const normalized = new Date(date);
+    // Set to noon to avoid timezone issues when dates cross DST boundaries
+    normalized.setHours(12, 0, 0, 0);
+    return normalized;
+  }
+
+  /**
+   * Parses a date string to a normalized Date object
+   * Handles both ISO strings and date-only strings (YYYY-MM-DD)
+   */
+  private parseDate(dateString: string): Date {
+    // Handle date-only format (YYYY-MM-DD) to avoid timezone issues
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [year, month, day] = dateString.split('-').map(Number);
+      return new Date(year, month - 1, day, 12, 0, 0, 0);
+    }
+
+    // Handle ISO string or other formats
+    const parsed = new Date(dateString);
+    return this.normalizeDate(parsed);
+  }
+
+  /**
+   * Converts a date to a date-only string (YYYY-MM-DD) to avoid timezone issues in storage
+   */
+  private dateToDateString(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   private createStoredSelection(): StoredSelection {
     if (this.isRange) {
       return {
-        startDate: this.startDate()?.toISOString(),
-        endDate: this.endDate()?.toISOString()
+        startDate: this.startDate() ? this.dateToDateString(this.startDate()!) : undefined,
+        endDate: this.endDate() ? this.dateToDateString(this.endDate()!) : undefined
       };
     }
     return {
-      selectedDate: this.selectedDate()?.toISOString()
+      selectedDate: this.selectedDate() ? this.dateToDateString(this.selectedDate()!) : undefined
     };
   }
 
@@ -333,17 +383,17 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
 
     try {
       if (this.isRange) {
-        if (saved.startDate) this.startDate.set(new Date(saved.startDate));
-        if (saved.endDate) this.endDate.set(new Date(saved.endDate));
+        if (saved.startDate) this.startDate.set(this.parseDate(saved.startDate));
+        if (saved.endDate) this.endDate.set(this.parseDate(saved.endDate));
 
         if (saved.startDate && saved.endDate) {
           this.onChange({
-            start: new Date(saved.startDate),
-            end: new Date(saved.endDate)
+            start: this.parseDate(saved.startDate),
+            end: this.parseDate(saved.endDate)
           });
         }
       } else if (saved.selectedDate) {
-        const date = new Date(saved.selectedDate);
+        const date = this.parseDate(saved.selectedDate);
         this.selectedDate.set(date);
         this.onChange(date);
       }
