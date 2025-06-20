@@ -145,7 +145,7 @@ export class MachinesEditComponent implements OnInit {
             // Basic machine info
             ibStationNumber: ['', Validators.required],
             ibSerialNumber: ['', Validators.required],
-            articleNumber: ['', Validators.required],
+            articleNumber: [''],
             articleDescription: [''],
             orderNumber: [''],
             deliveryDate: [''],

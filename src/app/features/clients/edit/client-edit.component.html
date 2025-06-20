@@ -64,16 +64,18 @@
 
                             <!-- Actual input field when loaded -->
                             <ng-template #loadedNameField>
-                                <input
-                                        type="text"
-                                        id="name"
-                                        class="client-edit__input"
-                                        formControlName="name"
-                                        [class.client-edit__input--error]="hasError('name')"
-                                        placeholder="Enter client name">
-                                <span *ngIf="hasError('name')" class="client-edit__error-message">
-                                    {{ getErrorMessage('name') }}
-                                </span>
+                                <div class="client-edit__input-wrapper">
+                                    <input
+                                            type="text"
+                                            id="name"
+                                            class="client-edit__input"
+                                            formControlName="name"
+                                            [class.client-edit__input--error]="hasError('name')"
+                                            placeholder="Enter client name">
+                                    <span *ngIf="hasError('name')" class="client-edit__error-message">
+                                        {{ getErrorMessage('name') }}
+                                    </span>
+                                </div>
                             </ng-template>
                         </div>
                     </div>
@@ -91,16 +93,18 @@
 
                             <!-- Actual input field when loaded -->
                             <ng-template #loadedCodeField>
-                                <input
-                                        type="text"
-                                        id="code"
-                                        class="client-edit__input"
-                                        formControlName="code"
-                                        [class.client-edit__input--error]="hasError('code')"
-                                        placeholder="Enter unique client code">
-                                <span *ngIf="hasError('code')" class="client-edit__error-message">
-                                    {{ getErrorMessage('code') }}
-                                </span>
+                                <div class="client-edit__input-wrapper">
+                                    <input
+                                            type="text"
+                                            id="code"
+                                            class="client-edit__input"
+                                            formControlName="code"
+                                            [class.client-edit__input--error]="hasError('code')"
+                                            placeholder="Enter unique client code">
+                                    <span *ngIf="hasError('code')" class="client-edit__error-message">
+                                        {{ getErrorMessage('code') }}
+                                    </span>
+                                </div>
                             </ng-template>
                         </div>
                     </div>
@@ -116,12 +120,14 @@
 
                             <!-- Actual textarea field when loaded -->
                             <ng-template #loadedDescriptionField>
-                                <textarea
-                                        id="description"
-                                        class="client-edit__textarea"
-                                        formControlName="description"
-                                        rows="4"
-                                        placeholder="Enter client description (optional)"></textarea>
+                                <div class="client-edit__input-wrapper">
+                                    <textarea
+                                            id="description"
+                                            class="client-edit__textarea"
+                                            formControlName="description"
+                                            rows="4"
+                                            placeholder="Enter client description (optional)"></textarea>
+                                </div>
                             </ng-template>
                         </div>
                     </div>
@@ -137,12 +143,14 @@
 
                             <!-- Actual input field when loaded -->
                             <ng-template #loadedVatField>
-                                <input
-                                        type="text"
-                                        id="vatNumber"
-                                        class="client-edit__input"
-                                        formControlName="vatNumber"
-                                        placeholder="Enter VAT number">
+                                <div class="client-edit__input-wrapper">
+                                    <input
+                                            type="text"
+                                            id="vatNumber"
+                                            class="client-edit__input"
+                                            formControlName="vatNumber"
+                                            placeholder="Enter VAT number">
+                                </div>
                             </ng-template>
                         </div>
                     </div>
@@ -163,16 +171,18 @@
 
                             <!-- Actual input field when loaded -->
                             <ng-template #loadedEmailField>
-                                <input
-                                        type="email"
-                                        id="email"
-                                        class="client-edit__input"
-                                        formControlName="email"
-                                        [class.client-edit__input--error]="hasError('email')"
-                                        placeholder="client@example.com">
-                                <span *ngIf="hasError('email')" class="client-edit__error-message">
-                                    {{ getErrorMessage('email') }}
-                                </span>
+                                <div class="client-edit__input-wrapper">
+                                    <input
+                                            type="email"
+                                            id="email"
+                                            class="client-edit__input"
+                                            formControlName="email"
+                                            [class.client-edit__input--error]="hasError('email')"
+                                            placeholder="client@example.com">
+                                    <span *ngIf="hasError('email')" class="client-edit__error-message">
+                                        {{ getErrorMessage('email') }}
+                                    </span>
+                                </div>
                             </ng-template>
                         </div>
                     </div>
@@ -188,12 +198,14 @@
 
                             <!-- Actual input field when loaded -->
                             <ng-template #loadedPhoneField>
-                                <input
-                                        type="tel"
-                                        id="phoneNumber"
-                                        class="client-edit__input"
-                                        formControlName="phoneNumber"
-                                        placeholder="+1 234 567 8900">
+                                <div class="client-edit__input-wrapper">
+                                    <input
+                                            type="tel"
+                                            id="phoneNumber"
+                                            class="client-edit__input"
+                                            formControlName="phoneNumber"
+                                            placeholder="+1 234 567 8900">
+                                </div>
                             </ng-template>
                         </div>
                     </div>
@@ -209,12 +221,14 @@
 
                             <!-- Actual textarea field when loaded -->
                             <ng-template #loadedAddressField>
-                                <textarea
-                                        id="address"
-                                        class="client-edit__textarea"
-                                        formControlName="address"
-                                        rows="3"
-                                        placeholder="Enter client address"></textarea>
+                                <div class="client-edit__input-wrapper">
+                                    <textarea
+                                            id="address"
+                                            class="client-edit__textarea"
+                                            formControlName="address"
+                                            rows="3"
+                                            placeholder="Enter client address"></textarea>
+                                </div>
                             </ng-template>
                         </div>
                     </div>
@@ -225,6 +239,7 @@
                 <!-- Tabs Section -->
                 <div class="client-edit__tabs">
                     <button
+                            type="button"
                             class="client-edit__tab"
                             [class.client-edit__tab--active]="activeTab === 'userAccounts'"
                             (click)="setActiveTab('userAccounts')">
@@ -232,6 +247,7 @@
                     </button>
 
                     <button
+                            type="button"
                             class="client-edit__tab"
                             [class.client-edit__tab--active]="activeTab === 'installedBase'"
                             (click)="setActiveTab('installedBase')">
@@ -239,6 +255,7 @@
                     </button>
 
                     <button
+                            type="button"
                             class="client-edit__tab"
                             [class.client-edit__tab--active]="activeTab === 'areaManagers'"
                             (click)="setActiveTab('areaManagers')">
@@ -260,7 +277,7 @@
                         <!-- User accounts header -->
                         <div class="client-edit__users-header">
                             <h3 class="client-edit__users-title">User Accounts</h3>
-                            <button class="client-edit__add-user-btn" (click)="addUser()">
+                            <button type="button" class="client-edit__add-user-btn" (click)="addUser()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                     <path d="M8 3.33334V12.6667M3.33333 8H12.6667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
@@ -287,7 +304,7 @@
                                 <path d="M34 42V38C34 35.8783 33.1571 33.8434 31.6569 32.3431C30.1566 30.8429 28.1217 30 26 30H10C7.87827 30 5.84344 30.8429 4.34315 32.3431C2.84285 33.8434 2 35.8783 2 38V42M44 42V38C43.9987 36.2275 43.4087 34.5055 42.3227 33.1046C41.2368 31.7037 39.7163 30.7018 38 30.26M30 6.26C31.7208 6.69982 33.2461 7.70117 34.3353 9.10386C35.4245 10.5066 36.0157 12.2315 36.0157 14.01C36.0157 15.7885 35.4245 17.5134 34.3353 18.9161C33.2461 20.3188 31.7208 21.3202 30 21.76M26 14C26 18.4183 22.4183 22 18 22C13.5817 22 10 18.4183 10 14C10 9.58172 13.5817 6 18 6C22.4183 6 26 9.58172 26 14Z" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                             <p>No users assigned to this client</p>
-                            <button class="client-edit__add-first-user-btn" (click)="addUser()">
+                            <button type="button" class="client-edit__add-first-user-btn" (click)="addUser()">
                                 Add First User
                             </button>
                         </div>
@@ -332,20 +349,21 @@
                                     <td>
                                         <div class="client-edit__user-roles">
                                             <span
-                                                *ngFor="let role of getRoleBadges(user.roles)"
-                                                class="client-edit__role-badge"
-                                                [class.client-edit__role-badge--admin]="role === 'Admin'"
-                                                [class.client-edit__role-badge--manager]="role === 'Manager'"
-                                                [class.client-edit__role-badge--sales]="role === 'Sales'">
+                                                    *ngFor="let role of getRoleBadges(user.roles)"
+                                                    class="client-edit__role-badge"
+                                                    [class.client-edit__role-badge--admin]="role === 'Admin'"
+                                                    [class.client-edit__role-badge--manager]="role === 'Manager'"
+                                                    [class.client-edit__role-badge--sales]="role === 'Sales'">
                                                 {{ role }}
                                             </span>
                                         </div>
                                     </td>
                                     <td class="client-edit__table-actions">
                                         <button
-                                            class="client-edit__action-btn client-edit__action-btn--delete"
-                                            (click)="removeUser(user.id)"
-                                            title="Remove user from client">
+                                                type="button"
+                                                class="client-edit__action-btn client-edit__action-btn--delete"
+                                                (click)="removeUser(user.id)"
+                                                title="Remove user from client">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                                 <path d="M2 4H3.33333H14M4.66667 4V13.3333C4.66667 13.6870 4.80714 14.0261 5.05719 14.2761C5.30724 14.5262 5.64638 14.6667 6 14.6667H10C10.3536 14.6667 10.6928 14.5262 10.9428 14.2761C11.1929 14.0261 11.3333 13.6870 11.3333 13.3333V4M6.66667 4V2.66667C6.66667 2.31304 6.80714 1.97391 7.05719 1.72386C7.30724 1.47381 7.64638 1.33333 8 1.33333C8.35362 1.33333 8.69276 1.47381 8.94281 1.72386C9.19286 1.97391 9.33333 2.31304 9.33333 2.66667V4" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
@@ -358,7 +376,7 @@
                             <!-- Bulk actions -->
                             <div *ngIf="selectedUsers.size > 0" class="client-edit__bulk-actions">
                                 <span class="client-edit__selected-count">{{ selectedUsers.size }} user(s) selected</span>
-                                <button class="client-edit__bulk-action-btn" (click)="selectedUsers.clear(); allUsersSelected = false">
+                                <button type="button" class="client-edit__bulk-action-btn" (click)="selectedUsers.clear(); allUsersSelected = false">
                                     Deselect All
                                 </button>
                             </div>
@@ -369,7 +387,9 @@
                     <div class="client-edit__tab-section"
                          *ngIf="activeTab === 'installedBase'"
                          [@tabAnimation]>
-                        installedBase
+                        <client-installed-base
+                                [clientCode]="clientForm.get('code')?.value">
+                        </client-installed-base>
                     </div>
 
                     <!-- areaManagers Section -->
@@ -390,7 +410,7 @@
         <div class="client-edit__modal" (click)="$event.stopPropagation()">
             <div class="client-edit__modal-header">
                 <h3 class="client-edit__modal-title">Select User to Add</h3>
-                <button class="client-edit__modal-close" (click)="closeUserModal()">
+                <button type="button" class="client-edit__modal-close" (click)="closeUserModal()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -404,7 +424,7 @@
                         placeholder="Search by email..."
                         [(ngModel)]="modalSearchTerm"
                         (keyup.enter)="searchModalUsers()">
-                <button class="client-edit__modal-search-btn" (click)="searchModalUsers()">
+                <button type="button" class="client-edit__modal-search-btn" (click)="searchModalUsers()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M14 14L11.1 11.1M12.6667 7.33333C12.6667 10.2789 10.2789 12.6667 7.33333 12.6667C4.38781 12.6667 2 10.2789 2 7.33333C2 4.38781 4.38781 2 7.33333 2C10.2789 2 12.6667 4.38781 12.6667 7.33333Z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -454,6 +474,7 @@
 
             <div class="client-edit__modal-footer" *ngIf="modalTotalPages > 1">
                 <button
+                        type="button"
                         class="client-edit__modal-page-btn"
                         (click)="previousModalPage()"
                         [disabled]="modalCurrentPage === 1">
@@ -463,6 +484,7 @@
                     Page {{ modalCurrentPage }} of {{ modalTotalPages }}
                 </span>
                 <button
+                        type="button"
                         class="client-edit__modal-page-btn"
                         (click)="nextModalPage()"
                         [disabled]="modalCurrentPage === modalTotalPages">

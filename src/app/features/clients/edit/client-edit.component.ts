@@ -19,6 +19,7 @@ import {
 import { NotificationService } from "@services/notification.service";
 import { HttpClient } from '@angular/common/http';
 import { environment } from '@env/environment';
+import {ClientInstalledBaseComponent} from "@shared/components/client-installed-base/client-installed-base.component";
 
 @Component({
     selector: 'app-client-edit',
@@ -27,7 +28,8 @@ import { environment } from '@env/environment';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        BreadcrumbsComponent
+        BreadcrumbsComponent,
+        ClientInstalledBaseComponent
     ],
     templateUrl: './client-edit.component.html',
     styleUrls: ['./client-edit.component.scss'],

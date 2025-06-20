@@ -1,0 +1,334 @@
+<div class="client-installed-base">
+    <!-- Installed Base header -->
+    <div class="client-installed-base__header">
+        <h3 class="client-installed-base__title">Installed Base</h3>
+        <div class="client-installed-base__header-actions">
+            <button
+                    type="button"
+                    class="client-installed-base__add-machine-btn"
+                    (click)="openAddMachineModal()"
+                    [disabled]="!currentClient">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 3.33334V12.6667M3.33333 8H12.6667" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Add Machine
+            </button>
+            <button
+                    type="button"
+                    class="client-installed-base__refresh-btn"
+                    (click)="refresh()"
+                    [disabled]="installedBasesLoading"
+                    title="Refresh installed base data">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M13.6503 2.34961C12.5255 1.22484 11.0769 0.505369 9.50039 0.290833C7.92386 0.0762973 6.31444 0.378109 4.89665 1.15407C3.47886 1.93003 2.32479 3.14298 1.60013 4.63457C0.875473 6.12616 0.621298 7.8207 0.875059 9.47461" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2.34961 13.6504C3.47438 14.7751 4.92297 15.4946 6.4995 15.7092C8.07603 15.9237 9.68545 15.6219 11.1032 14.8459C12.521 14.07 13.6751 12.857 14.3997 11.3654C15.1244 9.87384 15.3786 8.17929 15.1248 6.52539" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M0.666992 4.00016L2.34699 2.32016L4.02699 4.00016" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15.333 12L13.653 13.68L11.973 12" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span *ngIf="!installedBasesLoading">Refresh</span>
+                <span *ngIf="installedBasesLoading">Loading...</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading state -->
+    <div *ngIf="installedBasesLoading" class="client-installed-base__loading">
+        <div class="client-installed-base__skeleton-table">
+            <div class="client-installed-base__skeleton-row" *ngFor="let i of [1,2,3]">
+                <div class="client-installed-base__skeleton-cell client-installed-base__skeleton-cell--name"></div>
+                <div class="client-installed-base__skeleton-cell client-installed-base__skeleton-cell--status"></div>
+                <div class="client-installed-base__skeleton-cell client-installed-base__skeleton-cell--date"></div>
+                <div class="client-installed-base__skeleton-cell client-installed-base__skeleton-cell--location"></div>
+                <div class="client-installed-base__skeleton-cell client-installed-base__skeleton-cell--date"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No installed base state -->
+    <div *ngIf="!installedBasesLoading && installedBasesLoaded && installedBases.length === 0" class="client-installed-base__no-data">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <path d="M6 10H42V38C42 39.0609 41.5786 40.0783 40.8284 40.8284C40.0783 41.5786 39.0609 42 38 42H10C8.93913 42 7.92172 41.5786 7.17157 40.8284C6.42143 40.0783 6 39.0609 6 38V10Z" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M42 10V8C42 6.93913 41.5786 5.92172 40.8284 5.17157C40.0783 4.42143 39.0609 4 38 4H10C8.93913 4 7.92172 4.42143 7.17157 5.17157C6.42143 5.92172 6 6.93913 6 8V10" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M24 30V22M20 26H28" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p>No machines installed for this client</p>
+        <p class="client-installed-base__no-data-hint">Client code: <strong>{{ clientCode }}</strong></p>
+        <button
+                type="button"
+                class="client-installed-base__add-first-machine-btn"
+                (click)="openAddMachineModal()"
+                [disabled]="!currentClient">
+            Add First Machine
+        </button>
+    </div>
+
+    <!-- Installed Base table -->
+    <div *ngIf="!installedBasesLoading && installedBases.length > 0" class="client-installed-base__table-container">
+        <table class="client-installed-base__table">
+            <thead>
+            <tr>
+                <th>Machine</th>
+                <th>Status</th>
+                <th>Installed Date</th>
+                <th>Location</th>
+                <th>Warranty End</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let installedBase of installedBases; trackBy: trackByInstalledBase">
+                <td>
+                    <div class="client-installed-base__machine-info">
+                        <div class="client-installed-base__machine-name">
+                            {{ getMachineDisplayName(installedBase.machine) }}
+                        </div>
+                        <div class="client-installed-base__machine-details" *ngIf="installedBase.machine.articleDescription">
+                            {{ installedBase.machine.articleDescription }}
+                        </div>
+                    </div>
+                </td>
+                <td>
+            <span class="client-installed-base__status-badge" [ngClass]="getStatusBadgeClass(installedBase.status)">
+              {{ formatStatusText(installedBase.status) }}
+            </span>
+                </td>
+                <td class="client-installed-base__date-cell">
+                    {{ formatDate(installedBase.installedDate) }}
+                </td>
+                <td class="client-installed-base__location-cell">
+                    {{ installedBase.location || '-' }}
+                </td>
+                <td class="client-installed-base__date-cell">
+                    {{ formatDate(installedBase.warrantyEndDate) }}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Summary -->
+        <div class="client-installed-base__summary">
+      <span class="client-installed-base__summary-text">
+        Total: {{ installedBases.length }} machine{{ installedBases.length !== 1 ? 's' : '' }}
+      </span>
+        </div>
+    </div>
+</div>
+
+<!-- Add Machine Modal -->
+<div class="client-installed-base__modal-overlay" *ngIf="showAddMachineModal" (click)="closeAddMachineModal()">
+    <div class="client-installed-base__modal" (click)="$event.stopPropagation()">
+        <div class="client-installed-base__modal-header">
+            <h3 class="client-installed-base__modal-title">Add Machine to Client</h3>
+            <button type="button" class="client-installed-base__modal-close" (click)="closeAddMachineModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <form [formGroup]="addMachineForm" (ngSubmit)="saveMachineInstallation()" class="client-installed-base__form">
+            <!-- Machine Selection -->
+            <div class="client-installed-base__modal-section">
+                <h4 class="client-installed-base__section-title">Select Machine</h4>
+
+                <!-- Machine Search -->
+                <div class="client-installed-base__machine-search">
+                    <input
+                            type="text"
+                            class="client-installed-base__search-input"
+                            placeholder="Search by serial number..."
+                            [(ngModel)]="machineSearchTerm"
+                            [ngModelOptions]="{standalone: true}"
+                            (keyup.enter)="searchMachines()">
+                    <button type="button" class="client-installed-base__search-btn" (click)="searchMachines()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M14 14L11.1 11.1M12.6667 7.33333C12.6667 10.2789 10.2789 12.6667 7.33333 12.6667C4.38781 12.6667 2 10.2789 2 7.33333C2 4.38781 4.38781 2 7.33333 2C10.2789 2 12.6667 4.38781 12.6667 7.33333Z" stroke="currentColor" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Selected Machine Display -->
+                <div *ngIf="selectedMachine" class="client-installed-base__selected-machine">
+                    <div class="client-installed-base__selected-machine-info">
+                        <strong>Selected:</strong> {{ getMachineDisplayName(selectedMachine) }}
+                        <span *ngIf="selectedMachine.articleDescription" class="client-installed-base__selected-machine-desc">
+              - {{ selectedMachine.articleDescription }}
+            </span>
+                    </div>
+                    <button type="button" class="client-installed-base__clear-selection" (click)="selectedMachine = null; addMachineForm.patchValue({machine: null})">
+                        Clear
+                    </button>
+                </div>
+
+                <!-- Machine List -->
+                <div class="client-installed-base__machine-list">
+                    <!-- Loading -->
+                    <div *ngIf="machinesLoading" class="client-installed-base__machines-loading">
+                        <div class="client-installed-base__skeleton-machine" *ngFor="let i of [1,2,3,4,5]"></div>
+                    </div>
+
+                    <!-- Machine Items -->
+                    <div *ngIf="!machinesLoading && machines.length > 0" class="client-installed-base__machines">
+                        <div
+                                *ngFor="let machine of machines; trackBy: trackByMachine"
+                                class="client-installed-base__machine-item"
+                                [class.client-installed-base__machine-item--selected]="selectedMachine?.id === machine.id"
+                                (click)="selectMachine(machine)">
+                            <div class="client-installed-base__machine-item-info">
+                                <div class="client-installed-base__machine-item-name">
+                                    {{ getMachineDisplayName(machine) }}
+                                </div>
+                                <div *ngIf="machine.articleDescription" class="client-installed-base__machine-item-desc">
+                                    {{ machine.articleDescription }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No Machines -->
+                    <div *ngIf="!machinesLoading && machines.length === 0" class="client-installed-base__no-machines">
+                        <p>No available machines found</p>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div *ngIf="machineTotalPages > 1" class="client-installed-base__machine-pagination">
+                        <button
+                                type="button"
+                                class="client-installed-base__page-btn"
+                                (click)="previousMachinePage()"
+                                [disabled]="machineCurrentPage === 1">
+                            Previous
+                        </button>
+                        <span class="client-installed-base__page-info">
+              Page {{ machineCurrentPage }} of {{ machineTotalPages }}
+            </span>
+                        <button
+                                type="button"
+                                class="client-installed-base__page-btn"
+                                (click)="nextMachinePage()"
+                                [disabled]="machineCurrentPage === machineTotalPages">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Installation Details -->
+            <div class="client-installed-base__modal-section">
+                <h4 class="client-installed-base__section-title">Installation Details</h4>
+
+                <div class="client-installed-base__form-grid">
+                    <!-- Installation Date -->
+                    <div class="client-installed-base__form-field">
+                        <label class="client-installed-base__label">
+                            Installation Date <span class="client-installed-base__required">*</span>
+                        </label>
+                        <input
+                                type="date"
+                                class="client-installed-base__input"
+                                formControlName="installedDate"
+                                [class.client-installed-base__input--error]="hasError('installedDate')">
+                        <span *ngIf="hasError('installedDate')" class="client-installed-base__error">
+              {{ getErrorMessage('installedDate') }}
+            </span>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="client-installed-base__form-field">
+                        <label class="client-installed-base__label">
+                            Status <span class="client-installed-base__required">*</span>
+                        </label>
+                        <select
+                                class="client-installed-base__select"
+                                formControlName="status"
+                                [class.client-installed-base__input--error]="hasError('status')">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="decommissioned">Decommissioned</option>
+                        </select>
+                        <span *ngIf="hasError('status')" class="client-installed-base__error">
+              {{ getErrorMessage('status') }}
+            </span>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="client-installed-base__form-field">
+                        <label class="client-installed-base__label">Location</label>
+                        <input
+                                type="text"
+                                class="client-installed-base__input"
+                                formControlName="location"
+                                placeholder="Installation location">
+                    </div>
+
+                    <!-- Warranty End Date -->
+                    <div class="client-installed-base__form-field">
+                        <label class="client-installed-base__label">Warranty End Date</label>
+                        <input
+                                type="date"
+                                class="client-installed-base__input"
+                                formControlName="warrantyEndDate">
+                    </div>
+
+                    <!-- Installed By -->
+                    <div class="client-installed-base__form-field">
+                        <label class="client-installed-base__label">Installed By</label>
+                        <input
+                                type="text"
+                                class="client-installed-base__input"
+                                formControlName="installedBy"
+                                placeholder="Name of installer">
+                    </div>
+
+                    <!-- Installation Reference -->
+                    <div class="client-installed-base__form-field">
+                        <label class="client-installed-base__label">Installation Reference</label>
+                        <input
+                                type="text"
+                                class="client-installed-base__input"
+                                formControlName="installationReference"
+                                placeholder="Reference number">
+                    </div>
+
+                    <!-- Monthly Rate -->
+                    <div class="client-installed-base__form-field client-installed-base__form-field--full">
+                        <label class="client-installed-base__label">Monthly Rate</label>
+                        <input
+                                type="text"
+                                class="client-installed-base__input"
+                                formControlName="monthlyRate"
+                                placeholder="Monthly rate or fee">
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="client-installed-base__form-field client-installed-base__form-field--full">
+                        <label class="client-installed-base__label">Notes</label>
+                        <textarea
+                                class="client-installed-base__textarea"
+                                formControlName="notes"
+                                rows="3"
+                                placeholder="Additional notes or comments"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="client-installed-base__modal-footer">
+                <button
+                        type="button"
+                        class="client-installed-base__cancel-btn"
+                        (click)="closeAddMachineModal()"
+                        [disabled]="savingMachine">
+                    Cancel
+                </button>
+                <button
+                        type="submit"
+                        class="client-installed-base__save-btn"
+                        [disabled]="!addMachineForm.valid || savingMachine">
+                    <span *ngIf="!savingMachine">Install Machine</span>
+                    <span *ngIf="savingMachine">Installing...</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
