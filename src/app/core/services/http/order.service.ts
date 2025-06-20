@@ -129,6 +129,66 @@ export class OrderService {
     }
 
     /**
+     * Export orders to Excel with current filters and sorting
+     */
+    exportOrdersToExcel(
+        sortField?: string,
+        sortDirection?: 'asc' | 'desc',
+        searchParams: Record<string, string> = {},
+        filters: { status?: string[], isDraft?: boolean } = {}
+    ): Observable<Blob> {
+        let params = new HttpParams();
+
+        // Add sorting parameters
+        if (sortField && sortDirection) {
+            // Format as order[fieldName]=direction
+            params = params.set(`order[${sortField}]`, sortDirection);
+        }
+
+        // Add search parameters
+        if (searchParams['query']) {
+            // If general search query is provided, search in orderNumber
+            params = params.set('orderNumber', searchParams['query']);
+        }
+
+        // Add isDraft filter if provided
+        if (filters.isDraft !== undefined) {
+            params = params.set('isDraft', filters.isDraft.toString());
+        }
+
+        // Add status filters if provided
+        if (filters.status && filters.status.length > 0) {
+            filters.status.forEach(status => {
+                params = params.append('status[]', status);
+            });
+        }
+
+        // Add any other search parameters
+        Object.keys(searchParams).forEach(key => {
+            if (key !== 'query') { // Skip query as we've already handled it
+                params = params.set(key, searchParams[key]);
+            }
+        });
+
+        return this.http.get(
+            `${this.apiUrl}/export/excel`,
+            {
+                headers: new HttpHeaders({
+                    'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }),
+                params: params,
+                responseType: 'blob'
+            }
+        ).pipe(
+            tap(() => console.log('Excel export requested')),
+            catchError(error => {
+                console.error('Error exporting to Excel:', error);
+                throw error;
+            })
+        );
+    }
+
+    /**
      * Extract total pages from the response
      */
     private extractTotalPages(response: OrdersResponse): number {
@@ -164,5 +224,4 @@ export class OrderService {
             }
         );
     }
-
 }

@@ -14,13 +14,13 @@
         <div class="orders__actions">
             <div class="orders__search">
                 <input
-                    type="text"
-                    placeholder="Search..."
-                    class="orders__search-input"
-                    [ngModel]="searchState().term"
-                    (input)="onSearchInput($event)"
-                    (keyup.enter)="executeSearch()"
-                    #searchInput
+                        type="text"
+                        placeholder="Search..."
+                        class="orders__search-input"
+                        [ngModel]="searchState().term"
+                        (input)="onSearchInput($event)"
+                        (keyup.enter)="executeSearch()"
+                        #searchInput
                 >
                 <button class="orders__search-button" (click)="executeSearch()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -29,10 +29,10 @@
                 </button>
                 <!-- Clear search button - only visible when there's a search term -->
                 <button
-                    *ngIf="searchState().term"
-                    class="orders__clear-search-button"
-                    (click)="clearSearch(); searchInput.focus()"
-                    title="Clear search"
+                        *ngIf="searchState().term"
+                        class="orders__clear-search-button"
+                        (click)="clearSearch(); searchInput.focus()"
+                        title="Clear search"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M4 4L12 12M4 12L12 4" stroke="#71717A" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
@@ -40,7 +40,7 @@
                 </button>
             </div>
 
-            <button class="orders__download-button">
+            <button class="orders__download-button" (click)="downloadExcel()" title="Download Excel">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M14 10V12.6667C14 13.0203 13.8595 13.3594 13.6095 13.6095C13.3594 13.8595 13.0203 14 12.6667 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V10M4.66667 6.66667L8 10M8 10L11.3333 6.66667M8 10V2" stroke="#232323" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -57,32 +57,32 @@
 
         <div class="orders__tabs">
             <button
-                class="orders__tab"
-                [class.orders__tab--active]="filterState().activeTab === 'latest'"
-                (click)="setActiveTab('latest')">
-<!--                <svg *ngIf="filterState().activeTab === 'latest'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
-<!--                    <polyline points="20 6 9 17 4 12"></polyline>-->
-<!--                </svg>-->
+                    class="orders__tab"
+                    [class.orders__tab--active]="filterState().activeTab === 'latest'"
+                    (click)="setActiveTab('latest')">
+                <!--                <svg *ngIf="filterState().activeTab === 'latest'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
+                <!--                    <polyline points="20 6 9 17 4 12"></polyline>-->
+                <!--                </svg>-->
                 Latest
             </button>
 
             <button
-                class="orders__tab"
-                [class.orders__tab--active]="filterState().activeTab === 'completed'"
-                (click)="setActiveTab('completed')">
-<!--                <svg *ngIf="filterState().activeTab === 'completed'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
-<!--                    <polyline points="20 6 9 17 4 12"></polyline>-->
-<!--                </svg>-->
+                    class="orders__tab"
+                    [class.orders__tab--active]="filterState().activeTab === 'completed'"
+                    (click)="setActiveTab('completed')">
+                <!--                <svg *ngIf="filterState().activeTab === 'completed'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
+                <!--                    <polyline points="20 6 9 17 4 12"></polyline>-->
+                <!--                </svg>-->
                 Completed
             </button>
 
             <button
-                class="orders__tab"
-                [class.orders__tab--active]="filterState().activeTab === 'canceled'"
-                (click)="setActiveTab('canceled')">
-<!--                <svg *ngIf="filterState().activeTab === 'canceled'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
-<!--                    <polyline points="20 6 9 17 4 12"></polyline>-->
-<!--                </svg>-->
+                    class="orders__tab"
+                    [class.orders__tab--active]="filterState().activeTab === 'canceled'"
+                    (click)="setActiveTab('canceled')">
+                <!--                <svg *ngIf="filterState().activeTab === 'canceled'" class="orders__tab-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">-->
+                <!--                    <polyline points="20 6 9 17 4 12"></polyline>-->
+                <!--                </svg>-->
                 Canceled
             </button>
         </div>
@@ -97,8 +97,8 @@
         <div *ngIf="ordersState().error" class="orders__error">
             <p>{{ ordersState().error }}</p>
             <button
-                class="orders__retry-button"
-                (click)="loadOrders(
+                    class="orders__retry-button"
+                    (click)="loadOrders(
                 ordersState().currentPage,
                 sortState().field,
                 sortState().direction,
@@ -194,9 +194,9 @@
             <div class="orders__pagination">
                 <!-- Previous page button -->
                 <button
-                    class="orders__page-button"
-                    [disabled]="ordersState().currentPage === 1"
-                    (click)="changePage(ordersState().currentPage - 1)"
+                        class="orders__page-button"
+                        [disabled]="ordersState().currentPage === 1"
+                        (click)="changePage(ordersState().currentPage - 1)"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="15 18 9 12 15 6"></polyline>
@@ -205,19 +205,19 @@
 
                 <!-- Numbered page buttons -->
                 <button
-                    *ngFor="let page of pagesArray()"
-                    class="orders__page-button"
-                    [class.orders__page-button--active]="ordersState().currentPage === page"
-                    (click)="changePage(page)"
+                        *ngFor="let page of pagesArray()"
+                        class="orders__page-button"
+                        [class.orders__page-button--active]="ordersState().currentPage === page"
+                        (click)="changePage(page)"
                 >
                     {{ page }}
                 </button>
 
                 <!-- Next page button -->
                 <button
-                    class="orders__page-button orders__page-button--next"
-                    [disabled]="ordersState().currentPage >= ordersState().totalPages"
-                    (click)="nextPage()"
+                        class="orders__page-button orders__page-button--next"
+                        [disabled]="ordersState().currentPage >= ordersState().totalPages"
+                        (click)="nextPage()"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>

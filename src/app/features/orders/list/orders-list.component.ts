@@ -583,6 +583,10 @@ export class OrdersListComponent implements OnInit, OnDestroy {
         this.showOptions.set(false);
         this.selectedOrderId.set(null);
     }
+
+    /**
+     * Get results text for pagination
+     */
     getResultsText(): string {
         const { currentPage, totalOrders } = this.ordersState();
         const itemsPerPage = 30; // Assuming 30 items per page
@@ -639,5 +643,52 @@ export class OrdersListComponent implements OnInit, OnDestroy {
      */
     countTotalItems(order: Order): number {
         return order.items.reduce((total, item) => total + item.quantity, 0);
+    }
+
+    /**
+     * Download orders as Excel file
+     */
+    downloadExcel(): void {
+        // Show loading state (you can add a loading signal if needed)
+        console.log('Starting Excel download...');
+
+        this.orderService.exportOrdersToExcel(
+            this.sortState().field || undefined,
+            this.sortState().direction || undefined,
+            this.searchState().params,
+            {
+                status: this.filterState().statusFilters[this.filterState().activeTab],
+                isDraft: false
+            }
+        ).subscribe({
+            next: (blob) => {
+                // Create a temporary URL for the blob
+                const url = window.URL.createObjectURL(blob);
+
+                // Create a temporary anchor element for download
+                const anchor = document.createElement('a');
+                anchor.href = url;
+
+                // Generate filename with current date
+                const currentDate = new Date().toISOString().split('T')[0];
+                const activeTab = this.filterState().activeTab;
+                anchor.download = `orders-${activeTab}-${currentDate}.xlsx`;
+
+                // Append to body, click, and remove
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+
+                // Clean up the URL
+                window.URL.revokeObjectURL(url);
+
+                console.log('Excel download completed');
+            },
+            error: (error) => {
+                console.error('Excel download failed:', error);
+                // You can add error handling here, such as showing a toast notification
+                alert('Failed to download Excel file. Please try again.');
+            }
+        });
     }
 }
