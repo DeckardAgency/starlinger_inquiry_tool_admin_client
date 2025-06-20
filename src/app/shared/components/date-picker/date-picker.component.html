@@ -1,13 +1,13 @@
 <div class="date-picker-container">
     <!-- Datepicker input button -->
     <button
-        class="date-picker-button"
-        type="button"
-        [disabled]="disabled()"
-        [attr.aria-expanded]="showCalendar()"
-        [attr.aria-haspopup]="true"
-        [attr.aria-label]="isRange ? 'Select date range' : 'Select date'"
-        (click)="toggleCalendar($event)">
+            class="date-picker-button"
+            type="button"
+            [disabled]="disabled()"
+            [attr.aria-expanded]="showCalendar()"
+            [attr.aria-haspopup]="true"
+            [attr.aria-label]="isRange ? 'Select date range' : 'Select date'"
+            (click)="toggleCalendar($event)">
 
     <span class="date-picker-value" [class.date-picker-placeholder]="isRange ? !startDate() : !selectedDate()">
       {{ displayValue() }}
@@ -17,30 +17,49 @@
 
     <!-- Backdrop when calendar is open -->
     <div
-        class="backdrop"
-        *ngIf="showCalendar()"
-        (click)="onCloseCalendar()"
-        aria-hidden="true">
+            class="backdrop"
+            *ngIf="showCalendar()"
+            (click)="onCloseCalendar()"
+            aria-hidden="true">
     </div>
 
     <!-- Calendar dropdown -->
     <ng-container *ngIf="showCalendar()">
         <div
-            class="calendar-wrapper"
-            [@calendarAnimation]="showCalendar() ? 'visible' : 'hidden'">
+                class="calendar-wrapper"
+                [@calendarAnimation]="showCalendar() ? 'visible' : 'hidden'">
+
+            <!-- Status indicator when selecting range -->
+            <div class="range-selection-status" *ngIf="isRange && showCalendar()">
+                <div class="status-icon"
+                     [class.step-1]="!startDate()"
+                     [class.step-2]="startDate() && !endDate() && isSelectingRange()"
+                     [class.complete]="startDate() && endDate()">
+                    {{ !startDate() ? '1' : (startDate() && !endDate() ? '2' : '✓') }}
+                </div>
+                <div class="status-text">
+                    <span *ngIf="!startDate()">Select start date</span>
+                    <span *ngIf="startDate() && !endDate() && isSelectingRange()">
+                  Select end date (started: <span class="highlight">{{ formatDate(startDate()!) }}</span>)
+                </span>
+                    <span *ngIf="startDate() && endDate()">
+                  Range selected: {{ formatDate(startDate()!) }} - {{ formatDate(endDate()!) }}
+                </span>
+                </div>
+            </div>
 
             <app-calendar
-                [isRange]="isRange"
-                [selectedDate]="selectedDate()"
-                [startDate]="startDate()"
-                [endDate]="endDate()"
-                [minDate]="minDate"
-                [maxDate]="maxDate"
-                [disableFutureDates]="disableFutureDates"
-                [disablePastDates]="disablePastDates"
-                (dateSelected)="onDateSelected($event)"
-                (rangeSelected)="onRangeSelected($event)"
-                (closeCalendar)="onCloseCalendar()">
+                    [isRange]="isRange"
+                    [selectedDate]="selectedDate()"
+                    [startDate]="startDate()"
+                    [endDate]="endDate()"
+                    [minDate]="minDate"
+                    [maxDate]="maxDate"
+                    [disableFutureDates]="disableFutureDates"
+                    [disablePastDates]="disablePastDates"
+                    (dateSelected)="onDateSelected($event)"
+                    (rangeSelected)="onRangeSelected($event)"
+                    (closeCalendar)="onCloseCalendar()">
             </app-calendar>
         </div>
     </ng-container>

@@ -96,6 +96,8 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
   readonly selectedDate = signal<Date | null>(null);
   readonly startDate = signal<Date | null>(null);
   readonly endDate = signal<Date | null>(null);
+  readonly hoveredDate = signal<Date | null>(null);
+  readonly isSelectingRange = signal<boolean>(false);
 
   // Computed display value with memoization
   readonly displayValue = computed(() => {
@@ -224,14 +226,6 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  onDateSelected(date: Date): void {
-    const normalizedDate = this.normalizeDate(date);
-    this.selectedDate.set(normalizedDate);
-    this.showCalendar.set(false);
-    this.onChange(normalizedDate);
-    this.markAsTouched();
-  }
-
   onRangeSelected(range: { start: Date, end: Date }): void {
     const normalizedRange = {
       start: this.normalizeDate(range.start),
@@ -239,12 +233,68 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     };
     this.startDate.set(normalizedRange.start);
     this.endDate.set(normalizedRange.end);
+    this.isSelectingRange.set(false);
+    this.hoveredDate.set(null);
+    this.showCalendar.set(false);
     this.onChange(normalizedRange);
     this.markAsTouched();
   }
 
+  onDateSelected(date: Date): void {
+    if (this.isRange) {
+      // Handle range selection step by step
+      if (!this.startDate()) {
+        // First click - select start date
+        this.startDate.set(this.normalizeDate(date));
+        this.isSelectingRange.set(true);
+        this.markAsTouched();
+      } else if (!this.endDate()) {
+        // Second click - complete the range
+        const endDate = this.normalizeDate(date);
+        const startDate = this.startDate()!;
+
+        // Ensure start is before end
+        if (startDate.getTime() <= endDate.getTime()) {
+          this.onRangeSelected({ start: startDate, end: endDate });
+        } else {
+          this.onRangeSelected({ start: endDate, end: startDate });
+        }
+      } else {
+        // Reset and start new selection
+        this.startDate.set(this.normalizeDate(date));
+        this.endDate.set(null);
+        this.isSelectingRange.set(true);
+        this.markAsTouched();
+      }
+    } else {
+      // Single date selection
+      const normalizedDate = this.normalizeDate(date);
+      this.selectedDate.set(normalizedDate);
+      this.showCalendar.set(false);
+      this.onChange(normalizedDate);
+      this.markAsTouched();
+    }
+  }
+
+  onRangeStartSelected(date: Date): void {
+    const normalizedDate = this.normalizeDate(date);
+    this.startDate.set(normalizedDate);
+    this.endDate.set(null);
+    this.isSelectingRange.set(true);
+    this.hoveredDate.set(null);
+    this.markAsTouched();
+  }
+
+  onDateHovered(date: Date | null): void {
+    if (this.isRange && this.isSelectingRange()) {
+      this.hoveredDate.set(date ? this.normalizeDate(date) : null);
+    }
+  }
+
   onCloseCalendar(): void {
     this.showCalendar.set(false);
+    this.isSelectingRange.set(false);
+    this.hoveredDate.set(null);
     this.markAsTouched();
   }
 
@@ -256,6 +306,8 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     };
     this.startDate.set(range.start);
     this.endDate.set(range.end);
+    this.isSelectingRange.set(false);
+    this.hoveredDate.set(null);
     this.onChange(range);
     this.markAsTouched();
   }
@@ -270,6 +322,8 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
   clearSelection(): void {
     this.storageManager.clear();
     this.resetValues();
+    this.isSelectingRange.set(false);
+    this.hoveredDate.set(null);
     this.onChange(null);
     this.markAsTouched();
   }
@@ -299,7 +353,7 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     }
   }
 
-  private formatDate(date: Date): string {
+  formatDate(date: Date): string {
     return this.datePipe.transform(date, this.dateFormat) || '';
   }
 
@@ -311,6 +365,8 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
     this.selectedDate.set(null);
     this.startDate.set(null);
     this.endDate.set(null);
+    this.isSelectingRange.set(false);
+    this.hoveredDate.set(null);
   }
 
   private isRangeValue(value: any): value is { start: Date, end: Date } {
