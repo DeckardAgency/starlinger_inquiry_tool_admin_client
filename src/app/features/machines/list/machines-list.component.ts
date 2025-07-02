@@ -6,10 +6,11 @@ import { MachineService } from "@services/http/machine.service";
 import { Machine } from "@models/machine.model";
 import { BreadcrumbsComponent } from "@shared/components/ui/breadcrumbs/breadcrumbs.component";
 import { PaginationLinks } from "@models/machine.model";
+import {DateFilterPipe} from "@shared/pipes/date-filter.pipe";
 
 @Component({
     selector: 'app-machines-list',
-    imports: [CommonModule, BreadcrumbsComponent],
+    imports: [CommonModule, BreadcrumbsComponent, DateFilterPipe],
     templateUrl: './machines-list.component.html',
     styleUrls: ['./machines-list.component.scss'],
     providers: [MachineService]

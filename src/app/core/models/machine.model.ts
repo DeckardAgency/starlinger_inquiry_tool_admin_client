@@ -31,7 +31,7 @@ export interface Machine extends JsonLdContext {
     articleNumber: string;
     articleDescription: string;
     orderNumber: string;
-    deliveryDate: string;
+    deliveryDate?: string | Date | null;
     kmsIdentificationNumber: string;
     kmsIdNumber: string;
     mcNumber: string;

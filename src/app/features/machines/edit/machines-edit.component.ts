@@ -360,6 +360,36 @@ export class MachinesEditComponent implements OnInit {
             { label: machineData.articleDescription || 'Edit Machine' },
         ];
 
+        // Helper function to format date for HTML date input
+        const formatDateForInput = (dateValue: any): string | null => {
+            if (!dateValue) return null;
+
+            try {
+                let date: Date;
+
+                // Handle different date formats
+                if (typeof dateValue === 'string') {
+                    date = new Date(dateValue);
+                } else if (dateValue instanceof Date) {
+                    date = dateValue;
+                } else {
+                    return null;
+                }
+
+                // Check if date is valid
+                if (isNaN(date.getTime())) {
+                    console.warn('Invalid date value:', dateValue);
+                    return null;
+                }
+
+                // Format as YYYY-MM-DD for HTML date input
+                return date.toISOString().split('T')[0];
+            } catch (error) {
+                console.error('Error formatting date:', dateValue, error);
+                return null;
+            }
+        };
+
         // Map the machine data to the form fields
         this.machineForm.patchValue({
             ibStationNumber: machineData.ibStationNumber,
@@ -367,20 +397,21 @@ export class MachinesEditComponent implements OnInit {
             articleNumber: machineData.articleNumber,
             articleDescription: machineData.articleDescription,
             orderNumber: machineData.orderNumber,
-            deliveryDate: machineData.deliveryDate,
+            deliveryDate: formatDateForInput(machineData.deliveryDate), // Format the date
             kmsIdentificationNumber: machineData.kmsIdentificationNumber,
             kmsIdNumber: machineData.kmsIdNumber,
             mcNumber: machineData.mcNumber,
             fiStationNumber: machineData.fiStationNumber,
             fiSerialNumber: machineData.fiSerialNumber,
-            mainWarrantyEnd: machineData.mainWarrantyEnd,
-            extendedWarrantyEnd: machineData.extendedWarrantyEnd,
+            mainWarrantyEnd: formatDateForInput(machineData.mainWarrantyEnd), // Format warranty dates too
+            extendedWarrantyEnd: formatDateForInput(machineData.extendedWarrantyEnd),
             // Handle the MediaItem objects appropriately
             featuredImage: machineData.featuredImage,
             // For the image gallery, we set it directly to the array of media items
             imageGallery: machineData.imageGallery || []
         });
 
-        console.log('machineForm', this.machineForm);
+        console.log('machineForm after update:', this.machineForm.value);
+        console.log('deliveryDate value:', this.machineForm.get('deliveryDate')?.value);
     }
 }

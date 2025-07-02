@@ -94,11 +94,11 @@
                     <td class="machine-list__table-cell machine-list__table-cell--select">
                         <div class="machine-list__checkbox-container">
                             <input
-                                    type="checkbox"
-                                    class="machine-list__checkbox"
-                                    [id]="'select-' + machine.id"
-                                    [checked]="isMachineSelected(machine.id)"
-                                    (change)="toggleSelectMachine($event, machine.id)"
+                                type="checkbox"
+                                class="machine-list__checkbox"
+                                [id]="'select-' + machine.id"
+                                [checked]="isMachineSelected(machine.id)"
+                                (change)="toggleSelectMachine($event, machine.id)"
                             >
                             <label [for]="'select-' + machine.id" class="machine-list__checkbox-label"></label>
                         </div>
@@ -107,7 +107,7 @@
                     <td class="machine-list__table-cell">{{ machine.articleNumber }}</td>
                     <td class="machine-list__table-cell">{{ machine.articleDescription }}</td>
                     <td class="machine-list__table-cell">{{ machine.orderNumber }}</td>
-                    <td class="machine-list__table-cell">{{ machine.deliveryDate | date:'shortDate' }}</td>
+                    <td class="machine-list__table-cell">{{ machine.deliveryDate | dateFilter:'dd.MM.yyyy' }}</td>
                     <td class="machine-list__table-cell">{{ machine.mcNumber }}</td>
                     <td class="machine-list__table-cell">{{ machine.mainWarrantyEnd | date:'shortDate' }}</td>
                     <td class="machine-list__table-cell machine-list__table-cell--actions">
