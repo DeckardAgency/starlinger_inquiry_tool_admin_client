@@ -47,15 +47,15 @@
 
   &__search {
     position: relative;
-    width: 15.625rem;
+    //width: 15.625rem;
   }
 
   &__search-input {
-    padding: 0.625rem 2.5rem 0.625rem 1rem;
+    padding: 0.7rem 2.5rem 0.7rem 1rem;
     border: 1px solid #ddd;
     border-radius: 0.25rem;
     font-size: 0.875rem;
-    width: 100%;
+    //width: 100%;
 
     &:focus {
       outline: none;
