@@ -298,6 +298,7 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = image.name;
+                link.target = '_blank'; // Open in new tab
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -305,11 +306,9 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
             })
             .catch(err => {
                 console.error('Download failed:', err);
-                // Fallback to direct link
-                const link = document.createElement('a');
-                link.href = `${environment.apiBaseUrl}${image.url}`;
-                link.download = image.name;
-                link.click();
+                // Fallback to direct link in new tab
+                const imageUrl = `${environment.apiBaseUrl}${image.url}`;
+                window.open(imageUrl, '_blank');
             });
 
         this.closeAllMenus();
@@ -421,11 +420,13 @@ export class ProductImageGalleryComponent implements OnInit, OnChanges {
     downloadAllImages(): void {
         if (!this.galleryImages.length) return;
 
-        // Download with proper delay to avoid browser blocking
+        // Open each image in a new tab with proper delay to avoid browser blocking
         this.galleryImages.forEach((image, index) => {
             setTimeout(() => {
-                this.downloadImage(image.id);
-            }, index * 150);
+                const imageUrl = `${environment.apiBaseUrl}${image.url}`;
+                // Open each image in a new tab
+                window.open(imageUrl, '_blank');
+            }, index * 200); // 200ms delay between each tab opening
         });
     }
 
