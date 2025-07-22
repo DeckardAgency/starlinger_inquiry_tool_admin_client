@@ -60,8 +60,16 @@ export class MachineService {
         }
 
         // Add search parameters
+        if (searchParams['articleDescription']) {
+            // If searching by articleDescription, add it as a filter parameter
+            params = params.set('articleDescription', searchParams['articleDescription']);
+        }
+
+        // Add any other search parameters
         Object.keys(searchParams).forEach(key => {
-            params = params.set(key, searchParams[key]);
+            if (key !== 'articleDescription') { // Skip articleDescription as we've already added it above
+                params = params.set(key, searchParams[key]);
+            }
         });
 
         // Log request parameters for debugging

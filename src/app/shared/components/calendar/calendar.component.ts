@@ -44,11 +44,11 @@ interface DateRestrictions {
 }
 
 @Component({
-    selector: 'app-calendar',
-    imports: [CommonModule, DatePipe],
-    templateUrl: './calendar.component.html',
-    styleUrls: ['./calendar.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-calendar',
+  imports: [CommonModule, DatePipe],
+  templateUrl: './calendar.component.html',
+  styleUrls: ['./calendar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   private readonly destroyRef = inject(DestroyRef);
@@ -534,6 +534,17 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
   }
 
   private handleRangeSelection(date: Date): void {
+    // If we have a complete range, reset and start new selection
+    if (this.startDate && this.endDate) {
+      this.startDate = new Date(date);
+      this.endDate = null;
+      this.selectionInProgress.set(true);
+      this.hoverDate.set(null);
+      // Immediately regenerate calendar to show the new selection
+      this.generateCalendarDays();
+      return;
+    }
+
     if (!this.selectionInProgress() || !this.startDate) {
       this.startDate = new Date(date);
       this.endDate = null;
