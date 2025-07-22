@@ -22,6 +22,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { fromEvent } from 'rxjs';
 import { filter, debounceTime } from 'rxjs/operators';
 
+/**
+ * Represents a date in the calendar grid with its various states
+ */
 export interface CalendarDate {
   date: Date;
   isCurrentMonth: boolean;
@@ -31,6 +34,11 @@ export interface CalendarDate {
   isRangeStart: boolean;
   isRangeEnd: boolean;
   isHovered: boolean;
+  /**
+   * Indicates that this date is the start of a range selection in progress (no end date selected yet).
+   * Used to provide enhanced visual feedback during range selection.
+   */
+  isActiveRangeStart: boolean;
   monthIndex: number;
   isDisabled: boolean;
   dateTime: number; // Pre-calculated for performance
@@ -260,13 +268,17 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
   }
 
   generateCalendarDays(): void {
+    // Clear cache to ensure fresh generation
+    this.daysMemo.clear();
     this.firstMonthDays.set(this.generateMonthDays(this.currentMonth(), 0));
     this.secondMonthDays.set(this.generateMonthDays(this.nextMonth(), 1));
   }
 
   generateMonthDays(month: Date, monthIndex: number): CalendarDate[] {
-    // Use memoization for performance
-    const cacheKey = `${month.getTime()}-${monthIndex}-${JSON.stringify(this.dateRestrictions())}`;
+    // Use memoization for performance with selection state included in cache key
+    const selectionState = `${this.startDate?.getTime() || 'null'}-${this.endDate?.getTime() || 'null'}-${this.selectionInProgress()}-${this.hoverDate()?.getTime() || 'null'}`;
+    const cacheKey = `${month.getTime()}-${monthIndex}-${selectionState}-${JSON.stringify(this.dateRestrictions())}`;
+
     if (this.daysMemo.has(cacheKey)) {
       return this.daysMemo.get(cacheKey)!;
     }
@@ -278,9 +290,10 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
 
     // Pre-calculate common values
     const monthTime = month.getMonth();
-    const startTime = this.startDate?.setHours(0, 0, 0, 0);
-    const endTime = this.endDate?.setHours(0, 0, 0, 0);
-    const hoverTime = this.hoverDate()?.setHours(0, 0, 0, 0);
+    // Create fresh date copies to avoid mutation issues
+    const startTime = this.startDate ? new Date(this.startDate).setHours(0, 0, 0, 0) : undefined;
+    const endTime = this.endDate ? new Date(this.endDate).setHours(0, 0, 0, 0) : undefined;
+    const hoverTime = this.hoverDate() ? new Date(this.hoverDate()!).setHours(0, 0, 0, 0) : undefined;
 
     for (let i = 0; i < 42; i++) {
       const currentDate = new Date(firstDayToShow);
@@ -322,6 +335,7 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
     let isRangeStart = false;
     let isRangeEnd = false;
     let isHovered = false;
+    let isActiveRangeStart = false;
 
     // Single date selection
     if (!this.isRange && this.selectedDate) {
@@ -331,17 +345,29 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
     // Range selection logic
     if (this.isRange) {
       if (this.startDate && this.endDate && startTime && endTime) {
+        // We have a complete range
         isRangeStart = this.isSameDay(date, this.startDate);
         isRangeEnd = this.isSameDay(date, this.endDate);
         isInRange = isCurrentMonth && dateTime >= startTime && dateTime <= endTime;
       } else if (this.startDate && !this.endDate && startTime) {
+        // We're in the middle of selecting a new range
         isRangeStart = this.isSameDay(date, this.startDate);
 
-        if (hoverTime && isCurrentMonth) {
+        // Set isActiveRangeStart when this is the start date and no end date is selected yet
+        // This provides enhanced visual feedback to indicate that a range selection is in progress
+        // and helps users understand they need to select an end date to complete the range
+        isActiveRangeStart = isRangeStart && this.selectionInProgress();
+
+        if (hoverTime && isCurrentMonth && !isDisabled) {
           isHovered = dateTime === hoverTime;
-          isInRange = hoverTime >= startTime
-              ? (dateTime > startTime && dateTime < hoverTime)
-              : (dateTime < startTime && dateTime > hoverTime);
+
+          // Highlight dates between start date and hover date
+          // Exclude the start date itself from isInRange to avoid double styling
+          if (hoverTime >= startTime) {
+            isInRange = dateTime > startTime && dateTime < hoverTime;
+          } else {
+            isInRange = dateTime < startTime && dateTime > hoverTime;
+          }
         }
       }
     }
@@ -356,6 +382,7 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
       isRangeStart,
       isRangeEnd,
       isHovered,
+      isActiveRangeStart,
       monthIndex,
       isDisabled
     };
@@ -526,11 +553,10 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
     if (!this.isRange) {
       this.selectedDate = new Date(date);
       this.dateSelected.emit(new Date(date));
+      this.generateCalendarDays();
     } else {
       this.handleRangeSelection(date);
     }
-
-    this.generateCalendarDays();
   }
 
   private handleRangeSelection(date: Date): void {
@@ -540,7 +566,7 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
       this.endDate = null;
       this.selectionInProgress.set(true);
       this.hoverDate.set(null);
-      // Immediately regenerate calendar to show the new selection
+      // Force immediate regeneration
       this.generateCalendarDays();
       return;
     }
@@ -549,6 +575,8 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
       this.startDate = new Date(date);
       this.endDate = null;
       this.selectionInProgress.set(true);
+      // Force immediate regeneration
+      this.generateCalendarDays();
     } else {
       const selectedTime = date.getTime();
       const startTime = this.startDate.getTime();
@@ -562,6 +590,10 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
 
       this.selectionInProgress.set(false);
       this.hoverDate.set(null);
+
+      // Force immediate regeneration before emitting
+      this.generateCalendarDays();
+
       this.rangeSelected.emit({
         start: new Date(this.startDate),
         end: new Date(this.endDate)

@@ -149,6 +149,30 @@
     z-index: 2; // Keep range endpoints above the range line
   }
 
+  // Override for active range start to ensure it's always visible
+  &.active-range-start {
+    background-color: #e74c3c !important;
+    color: white !important;
+    font-weight: 500;
+    z-index: 3;
+    position: relative;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.5);
+    animation: activeStartPulse 1.5s infinite;
+
+    // Add a subtle indicator to show it's waiting for end date
+    &::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #e74c3c;
+      animation: blink 1s infinite;
+    }
+  }
+
   &.in-range {
     background-color: #fadbd8;
     border-radius: 0;
@@ -168,6 +192,11 @@
       animation: gradientMove 2s ease infinite;
       z-index: -1;
       pointer-events: none;
+    }
+
+    // Special styling for in-range during active selection
+    &:not(.range-start):not(.range-end) {
+      opacity: 0.8;
     }
   }
 
@@ -192,9 +221,39 @@
     }
   }
 
+  &.active-range-start {
+    background-color: #e74c3c;
+    color: white;
+    font-weight: 500;
+    z-index: 3;
+    position: relative;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.5);
+    animation: activeStartPulse 1.5s infinite;
+
+    // Add a subtle indicator to show it's waiting for end date
+    &::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #e74c3c;
+      animation: blink 1s infinite;
+    }
+  }
+
+  &.range-start:not(.active-range-start) {
+    background-color: #e74c3c;
+    color: white;
+    font-weight: 500;
+    z-index: 2;
+  }
+
   &.range-start {
-    // Create a connecting line to the right
-    &::after {
+    // Create a connecting line to the right when part of a complete range
+    &:not(.active-range-start).in-range::after {
       content: '';
       position: absolute;
       height: 100%;
@@ -202,12 +261,18 @@
       right: 0;
       background-color: #fadbd8;
       z-index: -1;
+      border-radius: 0;
     }
   }
 
   &.range-end {
-    // Create a connecting line to the left
-    &::after {
+    background-color: #e74c3c;
+    color: white;
+    font-weight: 500;
+    z-index: 2;
+
+    // Create a connecting line to the left when part of a complete range
+    &.in-range::after {
       content: '';
       position: absolute;
       height: 100%;
@@ -365,6 +430,32 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+// Animation for active range start pulsing
+@keyframes activeStartPulse {
+  0% {
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.3);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.5);
+    transform: scale(1);
+  }
+}
+
+// Animation for blinking indicator
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
   }
 }
 
