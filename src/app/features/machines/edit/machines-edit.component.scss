@@ -185,6 +185,48 @@
     }
   }
 
+  // Date picker wrapper styles
+  &__date-picker-wrapper {
+    flex: 1;
+    max-width: 75%;
+
+    // Override date-picker component styles to match input styling
+    ::ng-deep {
+      .date-picker-container {
+        max-width: 100%;
+      }
+
+      .date-picker-button {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        line-height: 1.44rem;
+        min-height: auto;
+        height: auto;
+        transition: border-color 0.2s;
+
+        &:hover:not(:disabled) {
+          border-color: #aaa;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: #0074d9;
+          box-shadow: 0 0 0 2px rgba(0, 116, 217, 0.25);
+        }
+      }
+
+      .date-picker-value {
+        font-size: 0.875rem;
+      }
+
+      .calendar-icon {
+        font-size: 1rem;
+      }
+    }
+  }
+
   &__tabs {
     display: flex;
     border-bottom: 1px solid #ddd;
@@ -420,7 +462,8 @@
       align-items: stretch;
     }
 
-    &__input {
+    &__input,
+    &__date-picker-wrapper {
       max-width: 100%;
     }
 

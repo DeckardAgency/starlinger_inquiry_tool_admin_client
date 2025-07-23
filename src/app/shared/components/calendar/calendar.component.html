@@ -1,18 +1,18 @@
-<div class="calendar-backdrop" *ngIf="true" aria-hidden="true"></div>
 <div class="calendar-container"
+     [class.calendar-container--single-month]="monthsToShow === 1"
      role="dialog"
      aria-label="Date picker"
      [attr.aria-modal]="true"
      (mouseup)="$event.stopPropagation()"
      (keydown)="handleKeyDown($event)">
 
-    <div class="calendar-grid">
+    <div class="calendar-grid" [class.calendar-grid--single-month]="monthsToShow === 1">
         <!-- First month -->
         <div class="month">
             <div class="month-header">
                 <button class="nav-button"
-                    (click)="prevMonth()"
-                    aria-label="Previous month">
+                        (click)="prevMonth()"
+                        aria-label="Previous month">
                     &lt;
                 </button>
                 <span class="month-title" id="month-title-1">{{ firstMonthName() }}</span>
@@ -52,8 +52,8 @@
             </div>
         </div>
 
-        <!-- Second month -->
-        <div class="month">
+        <!-- Second month - only show if monthsToShow is 2 -->
+        <div class="month" *ngIf="monthsToShow === 2">
             <div class="month-header">
                 <span class="month-title" id="month-title-2">{{ secondMonthName() }}</span>
                 <button class="nav-button"

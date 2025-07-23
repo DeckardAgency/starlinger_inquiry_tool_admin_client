@@ -20,6 +20,7 @@ import {
     ProductFeaturedImageComponent
 } from "@shared/components/product-featured-image/product-featured-image.component";
 import {ProductImageGalleryComponent} from "@shared/components/product-image-gallery/product-image-gallery.component";
+import { DatePickerComponent } from "@shared/components/date-picker/date-picker.component";
 
 @Component({
     selector: 'app-machines-edit',
@@ -30,6 +31,7 @@ import {ProductImageGalleryComponent} from "@shared/components/product-image-gal
         BreadcrumbsComponent,
         ProductFeaturedImageComponent,
         ProductImageGalleryComponent,
+        DatePickerComponent, // Add the DatePickerComponent import
     ],
     templateUrl: './machines-edit.component.html',
     styleUrls: ['./machines-edit.component.scss'],
@@ -148,7 +150,7 @@ export class MachinesEditComponent implements OnInit {
             articleNumber: [''],
             articleDescription: [''],
             orderNumber: [''],
-            deliveryDate: [''],
+            deliveryDate: [null], // Changed to null for Date object
 
             // KMS & MC info
             kmsIdentificationNumber: [''],
@@ -160,8 +162,8 @@ export class MachinesEditComponent implements OnInit {
             fiSerialNumber: [''],
 
             // Warranty info
-            mainWarrantyEnd: [''],
-            extendedWarrantyEnd: [''],
+            mainWarrantyEnd: [null], // Changed to null for Date object
+            extendedWarrantyEnd: [null], // Changed to null for Date object
 
             // Media
             featuredImage: [null],
@@ -183,7 +185,7 @@ export class MachinesEditComponent implements OnInit {
 
             // Get the machine ID from the route parameters
             const machineId = this.route.snapshot.paramMap.get('id');
-            const machineData = this.machineForm.value;
+            const machineData = this.prepareMachineDataForSave();
 
             // Determine if we're updating an existing machine or creating a new one
             if (machineId) {
@@ -246,7 +248,7 @@ export class MachinesEditComponent implements OnInit {
 
             // Get the machine ID from the route parameters
             const machineId = this.route.snapshot.paramMap.get('id');
-            const machineData = this.machineForm.value;
+            const machineData = this.prepareMachineDataForSave();
 
             // Determine if we're updating an existing machine or creating a new one
             if (machineId) {
@@ -305,6 +307,26 @@ export class MachinesEditComponent implements OnInit {
     }
 
     /**
+     * Prepares machine data for saving, converting Date objects to appropriate format
+     */
+    private prepareMachineDataForSave(): any {
+        const formValue = this.machineForm.value;
+
+        // Helper function to format date for API
+        const formatDateForAPI = (date: Date | null): string | null => {
+            if (!date || !(date instanceof Date)) return null;
+            return date.toISOString();
+        };
+
+        return {
+            ...formValue,
+            deliveryDate: formatDateForAPI(formValue.deliveryDate),
+            mainWarrantyEnd: formatDateForAPI(formValue.mainWarrantyEnd),
+            extendedWarrantyEnd: formatDateForAPI(formValue.extendedWarrantyEnd)
+        };
+    }
+
+    /**
      * Helper method to mark all controls in a form group as touched
      * @param formGroup - The FormGroup to touch all controls in
      */
@@ -360,8 +382,8 @@ export class MachinesEditComponent implements OnInit {
             { label: machineData.articleDescription || 'Edit Machine' },
         ];
 
-        // Helper function to format date for HTML date input
-        const formatDateForInput = (dateValue: any): string | null => {
+        // Helper function to convert date string to Date object
+        const parseDateValue = (dateValue: any): Date | null => {
             if (!dateValue) return null;
 
             try {
@@ -382,10 +404,9 @@ export class MachinesEditComponent implements OnInit {
                     return null;
                 }
 
-                // Format as YYYY-MM-DD for HTML date input
-                return date.toISOString().split('T')[0];
+                return date;
             } catch (error) {
-                console.error('Error formatting date:', dateValue, error);
+                console.error('Error parsing date:', dateValue, error);
                 return null;
             }
         };
@@ -397,14 +418,14 @@ export class MachinesEditComponent implements OnInit {
             articleNumber: machineData.articleNumber,
             articleDescription: machineData.articleDescription,
             orderNumber: machineData.orderNumber,
-            deliveryDate: formatDateForInput(machineData.deliveryDate), // Format the date
+            deliveryDate: parseDateValue(machineData.deliveryDate), // Convert to Date object
             kmsIdentificationNumber: machineData.kmsIdentificationNumber,
             kmsIdNumber: machineData.kmsIdNumber,
             mcNumber: machineData.mcNumber,
             fiStationNumber: machineData.fiStationNumber,
             fiSerialNumber: machineData.fiSerialNumber,
-            mainWarrantyEnd: formatDateForInput(machineData.mainWarrantyEnd), // Format warranty dates too
-            extendedWarrantyEnd: formatDateForInput(machineData.extendedWarrantyEnd),
+            mainWarrantyEnd: parseDateValue(machineData.mainWarrantyEnd), // Convert to Date object
+            extendedWarrantyEnd: parseDateValue(machineData.extendedWarrantyEnd), // Convert to Date object
             // Handle the MediaItem objects appropriately
             featuredImage: machineData.featuredImage,
             // For the image gallery, we set it directly to the array of media items

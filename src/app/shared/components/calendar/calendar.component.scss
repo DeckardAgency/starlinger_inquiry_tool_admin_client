@@ -10,6 +10,11 @@
   left: auto; /* Ensure it doesn't use left positioning */
   z-index: 1000;
 
+  // Single month variant
+  &--single-month {
+    max-width: 310px;
+  }
+
   /* Add better mobile support */
   @media (max-width: 768px) {
     max-width: 100%;
@@ -32,6 +37,11 @@
 .calendar-grid {
   display: flex;
   gap: 20px;
+
+  // Single month variant
+  &--single-month {
+    justify-content: center;
+  }
 
   /* Stack calendar months vertically on small screens */
   @media (max-width: 768px) {

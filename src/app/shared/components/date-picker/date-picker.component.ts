@@ -77,6 +77,7 @@ export class DatePickerComponent implements OnInit, ControlValueAccessor {
   @Input() placeholder = 'Select date';
   @Input() rangePlaceholder = 'Select date range';
   @Input() dateFormat = 'mediumDate';
+  @Input() monthsToShow: 1 | 2 = 2; // New input for number of months to display
 
   // Date restrictions
   @Input() minDate: Date | null = null;

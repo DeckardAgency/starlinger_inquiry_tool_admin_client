@@ -71,6 +71,7 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
   @Input() selectedDate: Date | null = null;
   @Input() startDate: Date | null = null;
   @Input() endDate: Date | null = null;
+  @Input() monthsToShow: 1 | 2 = 2; // New input for number of months
 
   // Date restriction inputs
   @Input() minDate: Date | null = null;
@@ -124,18 +125,6 @@ export class CalendarComponent implements OnInit, OnDestroy, AfterViewInit, OnCh
   }));
 
   constructor() {
-    // Debounced click outside handler for better performance
-    fromEvent<MouseEvent>(document, 'click')
-        .pipe(
-            debounceTime(10),
-            filter(event =>
-                this.elementRef.nativeElement &&
-                !this.elementRef.nativeElement.contains(event.target)
-            ),
-            takeUntilDestroyed(this.destroyRef)
-        )
-        .subscribe(() => this.closeCalendar.emit());
-
     // Optimized keyboard handler
     fromEvent<KeyboardEvent>(document, 'keydown')
         .pipe(
