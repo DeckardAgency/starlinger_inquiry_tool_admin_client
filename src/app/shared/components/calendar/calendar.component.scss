@@ -118,7 +118,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border-radius: 50%;
+  border-radius: 4px;
   font-size: 14px;
   transition: all 0.2s ease;
   position: relative;
@@ -167,7 +167,7 @@
       right: -4px;
       width: 8px;
       height: 8px;
-      border-radius: 50%;
+      border-radius: 4px;
       background-color: #e74c3c;
       animation: blink 1s infinite;
     }
@@ -215,7 +215,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      border-radius: 50%;
+      border-radius: 4px;
       box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.4);
       animation: pulse 1.5s infinite;
     }
